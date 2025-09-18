@@ -28,6 +28,10 @@ define(
             {
                 type: 'checkoutcom_flow',
                 component: 'CheckoutCom_Magento2/js/flow/view/payment/checkoutcom_flow'
+            },
+            {
+                type: 'checkoutcom_vault',
+                component: 'CheckoutCom_Magento2/js/frames/view/payment/method-renderer/checkoutcom_vault'
             }
         );
 

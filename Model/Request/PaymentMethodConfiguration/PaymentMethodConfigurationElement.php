@@ -22,26 +22,51 @@ namespace CheckoutCom\Magento2\Model\Request\PaymentMethodConfiguration;
 use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentMethodConfiguration;
 use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentMethodConfigurationFactory;
 use CheckoutCom\Magento2\Model\Request\Base\PaymentConfigurationDetailsElement;
+use CheckoutCom\Magento2\Provider\CardPaymentSettings;
+use Exception;
 use Magento\Customer\Api\Data\CustomerInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 class PaymentMethodConfigurationElement
 {
     protected PaymentMethodConfigurationFactory $modelFactory;
     protected PaymentConfigurationDetailsElement $paymentDetailsElement;
+    protected CardPaymentSettings $cardPaymentSettings;
+    protected StoreManagerInterface $storeManager;
+    protected LoggerInterface $logger;
 
     public function __construct(
         PaymentMethodConfigurationFactory $modelFactory,
-        PaymentConfigurationDetailsElement $paymentDetailsElement
+        PaymentConfigurationDetailsElement $paymentDetailsElement,
+        CardPaymentSettings $cardPaymentSettings,
+        StoreManagerInterface $storeManager,
+        LoggerInterface $logger
     ) {
         $this->modelFactory = $modelFactory;
         $this->paymentDetailsElement = $paymentDetailsElement;
+        $this->cardPaymentSettings = $cardPaymentSettings;
+        $this->storeManager = $storeManager;
+        $this->logger = $logger;
     }
 
     public function get(CustomerInterface $customer): PaymentMethodConfiguration
     {
         $model = $this->modelFactory->create();
 
-        $model->card = $this->paymentDetailsElement->get($customer);
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $websiteCode = null;
+
+            $this->logger->error(
+                sprintf("Unable to fetch website code or store code: %s", $error->getMessage()),
+            );
+        }
+
+        $saveCard = $this->cardPaymentSettings->isSaveCardEnabled($websiteCode);
+
+        $model->card = $this->paymentDetailsElement->get($customer, $saveCard);
         $model->applepay = $this->paymentDetailsElement->get($customer);
         $model->googlepay = $this->paymentDetailsElement->get($customer);
 
