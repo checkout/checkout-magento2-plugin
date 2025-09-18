@@ -215,7 +215,7 @@ define(
                             }
                         },
                         onError: (component, error) => {
-                            let payment_id = error.details && error.details.paymentId
+                            let payment_id = error.details && error.details.paymentId;
 
                             Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
                             Utilities.log("Error with payment method " + component.type, error);
