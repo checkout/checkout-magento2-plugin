@@ -464,6 +464,15 @@ define(
             cleanCustomerShippingAddress: function() {
                 CheckoutData.setNewCustomerShippingAddress(null);
             },
+
+            redirectFailedPayment: function (token) {
+                let url = token ? Url.build(
+                    'checkout_com/payment/fail?cko-session-id=' +
+                    token) :
+                    Url.build('checkout_com/payment/fail');
+
+                window.location.href = url;
+            }
         };
     }
 );
