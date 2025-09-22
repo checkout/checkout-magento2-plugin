@@ -18,180 +18,137 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Request;
 
-use Checkout\Common\Product as CheckoutProduct;
-use Checkout\Common\ProductFactory as CheckoutProductFactory;
-use Checkout\Payments\BillingDescriptor;
-use Checkout\Payments\BillingDescriptorFactory;
 use Checkout\Payments\PaymentType;
 use CheckoutCom\Magento2\Gateway\Config\Config;
-use CheckoutCom\Magento2\Helper\Logger;
-use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Formatter\LocaleFormatter;
+use CheckoutCom\Magento2\Model\Formatter\PriceFormatter;
 use CheckoutCom\Magento2\Model\Methods\PayByLinkMethod;
 use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentLinkRequest;
 use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentLinkRequestFactory;
 use CheckoutCom\Magento2\Model\Request\Billing\BillingElement;
+use CheckoutCom\Magento2\Model\Request\BillingDescriptor\BillingDescriptorElement;
 use CheckoutCom\Magento2\Model\Request\PaymentMethodAvailability\EnabledDisabledElement;
+use CheckoutCom\Magento2\Model\Request\Product\ProductElement;
 use CheckoutCom\Magento2\Model\Request\Risk\RiskElement;
 use CheckoutCom\Magento2\Model\Request\Shipping\ShippingElement;
 use CheckoutCom\Magento2\Model\Request\ThreeDS\ThreeDSElement;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
-use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Provider\AccountSettings;
 use CheckoutCom\Magento2\Provider\ExternalSettings;
-use CheckoutCom\Magento2\Provider\FlowMethodSettings;
-use Magento\Backend\Model\Auth\Session;
-use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Message\ManagerInterface;
+use CheckoutCom\Magento2\Provider\GeneralSettings;
+use Exception;
 use Magento\Sales\Api\Data\OrderInterface;
-use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
-
+use Psr\Log\LoggerInterface;
 class PostPaymentLinks
 {
-    private Session $backendAuthSession;
-    private ManagerInterface $messageManager;
     private ApiHandlerService $apiHandler;
-    private OrderHandlerService $orderHandler;
     private Config $config;
-    private Utilities $utilities;
-    private Logger $logger;
-    private BillingElement $billingElement;
     private StoreManagerInterface $storeManager;
-    private ExternalSettings $externalSettings;
     private AccountSettings $accountSettings;
-    private ShippingElement $shippingElement;
-    private OrderHandlerService $orderHandlerService;
-    private ThreeDSElement $threeDSElement;
-    private RiskElement $riskElement;
-    private FlowMethodSettings $flowMethodSettings;
-    private EnabledDisabledElement $enabledDisabledElement;
+    private ExternalSettings $externalSettings;
+    private GeneralSettings $generalSettings;
     private PaymentLinkRequestFactory $paymentLinkRequestFactory;
-    private BillingDescriptorFactory $billingDescriptorFactory;
-    private CheckoutProductFactory $checkoutProductFactory;
+    private BillingElement $billingElement;
+    private BillingDescriptorElement $billingDescriptorElement;
+    private EnabledDisabledElement $enabledDisabledElement;
+    private ProductElement $productElement;
+    private RiskElement $riskElement;
+    private ShippingElement $shippingElement;
+    private ThreeDSElement $threeDSElement;
+    private LocaleFormatter $localeFormatter;
+    private PriceFormatter $priceFormatter;
+    private LoggerInterface $logger;
 
     public function __construct(
-        Session $backendAuthSession,
-        ManagerInterface $messageManager,
         ApiHandlerService $apiHandler,
-        OrderHandlerService $orderHandler,
         Config $config,
-        Utilities $utilities,
-        Logger $logger,
-        BillingElement $billingElement,
-        ExternalSettings $externalSettings,
-        AccountSettings $accountSettings,
         StoreManagerInterface $storeManager,
-        ShippingElement $shippingElement,
-        OrderHandlerService $orderHandlerService,
-        ThreeDSElement $threeDSElement,
-        RiskElement $riskElement,
-        FlowMethodSettings $flowMethodSettings,
         PaymentLinkRequestFactory $paymentLinkRequestFactory,
-        BillingDescriptorFactory $billingDescriptorFactory,
-        CheckoutProductFactory $checkoutProductFactory,
+        BillingElement $billingElement,
+        BillingDescriptorElement $billingDescriptorElement,
         EnabledDisabledElement $enabledDisabledElement,
+        ProductElement $productElement,
+        RiskElement $riskElement,
+        ShippingElement $shippingElement,
+        ThreeDSElement $threeDSElement,
+        LocaleFormatter $localeFormatter,
+        PriceFormatter $priceFormatter,
+        AccountSettings $accountSettings,
+        ExternalSettings $externalSettings,
+        GeneralSettings $generalSettings,
+        LoggerInterface $logger
     ) {
-        $this->backendAuthSession = $backendAuthSession;
-        $this->messageManager = $messageManager;
         $this->apiHandler = $apiHandler;
-        $this->orderHandler = $orderHandler;
         $this->config = $config;
-        $this->utilities = $utilities;
-        $this->logger = $logger;
-        $this->billingElement = $billingElement;
-        $this->externalSettings = $externalSettings;
-        $this->accountSettings = $accountSettings;
         $this->storeManager = $storeManager;
-        $this->shippingElement = $shippingElement;
-        $this->orderHandlerService = $orderHandlerService;
-        $this->threeDSElement = $threeDSElement;
-        $this->riskElement = $riskElement;
-        $this->flowMethodSettings = $flowMethodSettings;
         $this->paymentLinkRequestFactory = $paymentLinkRequestFactory;
-        $this->billingDescriptorFactory = $billingDescriptorFactory;
-        $this->checkoutProductFactory = $checkoutProductFactory;
+        $this->billingElement = $billingElement;
+        $this->billingDescriptorElement = $billingDescriptorElement;
         $this->enabledDisabledElement = $enabledDisabledElement;
+        $this->productElement = $productElement;
+        $this->riskElement = $riskElement;
+        $this->shippingElement = $shippingElement;
+        $this->threeDSElement = $threeDSElement;
+        $this->localeFormatter = $localeFormatter;
+        $this->priceFormatter = $priceFormatter;
+        $this->accountSettings = $accountSettings;
+        $this->externalSettings = $externalSettings;
+        $this->generalSettings = $generalSettings;
+        $this->logger = $logger;
     }
 
     public function get(OrderInterface $order, ApiHandlerService $api): PaymentLinkRequest
     {
+        try {
+            $storeCode = $order->getStore()->getCode();
+            $websiteCode = $this->storeManager->getStore($storeCode)->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $websiteCode = null;
+            $storeCode = null;
+
+            $this->logger->error(
+                sprintf("Unable to fetch website code or store code: %s", $error->getMessage()),
+            );
+        }
         $methodId = $order->getPayment()->getMethodInstance()->getCode();
-        $storeCode = $order->getStore()->getCode();
-        $websiteCode = $this->storeManager->getStore($storeCode)->getWebsite()->getCode();
         $shippingAddress = $order->getShippingAddress();
         $products = [];
+        $currency = $order->getOrderCurrencyCode() ?? '';
         /** @var PaymentLinkRequest $request */
         $request = $this->paymentLinkRequestFactory->create();
-        $request->amount = $this->preparePayByLinkAmount($order);
-        $request->currency = $order->getOrderCurrencyCode();
+
+        $request->amount = $this->priceFormatter->getFormattedPrice($order->getGrandTotal() ?? 0, $currency);
+        $request->currency = $currency;
         $request->billing = $this->billingElement->get($order->getBillingAddress());
         $request->payment_type = PaymentType::$regular;
-        // Billing descriptor
-        if ($this->config->needsDynamicDescriptor()) {
-            /** @var BillingDescriptor $billingDescriptor */
-            $billingDescriptor = $this->billingDescriptorFactory->create();
-            $billingDescriptor->name = $this->config->getValue('descriptor_name');
-            $billingDescriptor->city = $this->config->getValue('descriptor_city');
-
-            $request->billing_descriptor = $billingDescriptor;
+        if ($this->generalSettings->isDynamicDescriptorEnabled($websiteCode)) {
+            $request->billing_descriptor = $this->billingDescriptorElement->get();
         }
-        $request->reference = $order->getIncrementId();
-        $request->processing_channel_id = $this->accountSettings->getChannelId($websiteCode);
-        $request->expires_in = (int)$this->config->getValue('cancel_order_link_after', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE);
         $request->customer = $api->createCustomer($order);
         if ($shippingAddress) {
             $request->shipping = $this->shippingElement->get($shippingAddress);
         }
-
-        foreach ($order->getAllVisibleItems() as $item) {
-            $unitPrice = $this->orderHandlerService->amountToGateway(
-                $this->utilities->formatDecimals($item->getPriceInclTax()),
-                $order
-            );
-            /** @var CheckoutProduct $product */
-            $product = $this->checkoutProductFactory->create();
-            $product->name = $item->getName();
-            $product->quantity = (int)$item->getQtyOrdered();
-            $product->price = $unitPrice;
-            $products[] = $product;
-        }
-        $request->products = $products;
-        $request->three_ds = $this->threeDSElement->get();
+        $request->processing_channel_id = $this->accountSettings->getChannelId($websiteCode);
+        $request->products = $this->productElement->get($order);
         $request->risk = $this->riskElement->get();
-        $request->locale = implode("-", explode('_', $this->externalSettings->getStoreLocale($storeCode)));
-
+        $request->locale = $this->localeFormatter->getFormattedLocale($this->externalSettings->getStoreLocale($storeCode));
+        $request->three_ds = $this->threeDSElement->get();
+        $request->reference = $order->getIncrementId();
+        $request->expires_in = (int)$this->config->getValue('cancel_order_link_after', PayByLinkMethod::CODE, $storeCode, ScopeInterface::SCOPE_STORE);
+        $request->products = $products;
+        
         // Prepare the metadata array
         $request->metadata = array_merge(
             ['methodId' => $methodId],
             $this->apiHandler->getBaseMetadata()
         );
 
-        $this->enabledDisabledElement->append($request);
+        $enabledDisabledElement = $this->enabledDisabledElement->get($request);
+        $request->allow_payment_methods = $enabledDisabledElement['enabled_payment_methods'];
+        $request->disabled_payment_methods = $enabledDisabledElement['disabled_payment_methods'];
 
         return $request;
-    }
-
-
-    /**
-     * Prepare the payment amount for the MOTO payment request
-     *
-     * @param Order $order
-     *
-     * @return float
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    private function preparePayByLinkAmount(Order $order): float
-    {
-        // Get the payment instance
-        $amount = $order->getGrandTotal();
-
-        // Return the formatted amount
-        return $this->orderHandler->amountToGateway(
-            $this->utilities->formatDecimals($amount),
-            $order
-        );
     }
 }

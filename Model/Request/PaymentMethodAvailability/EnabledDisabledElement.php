@@ -42,7 +42,7 @@ class EnabledDisabledElement
         $this->logger = $logger;
     }
 
-    public function append(PaymentSessionsRequest|PaymentLinkRequest $payload): void
+    public function get(PaymentSessionsRequest|PaymentLinkRequest $payload): array
     {
         try {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
@@ -80,9 +80,13 @@ class EnabledDisabledElement
         );
 
         $availablePaymentMethods = $this->checkMandatoriesFields($availablePaymentMethods, $allPaymentMethods, $payload);
+            
+        $result = [
+            'enabled_payment_methods' => array_values($availablePaymentMethods),
+            'disabled_payment_methods' => array_values($this->getDisabledMethods($allPaymentMethods, $availablePaymentMethods))
+        ];
 
-        $payload->enabled_payment_methods = array_values($availablePaymentMethods);
-        $payload->disabled_payment_methods = array_values($this->getDisabledMethods($allPaymentMethods, $availablePaymentMethods));
+        return $result;
     }
 
     protected function getEnabled(?string $websiteCode): array
@@ -98,7 +102,7 @@ class EnabledDisabledElement
         });
     }
 
-    protected function checkMandatoriesFields(array $payments, array $definition, PaymentSessionsRequest $request): array
+    protected function checkMandatoriesFields(array $payments, array $definition, PaymentSessionsRequest|PaymentLinkRequest $request): array
     {
         $email = $request->customer->email ?? '';
         $description = $request->description ?? '';
