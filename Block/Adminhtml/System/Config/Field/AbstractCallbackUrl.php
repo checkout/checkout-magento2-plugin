@@ -90,6 +90,18 @@ abstract class AbstractCallbackUrl extends Field
 
         return $this;
     }
+    
+    /**
+     * Overridden method for rendering a field. In this case the field must be only for read.
+     *
+     * @param AbstractElement $element
+     *
+     * @return string
+     */
+    protected function _getElementHtml($element)
+    {
+        return $this->_toHtml();
+    }
 
     /**
      * Returns the controller url.
