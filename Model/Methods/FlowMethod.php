@@ -58,6 +58,11 @@ class FlowMethod extends AbstractMethod
      */
     protected $code = self::CODE;
 
+    /**
+     * $canUseInternal field
+     */
+    protected $canUseInternal = false;
+
     private Session $backendAuthSession;
     private Config $config;
     private ApiHandlerService $apiHandler;
