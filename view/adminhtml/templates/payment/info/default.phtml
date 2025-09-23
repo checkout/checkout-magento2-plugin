@@ -14,13 +14,15 @@
  */
 
 $specificInfo = $block->getSpecificInformation();
-$paymentCode = $block->getMethod()?->getCode();
 $paymentTitle = $block->getMethod()->getConfigData('title', $block->getInfo()->getOrder()->getStoreId());
+// Add @CheckoutCom
+$paymentCode = $block->getMethod()?->getCode();
 
 if ($paymentCode === "checkoutcom_flow") {
     $orderPaymentMethod = $block->getInfo()->getOrder()?->getPayment()?->getMethodInstance()?->getInfoInstance();
     $paymentTitle = $orderPaymentMethod?->getAdditionalInformation()['flow_method_id'] ?? $paymentTitle;
 }
+// / Add @CheckoutCom
 ?>
 <?= $block->escapeHtml($paymentTitle) ?>
 
