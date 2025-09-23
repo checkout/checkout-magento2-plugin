@@ -53,6 +53,11 @@
             <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
         </arguments>
     </type>
+    <type name="CheckoutCom\Magento2\Model\Request\PostPaymentLinks">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
     <type name="CheckoutCom\Magento2\Model\Request\PostPaymentSessions">
         <arguments>
             <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
