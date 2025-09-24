@@ -50,4 +50,7 @@
         <column xsi:type="boolean" name="cko_save_card" nullable="false" default="0"
                 comment="Should save card"/>
     </table>
+    <table name="sales_order_grid" resource="sales" engine="innodb" comment="Sales Flat Order Grid">
+        <column xsi:type="text" name="payment_additional_information" nullable="true" comment="PaymentAdditional Information"/>
+    </table>
 </schema>
