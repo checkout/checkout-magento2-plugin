@@ -126,4 +126,14 @@
     <!-- Flow Preferences -->
     <preference for="Magento\Payment\Block\Info" type="CheckoutCom\Magento2\Block\Adminhtml\Order\View\Info" />
     <!-- End Flow Preferences -->
+    
+    <!-- Flow Details in Order Grid -->
+    <virtualType name="Magento\Sales\Model\ResourceModel\Order\Grid" type="Magento\Sales\Model\ResourceModel\Grid">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="payment_additional_information" xsi:type="string">sales_order_payment.additional_information</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- End Flow Details in Order Grid -->
 </config>
