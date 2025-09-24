@@ -36,6 +36,7 @@ use Magento\Store\Model\StoreManagerInterface;
 class PlaceFlowOrder extends Action
 {
     private const METHOD_PREFIX = "checkoutcom_";
+    private const FLOW_ID = "checkoutcom_flow";
 
     private StoreManagerInterface $storeManager;
     private JsonFactory $jsonFactory;
@@ -110,9 +111,7 @@ class PlaceFlowOrder extends Action
                 ]);
             }
 
-            $methodId = self::METHOD_PREFIX . $data['selectedMethod'];
-
-            $order = $this->orderHandler->setMethodId($methodId)->handleOrder($quote);
+            $order = $this->orderHandler->setMethodId(self::FLOW_ID)->handleOrder($quote);
 
             if (!$this->orderHandler->isOrder($order)) {
                 return $json->setData([
@@ -122,6 +121,7 @@ class PlaceFlowOrder extends Action
             }
 
             $order->setStatus(Order::STATE_PENDING_PAYMENT);
+            $this->attachPaymentInfos($order, $data['selectedMethod']);
             $this->orderRepository->save($order);
 
             return $json->setData([
@@ -136,5 +136,18 @@ class PlaceFlowOrder extends Action
                 'message' => __('An error has occurred, please select another payment method'),
             ]);
         }
+    }
+
+    private function attachPaymentInfos($order, $paymentName) {
+        $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
+
+        $methodId = self::METHOD_PREFIX . $paymentName;
+
+        $paymentInfo->setAdditionalInformation(
+            'flow_method_id',
+            $methodId
+        );
+
+        $order->setPayment($paymentInfo);
     }
 }

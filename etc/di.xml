@@ -122,4 +122,8 @@
 
     <!-- Webhook entity repository preference -->
     <preference for="CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface" type="CheckoutCom\Magento2\Model\Api\WebhookEntityRepository" />
+
+    <!-- Flow Preferences -->
+    <preference for="Magento\Payment\Block\Info" type="CheckoutCom\Magento2\Block\Adminhtml\Order\View\Info" />
+    <!-- End Flow Preferences -->
 </config>
