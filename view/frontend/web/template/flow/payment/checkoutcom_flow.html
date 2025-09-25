@@ -40,6 +40,13 @@
         <!-- ko template: getTemplate() --><!-- /ko -->
         <!-- /ko -->
 
+        <!-- Billing -->
+        <!-- <div class="payment-method-billing-address"> -->
+                <!-- ko foreach: $parent.getRegion(getBillingAddressFormName()) -->
+                <!-- ko template: getTemplate() --><!-- /ko -->
+                <!--/ko-->
+        <!-- </div> -->
+
         <!-- Agreements form -->
         <div class="checkout-agreements-block">
             <!-- ko foreach: $parent.getRegion('before-place-order') -->
