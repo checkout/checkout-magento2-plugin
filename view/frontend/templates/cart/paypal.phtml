@@ -14,13 +14,25 @@
  * @link      https://docs.checkout.com/
  */
 ?>
-<script type="text/x-magento-init">
-    {
-        "#paypal-express-button-container": {
-            "Magento_Ui/js/core/app": <?= /* @noEscape */ $block->getJsLayout() ?>
-        }
+<?php
+$jsLayout = $block->getJsLayout();
+
+$script = <<<script
+{
+    "#paypal-express-button-container": {
+        "Magento_Ui/js/core/app": {$jsLayout}
     }
-</script>
+}
+script;
+?>
+
+<?= /* @noEscape */ $secureRenderer->renderTag(
+    'script',
+    ['type' => 'text/x-magento-init'],
+    $script,
+    false
+); ?>
+
 <div id="paypal-express-button-container"
      data-bind="scope: 'paypal_express_button'">
     <!-- ko template: getTemplate() --><!-- /ko -->

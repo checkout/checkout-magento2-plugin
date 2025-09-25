@@ -39,34 +39,10 @@ class SaveCard extends Action
      * @var ManagerInterface $messageManager
      */
     protected $messageManager;
-    /**
-     * $jsonFactory field
-     *
-     * @var JsonFactory $jsonFactory
-     */
-    private $jsonFactory;
-    /**
-     * $urlInterface field
-     *
-     * @var UrlInterface $urlInterface
-     */
-    private $urlInterface;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
+    private JsonFactory $jsonFactory;
+    private UrlInterface $urlInterface;
+    private VaultHandlerService $vaultHandler;
 
-    /**
-     * SaveCard constructor
-     *
-     * @param Context $context
-     * @param ManagerInterface $messageManager
-     * @param JsonFactory $jsonFactory
-     * @param UrlInterface $urlInterface
-     * @param VaultHandlerService $vaultHandler
-     */
     public function __construct(
         Context $context,
         ManagerInterface $messageManager,

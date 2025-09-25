@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Api;
 
+use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -50,132 +51,27 @@ use Magento\Store\Model\StoreManagerInterface;
 class V2 extends Action
 {
     /**
-     * $jsonFactory field
-     *
-     * @var JsonFactory $jsonFactory
+     * @var array|mixed|mixed[]
      */
-    private $jsonFactory;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $quoteIdMaskFactory field
-     *
-     * @var QuoteIdMaskFactory $quoteIdMaskFactory
-     */
-    private $quoteIdMaskFactory;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $orderStatusHandler field
-     *
-     * @var OrderStatusHandlerService $orderStatusHandler
-     */
-    private $orderStatusHandler;
-    /**
-     * $methodHandler field
-     *
-     * @var MethodHandlerService $methodHandler
-     */
-    private $methodHandler;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $paymentErrorHandler field
-     *
-     * @var PaymentErrorHandlerService $paymentErrorHandler
-     */
-    private $paymentErrorHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $data field
-     *
-     * @var Object $data
-     */
-    private $data;
-    /**
-     * $result field
-     *
-     * @var array $result
-     */
-    private $result;
-    /**
-     * $api field
-     *
-     * @var Object $api
-     */
-    private $api;
-    /**
-     * $order field
-     *
-     * @var Object $order
-     */
-    private $order;
-    /**
-     * $quote field
-     *
-     * @var Object $quote
-     */
-    private $quote;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
-    /**
-     * $quoteIdMaskResource field
-     *
-     * @var QuoteIdMaskResource $quoteIdMaskResource
-     */
-    private $quoteIdMaskResource;
+    public $quote;
+    protected mixed $result;
+    protected $order;
+    protected mixed $data;
+    protected ApiHandlerService $api;
+    private JsonFactory $jsonFactory;
+    private Config $config;
+    private StoreManagerInterface $storeManager;
+    private QuoteHandlerService $quoteHandler;
+    private QuoteIdMaskFactory $quoteIdMaskFactory;
+    private OrderHandlerService $orderHandler;
+    private OrderStatusHandlerService $orderStatusHandler;
+    private MethodHandlerService $methodHandler;
+    private ApiHandlerService $apiHandler;
+    private PaymentErrorHandlerService $paymentErrorHandler;
+    private Utilities $utilities;
+    private OrderRepositoryInterface $orderRepository;
+    private QuoteIdMaskResource $quoteIdMaskResource;
 
-    /**
-     * V2 constructor
-     *
-     * @param Context $context
-     * @param JsonFactory $jsonFactory
-     * @param Config $config
-     * @param StoreManagerInterface $storeManager
-     * @param QuoteHandlerService $quoteHandler
-     * @param QuoteIdMaskFactory $quoteIdMaskFactory
-     * @param OrderHandlerService $orderHandler
-     * @param OrderStatusHandlerService $orderStatusHandler
-     * @param MethodHandlerService $methodHandler
-     * @param ApiHandlerService $apiHandler
-     * @param PaymentErrorHandlerService $paymentErrorHandler
-     * @param Utilities $utilities
-     * @param OrderRepositoryInterface $orderRepository
-     * @param QuoteIdMaskResource $quoteIdMaskResource
-     */
     public function __construct(
         Context $context,
         JsonFactory $jsonFactory,
@@ -241,7 +137,7 @@ class V2 extends Action
      * Get an API handler instance and the request data
      *
      * @return void
-     * @throws NoSuchEntityException|\Checkout\CheckoutArgumentException
+     * @throws NoSuchEntityException|CheckoutArgumentException
      */
     public function init(): void
     {

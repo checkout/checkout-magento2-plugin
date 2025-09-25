@@ -67,6 +67,7 @@
 .ap-cart {
     width: 100% !important;
     height: 52px !important;
+    --apple-pay-button-height: 52px;
 }
 
 /* For mobile */

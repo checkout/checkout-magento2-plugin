@@ -27,20 +27,8 @@ use Magento\Framework\View\Element\Template\Context;
  */
 class AddCard extends Template
 {
-    /**
-     * Config field
-     *
-     * @var Config $config
-     */
-    private $config;
+    private Config $config;
 
-    /**
-     * AddCard constructor
-     *
-     * @param Context $context
-     * @param Config  $config
-     * @param array   $data
-     */
     public function __construct(
         Context $context,
         Config $config,

@@ -56,102 +56,19 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class PlaceOrder extends Action
 {
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    protected $messageManager;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $jsonFactory field
-     *
-     * @var JsonFactory $jsonFactory
-     */
-    private $jsonFactory;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $methodHandler field
-     *
-     * @var MethodHandlerService $methodHandler
-     */
-    private $methodHandler;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $shippingSelector field
-     *
-     * @var ShippingSelector $shippingSelector
-     */
-    private $shippingSelector;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
-    /**
-     * $cartRepository field
-     *
-     * @var CartRepositoryInterface $cartRepository
-     */
-    private $cartRepository;
-    /**
-     * $addressRepository field
-     *
-     * @var AddressRepositoryInterface $addressRepository
-     */
-    private $addressRepository;
-    /**
-     * $addressManager field
-     *
-     * @var Address $addressManager
-     */
-    private $addressManager;
+    private StoreManagerInterface $storeManager;
+    private JsonFactory $jsonFactory;
+    private QuoteHandlerService $quoteHandler;
+    private OrderHandlerService $orderHandler;
+    private MethodHandlerService $methodHandler;
+    private ApiHandlerService $apiHandler;
+    private Utilities $utilities;
+    private ShippingSelector $shippingSelector;
+    private OrderRepositoryInterface $orderRepository;
+    private CartRepositoryInterface $cartRepository;
+    private AddressRepositoryInterface $addressRepository;
+    private Address $addressManager;
 
-    /**
-     * PlaceOrder constructor
-     *
-     * @param Context                    $context
-     * @param ManagerInterface           $messageManager
-     * @param StoreManagerInterface      $storeManager
-     * @param JsonFactory                $jsonFactory
-     * @param QuoteHandlerService        $quoteHandler
-     * @param OrderHandlerService        $orderHandler
-     * @param MethodHandlerService       $methodHandler
-     * @param ApiHandlerService          $apiHandler
-     * @param Utilities                  $utilities
-     * @param ShippingSelector           $shippingSelector
-     * @param OrderRepositoryInterface   $orderRepository
-     * @param CartRepositoryInterface    $cartRepository
-     * @param AddressRepositoryInterface $addressRepository
-     */
     public function __construct(
         Context $context,
         ManagerInterface $messageManager,
@@ -170,19 +87,19 @@ class PlaceOrder extends Action
     ) {
         parent::__construct($context);
 
-        $this->messageManager    = $messageManager;
-        $this->storeManager      = $storeManager;
-        $this->jsonFactory       = $jsonFactory;
-        $this->quoteHandler      = $quoteHandler;
-        $this->orderHandler      = $orderHandler;
-        $this->methodHandler     = $methodHandler;
-        $this->apiHandler        = $apiHandler;
-        $this->utilities         = $utilities;
-        $this->shippingSelector  = $shippingSelector;
-        $this->orderRepository   = $orderRepository;
-        $this->cartRepository    = $cartRepository;
+        $this->messageManager = $messageManager;
+        $this->storeManager = $storeManager;
+        $this->jsonFactory = $jsonFactory;
+        $this->quoteHandler = $quoteHandler;
+        $this->orderHandler = $orderHandler;
+        $this->methodHandler = $methodHandler;
+        $this->apiHandler = $apiHandler;
+        $this->utilities = $utilities;
+        $this->shippingSelector = $shippingSelector;
+        $this->orderRepository = $orderRepository;
+        $this->cartRepository = $cartRepository;
         $this->addressRepository = $addressRepository;
-        $this->addressManager    = $addressManager;
+        $this->addressManager = $addressManager;
     }
 
     /**
@@ -196,7 +113,7 @@ class PlaceOrder extends Action
     public function execute(): Json
     {
         /** @var array $data */
-        $data               = $this->getRequest()->getParams();
+        $data = $this->getRequest()->getParams();
         $data['publicHash'] = $data['instant_purchase_payment_token'];
 
         // Get the store code
@@ -279,7 +196,7 @@ class PlaceOrder extends Action
      * Creates response with the operation status message.
      *
      * @param Phrase $message
-     * @param bool   $successMessage
+     * @param bool $successMessage
      *
      * @return Json
      */

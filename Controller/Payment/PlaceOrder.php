@@ -48,115 +48,22 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class PlaceOrder extends Action
 {
-    /**
-     * @var JsonSerializer
-     */
-    protected $json;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $orderStatusHandler field
-     *
-     * @var OrderStatusHandlerService $orderStatusHandler
-     */
-    private $orderStatusHandler;
-    /**
-     * $methodHandler field
-     *
-     * @var MethodHandlerService $methodHandler
-     */
-    private $methodHandler;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $paymentErrorHandler field
-     *
-     * @var PaymentErrorHandler $paymentErrorHandler
-     */
-    private $paymentErrorHandler;
-    /**
-     * $jsonFactory field
-     *
-     * @var JsonFactory $jsonFactory
-     */
-    private $jsonFactory;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $session field
-     *
-     * @var Session $session
-     */
-    private $session;
-    /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    private $scopeConfig;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
+    private StoreManagerInterface $storeManager;
+    private JsonFactory $jsonFactory;
+    private ScopeConfigInterface $scopeConfig;
+    private QuoteHandlerService $quoteHandler;
+    private OrderHandlerService $orderHandler;
+    private OrderStatusHandlerService $orderStatusHandler;
+    private MethodHandlerService $methodHandler;
+    private ApiHandlerService $apiHandler;
+    private PaymentErrorHandlerService $paymentErrorHandler;
+    private Utilities $utilities;
+    private Logger $logger;
+    private Session $session;
+    private OrderRepositoryInterface $orderRepository;
+    protected JsonSerializer $json;
+    private Config $config;
 
-    /**
-     * PlaceOrder constructor
-     *
-     * @param Context $context
-     * @param StoreManagerInterface $storeManager
-     * @param JsonFactory $jsonFactory
-     * @param ScopeConfigInterface $scopeConfig
-     * @param QuoteHandlerService $quoteHandler
-     * @param OrderHandlerService $orderHandler
-     * @param OrderStatusHandlerService $orderStatusHandler
-     * @param MethodHandlerService $methodHandler
-     * @param ApiHandlerService $apiHandler
-     * @param PaymentErrorHandlerService $paymentErrorHandler
-     * @param Utilities $utilities
-     * @param Logger $logger
-     * @param Session $session
-     * @param OrderRepositoryInterface $orderRepository
-     * @param JsonSerializer $json
-     * @param Config $config
-     */
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager,
@@ -209,20 +116,16 @@ class PlaceOrder extends Action
             $responseCode = '';
             $success = false;
             $log = true;
-
             // Try to load a quote
             $quote = $this->quoteHandler->getQuote();
 
             // Set some required properties
             $data = $this->getRequest()->getParams();
-
             if (isset($data['methodId']) && !$this->isEmptyCardToken($data)) {
                 // Process the request
                 if ($this->getRequest()->isAjax() && $quote) {
-
                     //Create order before payment
                     $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
-
                     // Process the payment
                     if ($this->orderHandler->isOrder($order)) {
                         $log = false;

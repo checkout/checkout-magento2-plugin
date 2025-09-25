@@ -33,6 +33,9 @@ use Magento\Framework\Serialize\Serializer\JsonHexTag;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\View\Element\Template\Context;
 
+/**
+ * Class CheckoutConfig
+ */
 class CheckoutConfig extends Onepage
 {
     private Cart $cart;
@@ -49,8 +52,8 @@ class CheckoutConfig extends Onepage
         ConfigProvider $checkoutComConfigProvider,
         array $layoutProcessors = [],
         array $data = [],
-        Json $serializer = null,
-        SerializerInterface $serializerInterface = null
+        ?Json $serializer = null,
+        ?SerializerInterface $serializerInterface = null
     ) {
         parent::__construct(
             $context,
@@ -61,11 +64,11 @@ class CheckoutConfig extends Onepage
             $serializer,
             $serializerInterface
         );
+
         $this->cart = $cart;
         $this->checkoutComConfigProvider = $checkoutComConfigProvider;
         $this->checkoutComConfig = $checkoutComConfig;
-        $this->serializer = $serializerInterface ?: ObjectManager::getInstance()
-            ->get(JsonHexTag::class);
+        $this->serializer = $serializerInterface ?: ObjectManager::getInstance()->get(JsonHexTag::class);
     }
 
     public function getProductCount(): int

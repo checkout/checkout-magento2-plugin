@@ -29,32 +29,10 @@ use Psr\Log\LoggerInterface;
  */
 class Webhooks
 {
-    /**
-     * $logger field
-     *
-     * @var LoggerInterface $logger
-     */
-    protected $logger;
-    /**
-     * $webhookHandler field
-     *
-     * @var WebhookHandlerService $webhookHandler
-     */
-    private $webhookHandler;
-    /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    private $scopeConfig;
+    protected LoggerInterface $logger;
+    private WebhookHandlerService $webhookHandler;
+    private ScopeConfigInterface $scopeConfig;
 
-    /**
-     * Webhooks constructor
-     *
-     * @param LoggerInterface $logger
-     * @param WebhookHandlerService $webhookHandler
-     * @param ScopeConfigInterface $scopeConfig
-     */
     public function __construct(
         LoggerInterface $logger,
         WebhookHandlerService $webhookHandler,

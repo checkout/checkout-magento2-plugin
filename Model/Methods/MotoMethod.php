@@ -54,83 +54,53 @@ class MotoMethod extends AbstractMethod
      */
     const CODE = 'checkoutcom_moto';
     /**
-     * $_code field
-     *
-     * @var string $_code
+     * $code field
      */
-    protected $_code = self::CODE;
+    protected $code = self::CODE;
     /**
-     * $_formBlockType
+     * $formBlockType
      *
-     * @var string $_formBlockType
+     * @var string $formBlockType
      */
-    protected $_formBlockType = Moto::class;
+    protected $formBlockType = Moto::class;
     /**
-     * $_canAuthorize
+     * bool $canAuthorize
      *
-     * @var bool $_canAuthorize
+     * @var bool bool $canAuthorize
      */
-    protected $_canAuthorize = true;
+    protected $canAuthorize = true;
     /**
-     * $_canCapture field
-     *
-     * @var bool $_canCapture
+     * $canCapture field
      */
-    protected $_canCapture = true;
+    protected $canCapture = true;
     /**
-     * $_canCapturePartial field
-     *
-     * @var bool $_canCapturePartial
+     * $canCapturePartial field
      */
-    protected $_canCapturePartial = true;
+    protected $canCapturePartial = true;
     /**
-     * $_canVoid field
-     *
-     * @var bool $_canVoid
+     * $canVoid field
      */
-    protected $_canVoid = true;
+    protected $canVoid = true;
     /**
-     * $_canUseInternal field
-     *
-     * @var bool $_canUseInternal
+     * $canUseInternal field
      */
-    protected $_canUseInternal = true;
+    protected $canUseInternal = true;
     /**
-     * $_canUseCheckout field
-     *
-     * @var bool $_canUseCheckout
+     * $canUseCheckout field
      */
-    protected $_canUseCheckout = true;
+    protected $canUseCheckout = true;
     /**
-     * $_canRefund field
-     *
-     * @var bool $_canRefund
+     * $canRefund field
      */
-    protected $_canRefund = true;
+    protected $canRefund = true;
     /**
-     * $_canRefundInvoicePartial field
-     *
-     * @var bool $_canRefundInvoicePartial
+     * $canRefundInvoicePartial field
      */
-    protected $_canRefundInvoicePartial = true;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    private $backendAuthSession;
+    protected $canRefundInvoicePartial = true;
+
+    private Session $backendAuthSession;
+    private Config $config;
+    private ApiHandlerService $apiHandler;
 
     /**
      * MotoMethod constructor
@@ -152,6 +122,9 @@ class MotoMethod extends AbstractMethod
      * @param array $data
      */
     public function __construct(
+        Session $backendAuthSession,
+        Config $config,
+        ApiHandlerService $apiHandler,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -159,31 +132,27 @@ class MotoMethod extends AbstractMethod
         Data $paymentData,
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
-        Session $backendAuthSession,
-        Config $config,
-        ApiHandlerService $apiHandler,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
-        AbstractResource $resource = null,
-        AbstractDb $resourceCollection = null,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
         array $data = []
     ) {
         parent::__construct(
             $config,
+            $directoryHelper,
+            $scopeConfig,
+            $logger,
             $context,
             $registry,
             $extensionFactory,
             $customAttributeFactory,
             $paymentData,
-            $scopeConfig,
-            $logger,
-            $directoryHelper,
             $dataObjectFactory,
             $resource,
             $resourceCollection,
             $data
         );
-
         $this->backendAuthSession = $backendAuthSession;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
@@ -357,7 +326,7 @@ class MotoMethod extends AbstractMethod
                 $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
                 $response = $api->refundOrder($payment, $amount);
             }
-            
+
             if (!$api->isValidResponse($response)) {
                 throw new LocalizedException(
                     __('The refund request could not be processed.')
@@ -379,7 +348,7 @@ class MotoMethod extends AbstractMethod
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailableInConfig(CartInterface $quote = null): bool
+    public function isAvailableInConfig(?CartInterface $quote = null): bool
     {
         return parent::isAvailable($quote);
     }
@@ -392,10 +361,10 @@ class MotoMethod extends AbstractMethod
      * @return bool
      * @throws LocalizedException
      */
-    public function isAvailable(CartInterface $quote = null): bool
+    public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->_code) && $this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->code) && $this->backendAuthSession->isLoggedIn();
         }
 
         return false;

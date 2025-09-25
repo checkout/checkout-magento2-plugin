@@ -20,11 +20,11 @@
     "CheckoutCom_Magento2/js/view/payment/applepay-utilities",
     "Magento_Checkout/js/model/full-screen-loader",
     "Magento_Checkout/js/model/payment/additional-validators",
-    "Magento_Checkout/js/action/redirect-on-success",
     "Magento_Customer/js/model/customer",
     "Magento_Customer/js/model/authentication-popup",
     'Magento_Checkout/js/model/quote',
     "mage/translate",
+    "mage/url"
 ], function (
     $,
     customerData,
@@ -32,11 +32,11 @@
     ApplePayUtilities,
     FullScreenLoader,
     AdditionalValidators,
-    RedirectOnSuccessAction,
     Customer,
     AuthPopup,
     Quote,
-    __
+    __,
+    url
 ) {
     return function(config, button)
     {
@@ -54,10 +54,21 @@
             if (checkoutConfig["checkoutcom_apple_pay"][config.configName] == 1) {
                 Utilities.log(`Apple Pay in ${config.type} is enabled`);
 
-                // set the button theme and mode
-                button.style["-apple-pay-button-style"] = getButtonTheme();
+                if(checkoutConfig["checkoutcom_apple_pay"]["enabled_on_all_browsers"] === "1" && config.allBrowsersSupported
+                    || checkoutConfig["checkoutcom_apple_pay"]["enabled_on_all_browsers"] === "0" && !config.allBrowsersSupported
+                ) {
+                    Utilities.log(`Apple Pay is supported`);
+                    // set the button theme and mode
+                    button.style["-apple-pay-button-style"] = getButtonTheme();
+                    button.setAttribute("buttonstyle", getButtonTheme());
+                    button.setAttribute("locale", window.LOCALE);
 
-                launchApplePay();
+                    launchApplePay();
+                } else {
+                    $applePayButton.css("display", "none");
+                }
+            } else {
+                $applePayButton.css("display", "none");
             }
         }
 
@@ -289,8 +300,9 @@
                                 // Handle 3DS redirection
                                 window.location.href = data.url;
                             } else {
-                                // Normal redirection
-                                RedirectOnSuccessAction.execute();
+                                // Normal redirection, not use redirect-on-success.js file because there is some issue when a user add a product to cart
+                                // and directly pay with Apple Pay without load a new page
+                                window.location.replace(url.build(window.checkoutConfig.defaultSuccessPageUrl));
                             }
                         })
                         .catch(function (error) {

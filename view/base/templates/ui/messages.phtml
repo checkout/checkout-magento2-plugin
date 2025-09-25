@@ -14,11 +14,16 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+use Magento\Framework\Escaper;
+
+/**
+ * @var Escaper $escaper
+ */
 ?>
 
 <pre style="white-space:pre-wrap;">
-<?= $block->escapeHtml($block->getData('output')) ?>
+<?= $escaper->escapeHtml($block->getData('output')) ?>
 <?php if ($block->getData('link')): ?>
-<br /><a href="<?= $block->escapeUrl($block->getData('link')) ?>" target="_blank" rel="noopener noreferrer"><?= $block->escapeUrl($block->getData('link')) ?></a>
+<br /><a href="<?= $escaper->escapeUrl($block->getData('link')) ?>" target="_blank" rel="noopener noreferrer"><?= $escaper->escapeUrl($block->getData('link')) ?></a>
 <?php endif; ?>
 </pre>

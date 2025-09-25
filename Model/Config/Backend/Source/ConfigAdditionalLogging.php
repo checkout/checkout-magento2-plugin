@@ -33,9 +33,9 @@ class ConfigAdditionalLogging implements OptionSourceInterface
      */
     const WEBHOOK = 'webhook';
     /**
-     * WEBHOOK constant
+     * AUTH_KEYS constant
      *
-     * @var string WEBHOOK
+     * @var string AUTH_KEYS
      */
     const AUTH_KEYS = 'auth';
     /**
@@ -48,6 +48,7 @@ class ConfigAdditionalLogging implements OptionSourceInterface
      * ORDER_OBJECT constant
      *
      * @var string ORDER_OBJECT
+     *
      */
     const ORDER_OBJECT = 'order';
     /**

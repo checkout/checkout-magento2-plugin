@@ -34,39 +34,11 @@ use Magento\Vault\Api\Data\PaymentTokenInterface;
  */
 class VaultToken
 {
-    /**
-     * $paymentTokenFactory field
-     *
-     * @var PaymentTokenFactoryInterface $paymentTokenFactory
-     */
-    private $paymentTokenFactory;
-    /**
-     * $encryptor field
-     *
-     * @var EncryptorInterface $encryptor
-     */
-    private $encryptor;
-    /**
-     * $cardHandler field
-     *
-     * @var CardHandlerService $cardHandler
-     */
-    private $cardHandler;
-    /**
-     * $json field
-     *
-     * @var JsonSerializer
-     */
-    private $json;
+    private PaymentTokenFactoryInterface $paymentTokenFactory;
+    private EncryptorInterface $encryptor;
+    private CardHandlerService $cardHandler;
+    private JsonSerializer $json;
 
-    /**
-     * VaultToken constructor
-     *
-     * @param PaymentTokenFactoryInterface $paymentTokenFactory
-     * @param EncryptorInterface $encryptor
-     * @param CardHandlerService $cardHandler
-     * @param JsonSerializer $json
-     */
     public function __construct(
         PaymentTokenFactoryInterface $paymentTokenFactory,
         EncryptorInterface $encryptor,
@@ -82,8 +54,8 @@ class VaultToken
     /**
      * Returns the prepared payment token.
      *
-     * @param mixed[]         $card
-     * @param string          $methodId
+     * @param mixed[] $card
+     * @param string $methodId
      * @param int|string|null $customerId
      *
      * @return PaymentTokenInterface
@@ -92,9 +64,9 @@ class VaultToken
     public function create(array $card, string $methodId, $customerId = null): PaymentTokenInterface
     {
         $expiryMonth = str_pad((string)$card['expiry_month'], 2, '0', STR_PAD_LEFT);
-        $expiryYear  = $card['expiry_year'];
-        $expiresAt   = $this->getExpirationDate($expiryMonth, $expiryYear);
-        $cardScheme  = $card['scheme'];
+        $expiryYear = $card['expiry_year'];
+        $expiresAt = $this->getExpirationDate($expiryMonth, $expiryYear);
+        $cardScheme = $card['scheme'];
 
         /**
          * @var PaymentTokenInterface $paymentToken
@@ -107,8 +79,8 @@ class VaultToken
         }
 
         $tokenDetails = [
-            'type'           => $this->cardHandler->getCardCode($cardScheme),
-            'maskedCC'       => $card['last4'],
+            'type' => $this->cardHandler->getCardCode($cardScheme),
+            'maskedCC' => $card['last4'],
             'expirationDate' => $expiryMonth . '/' . $expiryYear,
         ];
 
@@ -144,6 +116,22 @@ class VaultToken
     }
 
     /**
+     * Returns the JSON object of the given data.
+     *
+     * Convert payment token details to JSON
+     *
+     * @param mixed[] $details
+     *
+     * @return string
+     */
+    private function convertDetailsToJSON(array $details): string
+    {
+        $json = $this->json->serialize($details);
+
+        return $json ?: '{}';
+    }
+
+    /**
      * Generate vault payment public hash
      *
      * @param PaymentTokenInterface $paymentToken
@@ -161,21 +149,5 @@ class VaultToken
         $hashKey .= $paymentToken->getPaymentMethodCode() . $paymentToken->getType() . $paymentToken->getTokenDetails();
 
         return $this->encryptor->getHash($hashKey);
-    }
-
-    /**
-     * Returns the JSON object of the given data.
-     *
-     * Convert payment token details to JSON
-     *
-     * @param mixed[] $details
-     *
-     * @return string
-     */
-    private function convertDetailsToJSON(array $details): string
-    {
-        $json = $this->json->serialize($details);
-
-        return $json ?: '{}';
     }
 }

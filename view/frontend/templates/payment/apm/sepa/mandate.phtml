@@ -15,8 +15,12 @@
  */
 
 use CheckoutCom\Magento2\Controller\Apm\DisplaySepa;
+use Magento\Framework\Escaper;
 
-/** @var DisplaySepa $block */
+/**
+ * @var DisplaySepa $block
+ * @var Escaper $escaper
+ */
 ?>
 
 <input type="hidden" name="source" value="sepa" required>
@@ -24,29 +28,29 @@ use CheckoutCom\Magento2\Controller\Apm\DisplaySepa;
     <div class="sepa-card-header">
         <div class="sepa-card-header-text">
             <div class="sepa-card-title">
-                <h3><?= $block->escapeHtml(__('SEPA Direct Debit Mandate for single payment')) ?></h3>
+                <h3><?= $escaper->escapeHtml(__('SEPA Direct Debit Mandate for single payment')) ?></h3>
             </div>
         </div>
     </div>
     <div class="sepa-mandate-content">
         <div class="sepa-creditor">
-            <h2><?= $block->escapeHtml(__('Creditor')) ?></h2>
-            <h3><?= $block->escapeHtml($block->getData('store')->getName()); ?></h3>
-            <p class="ng-star-inserted"><?= $block->escapeHtml($block->getData('store')->getStreetLine(1)); ?></p>
-            <p><?= $block->escapeHtml($block->getData('store')->getStreetLine(2)); ?></p>
-            <p><?= $block->escapeHtml(($block->getData('store')->getPostcode() . ' ' . $block->getData('store')->getCity())); ?></p>
-            <p><?= $block->escapeHtml($block->getData('store')->getCountry()); ?></p>
+            <h2><?= $escaper->escapeHtml(__('Creditor')) ?></h2>
+            <h3><?= $escaper->escapeHtml($block->getData('store')->getName()); ?></h3>
+            <p class="ng-star-inserted"><?= $escaper->escapeHtml($block->getData('store')->getStreetLine(1)); ?></p>
+            <p><?= $escaper->escapeHtml($block->getData('store')->getStreetLine(2)); ?></p>
+            <p><?= $escaper->escapeHtml(($block->getData('store')->getPostcode() . ' ' . $block->getData('store')->getCity())); ?></p>
+            <p><?= $escaper->escapeHtml($block->getData('store')->getCountry()); ?></p>
             <br>
-            <p class="monospace"><?= $block->escapeHtml((__('Creditor ID') . ': ' . $block->getData('reference'))) ?></p>
+            <p class="monospace"><?= $escaper->escapeHtml((__('Creditor ID') . ': ' . $block->getData('reference'))) ?></p>
         </div>
         <div class="sepa-debitor">
-            <h2><?= $block->escapeHtml(__('Debitor')) ?></h2>
-            <h3><?= $block->escapeHtml(($block->getData('billingAddress')->getFirstname() . ' ' . $block->getData('billingAddress')->getLastname())); ?></h3>
+            <h2><?= $escaper->escapeHtml(__('Debitor')) ?></h2>
+            <h3><?= $escaper->escapeHtml(($block->getData('billingAddress')->getFirstname() . ' ' . $block->getData('billingAddress')->getLastname())); ?></h3>
             <div class="address">
-                <p class="ng-star-inserted"><?= $block->escapeHtml($block->getData('billingAddress')->getStreetLine(1)); ?></p>
-                <p><?= $block->escapeHtml($block->getData('billingAddress')->getStreetLine(2)); ?></p>
-                <p><?= $block->escapeHtml(($block->getData('billingAddress')->getPostcode() . ' ' . $block->getData('billingAddress')->getCity())); ?></p>
-                <p><?= $block->escapeHtml($block->getData('billingAddress')->getCountry()); ?></p>
+                <p class="ng-star-inserted"><?= $escaper->escapeHtml($block->getData('billingAddress')->getStreetLine(1)); ?></p>
+                <p><?= $escaper->escapeHtml($block->getData('billingAddress')->getStreetLine(2)); ?></p>
+                <p><?= $escaper->escapeHtml(($block->getData('billingAddress')->getPostcode() . ' ' . $block->getData('billingAddress')->getCity())); ?></p>
+                <p><?= $escaper->escapeHtml($block->getData('billingAddress')->getCountry()); ?></p>
             </div>
             <br>
             <p class="monospace" id="sepa-dd-bic"></p>
@@ -55,15 +59,15 @@ use CheckoutCom\Magento2\Controller\Apm\DisplaySepa;
     </div>
     <div class="sepa-par">
         <hr>
-        <p><?= $block->escapeHtml(__('By accepting this mandate form, you authorise (A) b4payment GmbH to send instructions to your bank to debit your account (B) your bank to debit your account in accordance with the instructions from b4payment GmbH.'))?></p>
-        <p><?= $block->escapeHtml(__('As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.'))?>
+        <p><?= $escaper->escapeHtml(__('By accepting this mandate form, you authorise (A) b4payment GmbH to send instructions to your bank to debit your account (B) your bank to debit your account in accordance with the instructions from b4payment GmbH.'))?></p>
+        <p><?= $escaper->escapeHtml(__('As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.'))?>
         </p>
         <div class="sepa-checkbox-container" id="sepa-checkbox-container">
             <label class="sepa-checkbox-layout" for="sepa-checkbox-input">
                 <span class="sepa-checkbox-inner-container">
                     <input class="sepa-checkbox-input" type="checkbox" id="sepa-checkbox-input" name="accepted" value="1" required>
-                    <h4><?= $block->escapeHtml(__('I accept the mandate for a single payment')) ?></h4>
-                    <input type="hidden" name="url" value="<?= $block->escapeUrl($block->getData('url')) ?>"required>
+                    <h4><?= $escaper->escapeHtml(__('I accept the mandate for a single payment')) ?></h4>
+                    <input type="hidden" name="url" value="<?= $escaper->escapeUrl($block->getData('url')) ?>"required>
                 </span>
             </label>
         </div>
@@ -74,7 +78,7 @@ use CheckoutCom\Magento2\Controller\Apm\DisplaySepa;
         <div class="sepa-card-footer">
             <div class="sepa-card-footer-text">
                 <div class="sepa-footer-title">
-                <?= $block->escapeHtml(__('Your rights regarding the above mandate are explained in a statement that you can obtain from your bank.')) ?>
+                <?= $escaper->escapeHtml(__('Your rights regarding the above mandate are explained in a statement that you can obtain from your bank.')) ?>
                 </div>
             </div>
         </div>

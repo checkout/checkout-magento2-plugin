@@ -1,9 +1,15 @@
 <!--
 /**
- * @author    Agence Dn'D <contact@dnd.fr>
- * @copyright 2004-present Agence Dn'D
- * @license   https://opensource.org/licenses/osl-3.0.php Open Software License (OSL 3.0)
- * @link      https://www.dnd.fr/
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2019 Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
@@ -23,6 +29,13 @@
                                             <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/minicart/applepaybutton</item>
                                             <item name="config" xsi:type="array">
                                                 <item name="template" xsi:type="string">CheckoutCom_Magento2/checkout/minicart/applepaybutton</item>
+                                            </item>
+                                        </item>
+                                        <item name="paypal" xsi:type="array">
+                                            <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_express</item>
+                                            <item name="config" xsi:type="array">
+                                                <item name="template" xsi:type="string">CheckoutCom_Magento2/payment/checkoutcom_paypal_express</item>
+                                                <item name="context" xsi:type="string">express_minicart</item>
                                             </item>
                                         </item>
                                         <item name="paypal" xsi:type="array">
@@ -54,6 +67,15 @@
                 <arguments>
                     <argument name="mode" xsi:type="string">express</argument>
                     <argument name="script_type" xsi:type="string">mini-cart</argument>
+                </arguments>
+            </block>
+            <block class="Magento\Framework\View\Element\Template"
+                   name="checkout.applepay.script"
+                   template="CheckoutCom_Magento2::script/applepay-script.phtml">
+                <arguments>
+                    <argument name="mode" xsi:type="string">express</argument>
+                    <argument name="script_type" xsi:type="string">mini-cart</argument>
+                    <argument name="view_model" xsi:type="object">CheckoutCom\Magento2\ViewModel\Cart\ApplePayButton</argument>
                 </arguments>
             </block>
         </referenceBlock>

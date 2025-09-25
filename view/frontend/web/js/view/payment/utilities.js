@@ -138,10 +138,11 @@ define(
                 var self = this;
                 var result = null;
                 var restUrl = window.BASE_URL;
+                var store = window.checkoutConfig && window.checkoutConfig.storeCode ? window.checkoutConfig.storeCode : 'default';
+                const customerIsLoggedIn = window.checkoutConfig && window.checkoutConfig.isCustomerLoggedIn ? true : false;
 
                 // Build the rest URL
-                if (Customer.isLoggedIn()) {
-                    var store = window.checkoutConfig.storeCode ? window.checkoutConfig.storeCode : 'default';
+                if (customerIsLoggedIn) {
                     restUrl += 'rest/';
                     restUrl += store;
                     restUrl += '/V1/';
@@ -149,7 +150,11 @@ define(
                     restUrl += endpoint;
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 } else {
-                    restUrl += 'rest/all/V1/guest-carts/' + window.checkoutConfig.quoteData.entity_id;
+                    restUrl += 'rest/';
+                    restUrl += store;
+                    restUrl += '/V1/';
+                    restUrl += 'guest-carts/';
+                    restUrl += window.checkoutConfig.quoteData.entity_id;
                     restUrl += endpoint;
                     restUrl += '?form_key=' + window.checkoutConfig.formKey;
                 }

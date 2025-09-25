@@ -39,41 +39,11 @@ class Moto extends Cc
      * @var string $_template
      */
     public $_template = 'CheckoutCom_Magento2::payment/moto.phtml';
-    /**
-     * $adminQuote field
-     *
-     * @var Quote $adminQuote
-     */
-    private $adminQuote;
-    /**
-     * $config field
-     *
-     * @var GatewayConfig $config
-     */
-    protected $config;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    protected $vaultHandler;
-    /**
-     * $cardHandler field
-     *
-     * @var CardHandlerService $cardHandler
-     */
-    protected $cardHandler;
+    private Quote $adminQuote;
+    private GatewayConfig $config;
+    private VaultHandlerService $vaultHandler;
+    private CardHandlerService $cardHandler;
 
-    /**
-     * Moto constructor
-     *
-     * @param Context $context
-     * @param PaymentModelConfig $paymentModelConfig
-     * @param Quote $adminQuote
-     * @param GatewayConfig $config
-     * @param VaultHandlerService $vaultHandler
-     * @param CardHandlerService $cardHandler
-     */
     public function __construct(
         Context $context,
         PaymentModelConfig $paymentModelConfig,

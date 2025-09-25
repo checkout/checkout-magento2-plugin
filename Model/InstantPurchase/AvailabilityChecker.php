@@ -27,25 +27,9 @@ use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
  */
 class AvailabilityChecker
 {
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
+    private Config $config;
+    private VaultHandlerService $vaultHandler;
 
-    /**
-     * AvailabilityChecker constructor
-     *
-     * @param Config $config
-     * @param VaultHandlerService $vaultHandler
-     */
     public function __construct(
         Config $config,
         VaultHandlerService $vaultHandler
