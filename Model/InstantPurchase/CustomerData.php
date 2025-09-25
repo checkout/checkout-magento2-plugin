@@ -38,97 +38,20 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class CustomerData implements SectionSourceInterface
 {
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $instantPurchase field
-     *
-     * @var InstantPurchaseInterface $instantPurchase
-     */
-    private $instantPurchase;
-    /**
-     * $customerSession field
-     *
-     * @var Session $customerSession
-     */
-    private $customerSession;
-    /**
-     * $customerAddressesFormatter field
-     *
-     * @var CustomerAddressesFormatter $customerAddressesFormatter
-     */
-    private $customerAddressesFormatter;
-    /**
-     * $shippingMethodFormatter field
-     *
-     * @var ShippingMethodFormatter $shippingMethodFormatter
-     */
-    private $shippingMethodFormatter;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
-    /**
-     * $availabilityChecker field
-     *
-     * @var AvailabilityChecker $availabilityChecker
-     */
-    private $availabilityChecker;
-    /**
-     * $paymentTokenFormatter field
-     *
-     * @var PaymentTokenFormatter $paymentTokenFormatter
-     */
-    private $paymentTokenFormatter;
-    /**
-     * $paymentToken field
-     *
-     * @var array|mixed $paymentToken
-     */
-    private $paymentToken;
-    /**
-     * $instantPurchaseOption field
-     *
-     * @var InstantPurchaseOption $instantPurchaseOption
-     */
-    private $instantPurchaseOption;
-    /**
-     * $shippingAddress field
-     *
-     * @var Address $shippingAddress
-     */
-    private $shippingAddress;
-    /**
-     * $billingAddress field
-     *
-     * @var Address $billingAddress
-     */
-    private $billingAddress;
-    /**
-     * $shippingMethod field
-     *
-     * @var ShippingMethodInterface $shippingMethod
-     */
-    private $shippingMethod;
+    public $paymentToken;
+    public $shippingAddress;
+    public $billingAddress;
+    public $shippingMethod;
+    public $instantPurchaseOption;
+    private StoreManagerInterface $storeManager;
+    private InstantPurchaseInterface $instantPurchase;
+    private Session $customerSession;
+    private TokenFormatter $paymentTokenFormatter;
+    private CustomerAddressesFormatter $customerAddressesFormatter;
+    private ShippingMethodFormatter $shippingMethodFormatter;
+    private VaultHandlerService $vaultHandler;
+    private AvailabilityChecker $availabilityChecker;
 
-    /**
-     * CustomerData constructor
-     *
-     * @param StoreManagerInterface      $storeManager
-     * @param InstantPurchaseInterface   $instantPurchase
-     * @param Session                    $customerSession
-     * @param TokenFormatter             $paymentTokenFormatter
-     * @param CustomerAddressesFormatter $customerAddressesFormatter
-     * @param ShippingMethodFormatter    $shippingMethodFormatter
-     * @param VaultHandlerService        $vaultHandler
-     * @param AvailabilityChecker        $availabilityChecker
-     */
     public function __construct(
         StoreManagerInterface $storeManager,
         InstantPurchaseInterface $instantPurchase,
@@ -139,14 +62,14 @@ class CustomerData implements SectionSourceInterface
         VaultHandlerService $vaultHandler,
         AvailabilityChecker $availabilityChecker
     ) {
-        $this->storeManager               = $storeManager;
-        $this->instantPurchase            = $instantPurchase;
-        $this->customerSession            = $customerSession;
+        $this->storeManager = $storeManager;
+        $this->instantPurchase = $instantPurchase;
+        $this->customerSession = $customerSession;
         $this->customerAddressesFormatter = $customerAddressesFormatter;
-        $this->shippingMethodFormatter    = $shippingMethodFormatter;
-        $this->vaultHandler               = $vaultHandler;
-        $this->availabilityChecker        = $availabilityChecker;
-        $this->paymentTokenFormatter      = $paymentTokenFormatter;
+        $this->shippingMethodFormatter = $shippingMethodFormatter;
+        $this->vaultHandler = $vaultHandler;
+        $this->availabilityChecker = $availabilityChecker;
+        $this->paymentTokenFormatter = $paymentTokenFormatter;
     }
 
     /**
@@ -173,21 +96,21 @@ class CustomerData implements SectionSourceInterface
 
         // Build the instant purchase data
         $data += [
-            'paymentToken'    => [
+            'paymentToken' => [
                 'publicHash' => $this->paymentToken->getPublicHash(),
-                'summary'    => $this->paymentTokenFormatter->formatPaymentToken($this->paymentToken),
+                'summary' => $this->paymentTokenFormatter->formatPaymentToken($this->paymentToken),
             ],
             'shippingAddress' => [
-                'id'      => $this->shippingAddress->getId(),
+                'id' => $this->shippingAddress->getId(),
                 'summary' => $this->customerAddressesFormatter->format($this->shippingAddress),
             ],
-            'billingAddress'  => [
-                'id'      => $this->billingAddress->getId(),
+            'billingAddress' => [
+                'id' => $this->billingAddress->getId(),
                 'summary' => $this->customerAddressesFormatter->format($this->billingAddress),
             ],
-            'shippingMethod'  => [
+            'shippingMethod' => [
                 'carrier' => $this->shippingMethod->getCarrierCode(),
-                'method'  => $this->shippingMethod->getMethodCode(),
+                'method' => $this->shippingMethod->getMethodCode(),
                 'summary' => $this->shippingMethodFormatter->format($this->shippingMethod),
             ],
         ];
@@ -212,8 +135,8 @@ class CustomerData implements SectionSourceInterface
         // Get the shipping and billing data
         if ($this->instantPurchaseOption) {
             $this->shippingAddress = $this->instantPurchaseOption->getShippingAddress();
-            $this->billingAddress  = $this->instantPurchaseOption->getBillingAddress();
-            $this->shippingMethod  = $this->instantPurchaseOption->getShippingMethod();
+            $this->billingAddress = $this->instantPurchaseOption->getBillingAddress();
+            $this->shippingMethod = $this->instantPurchaseOption->getShippingMethod();
         }
     }
 

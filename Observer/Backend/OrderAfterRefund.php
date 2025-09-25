@@ -22,32 +22,15 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderAfterRefund
  */
 class OrderAfterRefund implements ObserverInterface
 {
-    /**
-     * $backendAuthSession field
-     *
-     * @var Session $backendAuthSession
-     */
-    private $backendAuthSession;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
+    private Session $backendAuthSession;
+    private Config $config;
 
-    /**
-     * OrderAfterRefund constructor
-     *
-     * @param Session $backendAuthSession
-     * @param Config $config
-     */
     public function __construct(
         Session $backendAuthSession,
         Config $config
@@ -72,8 +55,6 @@ class OrderAfterRefund implements ObserverInterface
 
             // Check if payment method is checkout.com
             if (in_array($methodId, $this->config->getMethodsList())) {
-                $creditmemo = $observer->getEvent()->getCreditmemo();
-
                 $status = ($order->getStatus() === 'closed' || $order->getStatus() === 'complete') ? $order->getStatus() : $this->config->getValue(
                     'order_status_refunded',
                     null,

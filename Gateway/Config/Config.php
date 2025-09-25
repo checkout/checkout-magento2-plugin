@@ -35,60 +35,14 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Config
 {
-    /**
-     * $assetRepository field
-     *
-     * @var Repository $assetRepository
-     */
-    private $assetRepository;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    private $scopeConfig;
-    /**
-     * $request field
-     *
-     * @var RequestInterface $request
-     */
-    private $request;
-    /**
-     * $loader field
-     *
-     * @var Loader $loader
-     */
-    private $loader;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
+    private Repository $assetRepository;
+    private StoreManagerInterface $storeManager;
+    private ScopeConfigInterface $scopeConfig;
+    private RequestInterface $request;
+    private Loader $loader;
+    private Utilities $utilities;
+    private Logger $logger;
 
-    /**
-     * Config constructor
-     *
-     * @param Repository $assetRepository
-     * @param StoreManagerInterface $storeManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param RequestInterface $request
-     * @param Loader $loader
-     * @param Utilities $utilities
-     * @param Logger $logger
-     */
     public function __construct(
         Repository $assetRepository,
         StoreManagerInterface $storeManager,
@@ -115,7 +69,7 @@ class Config
      *
      * @return bool
      */
-    public function isValidAuth(string $type, string $header = null): bool
+    public function isValidAuth(string $type, ?string $header = null): bool
     {
         // Get the authorization header
         if ($header) {
@@ -159,16 +113,16 @@ class Config
      * Returns a module config value
      *
      * @param string $field
-     * @param string|null $methodId
-     * @param string|int|null $storeCode
-     * @param string|null $scope
+     * @param null $methodId
+     * @param string|null $storeCode
+     * @param string $scope
      *
      * @return mixed
      */
     public function getValue(
         string $field,
-        string $methodId = null,
-        $storeCode = null,
+        $methodId = null,
+        ?string $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
         return $this->loader->getValue($field, $methodId, $storeCode, $scope);
@@ -177,7 +131,7 @@ class Config
     /**
      * Checks if a private shared key request is valid
      *
-     * @param string|false $key
+     * @param false|string $key
      *
      * @return bool
      */
@@ -227,36 +181,6 @@ class Config
     }
 
     /**
-     * Returns payment processing value (Payment first or Order first)
-     *
-     * @return string
-     */
-    public function getPaymentProcessing(): string
-    {
-        return $this->getValue('payment_processing');
-    }
-
-    /**
-     * Check if payment processing is with order creation first.
-     *
-     * @return bool
-     */
-    public function isPaymentWithOrderFirst(): bool
-    {
-        return $this->getPaymentProcessing() === ConfigPaymentProcesing::ORDER_FIRST;
-    }
-
-    /**
-     * Check if payment processing is with payment creation first.
-     *
-     * @return bool
-     */
-    public function isPaymentWithPaymentFirst(): bool
-    {
-        return $this->getPaymentProcessing() === ConfigPaymentProcesing::PAYMENT_FIRST;
-    }
-
-    /**
      * Checks if payment options can be displayed.
      *
      * @return bool
@@ -277,7 +201,7 @@ class Config
      *
      * @return string[]
      */
-    public function getAccountKeys(string $methodId = null): array
+    public function getAccountKeys(?string $methodId = null): array
     {
         // Get the account keys for a method
         if ($methodId) {
@@ -338,6 +262,36 @@ class Config
         }
 
         return $output;
+    }
+
+    /**
+     * Check if payment processing is with order creation first.
+     *
+     * @return bool
+     */
+    public function isPaymentWithOrderFirst(): bool
+    {
+        return $this->getPaymentProcessing() === ConfigPaymentProcesing::ORDER_FIRST;
+    }
+
+    /**
+     * Returns payment processing value (Payment first or Order first)
+     *
+     * @return string
+     */
+    public function getPaymentProcessing(): string
+    {
+        return $this->getValue('payment_processing');
+    }
+
+    /**
+     * Check if payment processing is with payment creation first.
+     *
+     * @return bool
+     */
+    public function isPaymentWithPaymentFirst(): bool
+    {
+        return $this->getPaymentProcessing() === ConfigPaymentProcesing::PAYMENT_FIRST;
     }
 
     /**

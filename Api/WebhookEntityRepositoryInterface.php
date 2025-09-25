@@ -40,7 +40,7 @@ interface WebhookEntityRepositoryInterface
      *
      * @return \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface
      */
-    public function getById(int $entityId): WebhookEntityInterface;
+    public function getById(int $entityId): \CheckoutCom\Magento2\Api\Data\WebhookEntityInterface;
 
     /**
      * Delete webhook by id

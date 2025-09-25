@@ -43,17 +43,6 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class PaymentContextRequestService
 {
-    protected StoreManagerInterface $storeManager;
-    protected ApiHandlerService $apiHandlerService;
-    protected Session $checkoutSession;
-    protected Config $checkoutConfigProvider;
-    protected UrlInterface $urlBuilder;
-    protected MagentoLoggerHelper $ckoLogger;
-    protected Utilities $utilities;
-    protected AddressInterfaceFactory $addressInterfaceFactory;
-    protected CartRepositoryInterface $cartRepository;
-    protected RegionCollectionFactory $regionCollectionFactory;
-    protected ShopperHandlerService $shopperHandlerService;
     /**
      * Should we set the shipping fils as an item line (if no it's used on "processing" request part)
      */
@@ -79,6 +68,19 @@ class PaymentContextRequestService
      */
     protected ?string $authorizeType = null;
 
+    protected StoreManagerInterface $storeManager;
+    protected ApiHandlerService $apiHandler;
+    protected Session $checkoutSession;
+    protected Config $checkoutConfigProvider;
+    protected UrlInterface $urlBuilder;
+    protected ApiHandlerService $apiHandlerService;
+    protected MagentoLoggerHelper $ckoLogger;
+    protected Utilities $utilities;
+    protected AddressInterfaceFactory $addressInterfaceFactory;
+    protected RegionCollectionFactory $regionCollectionFactory;
+    protected CartRepositoryInterface $cartRepository;
+    protected ShopperHandlerService $shopperHandlerService;
+
     public function __construct(
         StoreManagerInterface $storeManager,
         ApiHandlerService $apiHandler,
@@ -94,16 +96,17 @@ class PaymentContextRequestService
         ShopperHandlerService $shopperHandlerService
     ) {
         $this->storeManager = $storeManager;
-        $this->apiHandlerService = $apiHandler;
-        $this->checkoutConfigProvider = $checkoutConfigProvider;
+        $this->apiHandler = $apiHandler;
         $this->checkoutSession = $checkoutSession;
+        $this->checkoutConfigProvider = $checkoutConfigProvider;
         $this->urlBuilder = $urlBuilder;
+        $this->apiHandlerService = $apiHandlerService;
         $this->ckoLogger = $ckoLogger;
-        $this->utilities = $utilities;
         $this->addressInterfaceFactory = $addressInterfaceFactory;
-        $this->cartRepository = $cartRepository;
         $this->regionCollectionFactory = $regionCollectionFactory;
+        $this->cartRepository = $cartRepository;
         $this->shopperHandlerService = $shopperHandlerService;
+        $this->utilities = $utilities;
     }
 
     public function makePaymentContextRequests(
@@ -149,16 +152,16 @@ class PaymentContextRequestService
         }
 
         $quote = $this->getQuote();
-        $paymentRequestsDatas = $contextDatas['payment_request'];
-        $name = $paymentRequestsDatas['customer']['name'] ? explode(' ', $paymentRequestsDatas['customer']['name'], 2) : [];
+        $paymentRequestsDatas = $contextDatas['payment_request'] ?? [];
+        $name = !empty($paymentRequestsDatas['customer']['name']) ? explode(' ', $paymentRequestsDatas['customer']['name'], 2) : [];
         $quote->setCustomerFirstname($name[0] ?? $quote->getCustomerFirstname());
         $quote->setCustomerLastname($name[1] ?? $quote->getCustomerLastname());
         $quote->setCustomerEmail($paymentRequestsDatas['customer']['email'] ?? $quote->getCustomerEmail());
 
         /** @var AddressInterface $quoteAddress */
         $quoteAddress = $this->addressInterfaceFactory->create();
-        $shippingAddressRequesDatas = $paymentRequestsDatas['shipping']['address'];
-        $shippingName = $paymentRequestsDatas['shipping']['first_name'] ? explode(' ', $paymentRequestsDatas['shipping']['first_name'], 2) : [];
+        $shippingAddressRequesDatas = $paymentRequestsDatas['shipping']['address'] ?? [];
+        $shippingName = !empty($paymentRequestsDatas['shipping']['first_name']) ? explode(' ', $paymentRequestsDatas['shipping']['first_name'], 2) : [];
         $quoteAddress->setFirstname($shippingName[0] ?? $quoteAddress->getFirstname());
         $quoteAddress->setLastname($shippingName[1] ?? $quoteAddress->getLastname());
         $quoteAddress->setCity($shippingAddressRequesDatas['city'] ?? $quoteAddress->getCity());

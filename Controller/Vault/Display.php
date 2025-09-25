@@ -33,40 +33,11 @@ use Magento\Vault\Model\PaymentToken;
  */
 class Display extends Action
 {
-    /**
-     * $pageFactory field
-     *
-     * @var PageFactory $pageFactory
-     */
-    private $pageFactory;
-    /**
-     * $jsonFactory field
-     *
-     * @var JsonFactory $jsonFactory
-     */
-    private $jsonFactory;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $vaultHandler field
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
+    private PageFactory $pageFactory;
+    private JsonFactory $jsonFactory;
+    private Config $config;
+    private VaultHandlerService $vaultHandler;
 
-    /**
-     * Display constructor
-     *
-     * @param Context $context
-     * @param PageFactory $pageFactory
-     * @param JsonFactory $jsonFactory
-     * @param Config $config
-     * @param VaultHandlerService $vaultHandler
-     */
     public function __construct(
         Context $context,
         PageFactory $pageFactory,

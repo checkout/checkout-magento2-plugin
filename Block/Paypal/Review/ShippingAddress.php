@@ -71,8 +71,8 @@ class ShippingAddress extends CustomerAddressEdit
         UrlInterface $url,
         RequestInterface $request,
         array $data = [],
-        AddressMetadataInterface $addressMetadata = null,
-        Address $addressHelper = null
+        ?AddressMetadataInterface $addressMetadata = null,
+        ?Address $addressHelper = null
     ) {
         parent::__construct(
             $context,
@@ -93,11 +93,10 @@ class ShippingAddress extends CustomerAddressEdit
 
         $this->addressConfig = $addressConfig;
         $this->checkoutSession = $checkoutSession;
+        $this->_address = $this->checkoutSession->getQuote()->getShippingAddress();
         $this->customerInterfaceFactory = $customerInterfaceFactory;
         $this->url = $url;
         $this->request = $request;
-
-        $this->_address = $this->checkoutSession->getQuote()->getShippingAddress();
     }
 
     /**
@@ -144,9 +143,14 @@ class ShippingAddress extends CustomerAddressEdit
         return (string)$this->getAddress()->getRegion();
     }
 
-    public function getRegionId()
+    /**
+     * Return the id of the region being edited.
+     *
+     * @return int region id
+     */
+    public function getRegionId(): int
     {
-        return $this->getAddress()->getRegionId() ?? 0;
+        return (int)($this->getAddress()->getRegionId()) ?? 0;
     }
 
     public function getTitle(): Phrase

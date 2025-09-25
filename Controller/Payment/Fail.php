@@ -41,82 +41,16 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Fail extends Action
 {
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    protected $messageManager;
-    /**
-     * $transactionHandler field
-     *
-     * @var TransactionHandlerService $transactionHandler
-     */
-    private $transactionHandler;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $apiHandler field
-     *
-     * @var CheckoutApi $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $orderStatusHandler field
-     *
-     * @var OrderStatusHandlerService $orderStatusHandler
-     */
-    private $orderStatusHandler;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $paymentErrorHandlerService field
-     *
-     * @var PaymentErrorHandlerService $paymentErrorHandlerService
-     */
-    private $paymentErrorHandlerService;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $session field
-     *
-     * @var Session $session
-     */
-    private $session;
+    private TransactionHandlerService $transactionHandler;
+    private StoreManagerInterface $storeManager;
+    private ApiHandlerService $apiHandler;
+    private OrderHandlerService $orderHandler;
+    private OrderStatusHandlerService $orderStatusHandler;
+    private Logger $logger;
+    private PaymentErrorHandlerService $paymentErrorHandlerService;
+    private Config $config;
+    private Session $session;
 
-    /**
-     * Fail constructor
-     *
-     * @param Context $context
-     * @param ManagerInterface $messageManager
-     * @param TransactionHandlerService $transactionHandler
-     * @param StoreManagerInterface $storeManager
-     * @param ApiHandlerService $apiHandler
-     * @param OrderHandlerService $orderHandler
-     * @param OrderStatusHandlerService $orderStatusHandler
-     * @param Logger $logger
-     * @param PaymentErrorHandlerService $paymentErrorHandlerService
-     * @param Config $config
-     * @param Session $session
-     */
     public function __construct(
         Context $context,
         ManagerInterface $messageManager,
@@ -220,17 +154,17 @@ class Fail extends Action
                     // Return to the cart
                     if (isset($response['metadata']['failureUrl'])) {
                         return $this->_redirect($response['metadata']['failureUrl']);
-                    } else {
-                        return $this->_redirect('checkout/cart', ['_secure' => true]);
                     }
-                } else {
-                    $this->messageManager->addErrorMessage(
-                        __('The card could not be saved.')
-                    );
 
-                    // Return to the saved card page
-                    return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
+                    return $this->_redirect('checkout/cart', ['_secure' => true]);
                 }
+
+                $this->messageManager->addErrorMessage(
+                    __('The card could not be saved.')
+                );
+
+                // Return to the saved card page
+                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
         } catch (Exception $e) {
             // Restore the quote

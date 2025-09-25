@@ -54,23 +54,28 @@ class Script extends Template
         return (string)$this->paypalMethod->getConfigData('checkout_partner_attribution_id');
     }
 
-    public function getIntent(): string
+    public function getWindowData(): string
     {
-        return $this->checkoutConfig->needsAutoCapture() ? 'capture' : 'authorize';
-    }
-
-    public function getCommit(): string
-    {
-        return $this->isExpressButton() ? 'false' : 'true';
-    }
-
-    public function getPageType(): string
-    {
-        return $this->getScriptType() ?? 'checkout';
+        return json_encode(['intent' => $this->getIntent(), 'commit' => $this->getCommit(), 'pageType' => $this->getPageType()]);
     }
 
     private function isExpressButton(): bool
     {
         return $this->getMode() === 'express';
+    }
+
+    private function getIntent(): string
+    {
+        return $this->checkoutConfig->needsAutoCapture() ? 'capture' : 'authorize';
+    }
+
+    private function getCommit(): string
+    {
+        return $this->isExpressButton() ? 'false' : 'true';
+    }
+
+    private function getPageType(): string
+    {
+        return $this->getScriptType() ?? 'checkout';
     }
 }

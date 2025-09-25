@@ -16,18 +16,18 @@
 
 use CheckoutCom\Magento2\Block\Paypal\Script;
 use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+
 /** @var Escaper $escaper */
 /** @var Script $block */
+/** @var SecureHtmlRenderer $secureRenderer */
+
 $clientId = $block->getClientId();
 $partnerId = $block->getPartnerAttributionId();
 $paypalMerchantId = $block->getPaypalMerchantId();
 if ($clientId && $partnerId && $paypalMerchantId):
-?>
-<script>
-    window.paypalCheckoutConfig = {
-        intent: '<?= $escaper->escapeJs($block->getIntent()) ?>',
-        commit: '<?= $escaper->escapeJs($block->getCommit()); ?>',
-        pageType: '<?= $escaper->escapeUrl($block->getPageType()) ?>'
-    }
-</script>
+    $jsonConfig = $block->getWindowData();
+    $scriptContent = "window.paypalCheckoutConfig = JSON.parse('{$jsonConfig}');";
+    ?>
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptContent, false); ?>
 <?php endif; ?>

@@ -13,40 +13,52 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+
+/**
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
 ?>
 
-<div data-role="collapsible" id="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" class="cko-apm <?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
+<div data-role="collapsible" id="<?= $escaper->escapeHtmlAttr($block->getData('apm_id')) ?>"
+     class="cko-apm <?= $escaper->escapeHtmlAttr($block->getData('apm_id')) ?>">
     <div data-role="trigger">
-        <span class="bg-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?> bg-apm"></span>
-        <span><?= $block->escapeHtml($block->getData('title'))?></span>
+        <span class="bg-<?= $escaper->escapeHtmlAttr($block->getData('apm_id')) ?> bg-apm"></span>
+        <span><?= $escaper->escapeHtml($block->getData('title')) ?></span>
     </div>
 </div>
 <div data-role="content" class="apm-content">
-    <form id="cko-apm-form-<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>">
-        <input type="hidden" name="source" value="<?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" required>
+    <form id="cko-apm-form-<?= $escaper->escapeHtmlAttr($block->getData('apm_id')) ?>">
+        <input type="hidden" name="source" value="<?= $escaper->escapeHtmlAttr($block->getData('apm_id')) ?>" required>
         <?php if ($block->getData('service_previous_mode')): ?>
             <div class="input-group">
                 <label class="icon" for="bic">
                 <span class="ckojs ckojs-card"></label>
                 <select name="bic" id="bic" required>
-                    <option value=""><?= $block->escapeHtml(__('BIC')); ?></option>
+                    <option value=""><?= $escaper->escapeHtml(__('BIC')); ?></option>
                 </select>
             </div>
         <?php endif; ?>
         <div class="input-group">
             <label class="icon" for="description">
-            <span class="ckojs ckojs-card"></label>
-            <input type="text" id="description" name="description" placeholder="<?= $block->escapeHtmlAttr(__('Description')); ?>" class="input-control" required>
+                <span class="ckojs ckojs-card"></label>
+            <input type="text" id="description" name="description" placeholder="<?= $escaper->escapeHtmlAttr(__('Description')); ?>" class="input-control"
+                   required>
         </div>
         <br>
     </form>
     <?php if ($block->getData('service_previous_mode')): ?>
-        <script>
+        <?php
+        $url = $escaper->escapeUrl($block->getUrl('checkout_com/apm/displaybic'));
+        $script = <<<script
             require([
                 'jquery'
             ], function ($) {
                 $.ajax({
-                    url: '<?= $block->escapeUrl($block->getUrl("checkout_com/apm/displaybic")) ?>',
+                    url: '{$url}',
                     type:'GET',
                     success: function(response){
                         $.each( response, function(key, value) {
@@ -60,6 +72,9 @@
                     }
                 });
             });
-        </script>
+script
+        ?>
+        <?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false) ?>
+
     <?php endif; ?>
 </div>

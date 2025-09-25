@@ -46,7 +46,6 @@ class View extends Template
         array $data = []
     ) {
         parent::__construct($context, $data);
-
         $this->utilities = $utilities;
         $this->request = $request;
         $this->orderRepository = $orderRepository;
@@ -64,6 +63,11 @@ class View extends Template
         return null;
     }
 
+    private function getOrder(): OrderInterface
+    {
+        return $this->orderRepository->get($this->request->getParam('order_id'));
+    }
+
     public function getCko3dsPaymentData(string $data): ?string
     {
         $paymentData = $this->utilities->getPaymentData($this->getOrder(), 'cko_threeDs')['threeDs'] ?? [];
@@ -72,11 +76,6 @@ class View extends Template
         }
 
         return null;
-    }
-
-    private function getOrder(): OrderInterface
-    {
-        return $this->orderRepository->get($this->request->getParam('order_id'));
     }
 
     public function getAvsCheckDescription(string $avsCheckCode): string
@@ -174,12 +173,13 @@ class View extends Template
 
     public function getAlternativePaymentMethodName(): string
     {
-        $methodId = $this->getOrder()->getPayment()->getAdditionalInformation()['method_id'] ?? '';
+        $methodId = $this->getOrder()->getPayment()?->getAdditionalInformation()['method_id'] ?? '';
+
         return $methodId ?? $this->configLoader->getApmLabel($methodId)[$methodId];
     }
 
     public function getAlternativePaymentMethodTransactionInfo(): string
     {
-        return $this->getOrder()->getPayment()->getAdditionalInformation()['transaction_info']['id'] ?? '';
+        return $this->getOrder()->getPayment()?->getAdditionalInformation()['transaction_info']['id'] ?? '';
     }
 }

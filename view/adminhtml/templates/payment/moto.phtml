@@ -16,8 +16,14 @@
  */
 
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
 
-/** @var Moto $block */
+/**
+ * @var Moto $block
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
 
 ?>
 <fieldset class="admin__fieldset payment-method checkoutcom_moto"
@@ -44,22 +50,22 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
                         $publicHash = $card->getPublicHash();
                         $tokenData = $block->getVaultHandler()->renderTokenData($card);
                         ?>
-                        <div id="cko-vault-card-<?= $block->escapeHtmlAttr($card->getEntityId())?>"
+                        <div id="cko-vault-card-<?= $escaper->escapeHtmlAttr($card->getEntityId())?>"
                         class="cko-vault-card">
                             <div class="vault-details">
                                 <label>
                                     <input type="radio" name="publicHash"
-                                    value="<?= $block->escapeHtmlAttr($publicHash)?>">
-                                    <img src="<?= $block->escapeHtmlAttr($iconUrl) ?>"
+                                    value="<?= $escaper->escapeHtmlAttr($publicHash)?>">
+                                    <img src="<?= $escaper->escapeHtmlAttr($iconUrl) ?>"
                                     style="display:inline-block; vertical-align:-50%">
                                 </label>
                                 <span>
-                                <?= $block->escapeHtml($tokenData)?>
+                                <?= $escaper->escapeHtml($tokenData)?>
                                 </span>
                             </div>
                             <div class="vault-cvv">
                                 <input type="text" name="cvv-unused" maxlength="4"
-                                placeholder="<?= $block->escapeHtmlAttr(__('CVV')) ?>">
+                                placeholder="<?= $escaper->escapeHtmlAttr(__('CVV')) ?>">
                             </div>
                             <div class="clr"></div>
                         </div>
@@ -74,16 +80,20 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 </fieldset>
 
 <!-- Payment form JS -->
-<script type="text/javascript">
-    require(['jquery', 'domReady!', 'framesjs'], function ($) {
+<?php
+$publicKey = $block->escapeHtml($block->getConfig()->getAccountKeys('checkoutcom_moto')['public_key']);
+$debug = $block->escapeHtml($block->getConfig()->getValue('debug'));
+
+$script = <<<script
+require(['jquery', 'domReady!', 'framesjs'], function ($) {
         // Prepare the elements
         var cardTokenField = document.getElementById('ckoCardToken');
         var paymentForm = document.getElementById('motoCardForm');
 
         Frames.init(
             {
-                publicKey: '<?= $block->escapeHtml($block->getConfig()->getAccountKeys('checkoutcom_moto')['public_key']) ?>',
-                debug: Boolean(<?= $block->escapeHtml($block->getConfig()->getValue('debug')) ?>),
+                publicKey: '{$publicKey}',
+                debug: Boolean({$debug}),
                 schemeChoice: {
                     frameSelector: ".scheme-choice-frame"
                 },
@@ -107,38 +117,44 @@ use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
             }
         );
     });
-</script>
+script
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false) ?>
 
 <!-- Saved cards JS-->
 <?php
 
 if ($block->canDisplayAdminCards()): ?>
-    <script type="text/javascript">
-        require(['jquery', 'domReady!'], function ($) {
-            // Prepare some variables
-            var listItem = $('.cko-vault-card');
 
-            // Mouse over/out behaviour
-            listItem.mouseenter(function() {
-                $(this).addClass('card-on');
-            }).mouseleave(function() {
-                $(this).removeClass('card-on');
-            });
+    <?php
+        $scriptAdminCards = <<<script
+    require(['jquery', 'domReady!'], function ($) {
+                // Prepare some variables
+                var listItem = $('.cko-vault-card');
 
-            // Click behaviour
-            listItem.on('click touch', function() {
-                listItem.removeClass('card-selected');
-                listItem.not(this).find('.vault-cvv input').val('');
-                listItem.not(this).find('.vault-cvv input').attr('name', 'cvv-unused');
-                $(this).find('.vault-cvv input').attr('name', 'cvv');
-                $(this).addClass('card-selected');
-                $(this).find('input[type="radio"]').attr('checked', true);
-            });
+                // Mouse over/out behaviour
+                listItem.mouseenter(function() {
+                    $(this).addClass('card-on');
+                }).mouseleave(function() {
+                    $(this).removeClass('card-on');
+                });
 
-            // CVV focus event
-            $('.vault-cvv input').on('focus', function() {
-                $(this).closest(listItem).trigger('click');
+                // Click behaviour
+                listItem.on('click touch', function() {
+                    listItem.removeClass('card-selected');
+                    listItem.not(this).find('.vault-cvv input').val('');
+                    listItem.not(this).find('.vault-cvv input').attr('name', 'cvv-unused');
+                    $(this).find('.vault-cvv input').attr('name', 'cvv');
+                    $(this).addClass('card-selected');
+                    $(this).find('input[type="radio"]').attr('checked', true);
+                });
+
+                // CVV focus event
+                $('.vault-cvv input').on('focus', function() {
+                    $(this).closest(listItem).trigger('click');
+                });
             });
-        });
-    </script>
+script
+    ?>
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $scriptAdminCards, false) ?>
 <?php endif; ?>

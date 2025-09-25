@@ -31,6 +31,15 @@
                     <argument name="script_type" xsi:type="string">checkout</argument>
                 </arguments>
             </block>
+            <block class="Magento\Framework\View\Element\Template"
+                   name="checkout.applepay.script"
+                   template="CheckoutCom_Magento2::script/applepay-script.phtml">
+                <arguments>
+                    <argument name="mode" xsi:type="string">express</argument>
+                    <argument name="script_type" xsi:type="string">mini-cart</argument>
+                    <argument name="view_model" xsi:type="object">CheckoutCom\Magento2\ViewModel\Cart\ApplePayButton</argument>
+                </arguments>
+            </block>
         </referenceBlock>
         <referenceBlock name="checkout.root">
             <arguments>

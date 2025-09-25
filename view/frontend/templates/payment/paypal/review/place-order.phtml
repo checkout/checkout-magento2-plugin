@@ -17,10 +17,13 @@
 /**
  * @var PlaceOrderButton $block
  * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
  */
 
 use CheckoutCom\Magento2\Block\Paypal\Review\PlaceOrderButton;
 use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+
 ?>
 
 <div class="form order-review-form" id="checkoutcom_paypal_container">
@@ -44,15 +47,24 @@ use Magento\Framework\Escaper;
         $secureRenderer->renderStyleAsTag("display: none;", 'span#review-please-wait') ?>
     </div>
 </div>
-<script type="text/x-magento-init">
-    {
-        "#checkoutcom-paypal-container": {
-            "CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_review": {
-                "chkPayPalContextId": "<?= $escaper->escapeJs($block->getContextId()); ?>",
-                "addressForm": ".form-address-edit",
-                "methodId": "<?= $escaper->escapeJs($block->getPaymentMethod()); ?>",
-                "buttonSelector": "#review-button"
-            }
-        }
-    }
-</script>
+<?php
+$data = [
+    "#checkoutcom-paypal-container" => [
+        "CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_review" => [
+            "chkPayPalContextId" => $block->getContextId(),
+            "addressForm" => ".form-address-edit",
+            "methodId" => $block->getPaymentMethod(),
+            "buttonSelector" => "#review-button"
+        ]
+    ]
+];
+
+$jsonInit = json_encode($data, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+?>
+
+<?= /* @noEscape */ $secureRenderer->renderTag(
+    'script',
+    ['type' => 'text/x-magento-init'],
+    $jsonInit,
+    false
+) ?>

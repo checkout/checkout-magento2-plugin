@@ -44,9 +44,24 @@
         <!-- ko if: canPayWithApplePay -->
         <div class="actions-toolbar">
             <div class="primary">
-                <button id="ckoApplePayButton" type="button"
-                        data-bind="click: placeOrder, class: buttonClass"
-                        class="apple-pay-button action primary checkout ap-checkout"></button>
+
+                <button
+                    id="ckoApplePayButton"
+                    type="button"
+                    data-bind="click: placeOrder, class: buttonClass, visible: disabledOnAllBrowsers"
+                    class="apple-pay-button action primary checkout ap-checkout"
+                    >
+                </button>
+
+                <apple-pay-button
+                    data-bind="attr: { buttonstyle: buttonStyle, locale: locale }, click: placeOrder, class: buttonClass, visible: enabledOnAllBrowsers"
+                    buttonstyle="black"
+                    type="plain"
+                    locale="en-US"
+                    class="apple-pay-button checkout ap-cart"
+                >
+                </apple-pay-button>
+
             </div>
         </div>
         <!--/ko-->

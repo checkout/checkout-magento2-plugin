@@ -42,81 +42,17 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class V1 extends Action
 {
-    /**
-     * $jsonFactory field
-     *
-     * @var JsonFactory $jsonFactory
-     */
-    private $jsonFactory;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $methodHandler field
-     *
-     * @var MethodHandlerService $methodHandler
-     */
-    private $methodHandler;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $utilities field
-     *
-     * @var Utilities $utilities
-     */
-    private $utilities;
-    /**
-     * $data field
-     *
-     * @var array $data
-     */
     private $data;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
+    private JsonFactory $jsonFactory;
+    private Config $config;
+    private StoreManagerInterface $storeManager;
+    private QuoteHandlerService $quoteHandler;
+    private OrderHandlerService $orderHandler;
+    private MethodHandlerService $methodHandler;
+    private ApiHandlerService $apiHandler;
+    private Utilities $utilities;
+    private OrderRepositoryInterface $orderRepository;
 
-    /**
-     * Callback constructor
-     *
-     * @param Context $context
-     * @param JsonFactory $jsonFactory
-     * @param Config $config
-     * @param StoreManagerInterface $storeManager
-     * @param QuoteHandlerService $quoteHandler
-     * @param OrderHandlerService $orderHandler
-     * @param MethodHandlerService $methodHandler
-     * @param ApiHandlerService $apiHandler
-     * @param Utilities $utilities
-     * @param OrderRepositoryInterface $orderRepository
-     */
     public function __construct(
         Context $context,
         JsonFactory $jsonFactory,

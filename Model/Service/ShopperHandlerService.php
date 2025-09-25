@@ -34,46 +34,12 @@ use Magento\Store\Model\ScopeInterface;
  */
 class ShopperHandlerService
 {
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $languageCallbackConfig field
-     *
-     * @var ConfigLanguageFallback $languageCallbackConfig
-     */
-    private $languageCallbackConfig;
-    /**
-     * $customerSession field
-     *
-     * @var Session $customerSession
-     */
-    private $customerSession;
-    /**
-     * $customerRepository field
-     *
-     * @var CustomerRepositoryInterface $customerRepository
-     */
-    private $customerRepository;
-    /**
-     * $localeResolver field
-     *
-     * @var Resolver $localeResolver
-     */
-    private $localeResolver;
+    private Config $config;
+    private ConfigLanguageFallback $languageCallbackConfig;
+    private Session $customerSession;
+    private CustomerRepositoryInterface $customerRepository;
+    private Resolver $localeResolver;
 
-    /**
-     * ShopperHandlerService constructor
-     *
-     * @param Config $config
-     * @param ConfigLanguageFallback $languageCallbackConfig
-     * @param Session $customerSession
-     * @param CustomerRepositoryInterface $customerRepository
-     * @param Resolver $localeResolver
-     */
     public function __construct(
         Config $config,
         ConfigLanguageFallback $languageCallbackConfig,

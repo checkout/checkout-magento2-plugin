@@ -13,13 +13,11 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-
-declare(strict_types=1);
-
-namespace CheckoutCom\Magento2\Logger\Handler;
-
-use Magento\Framework\Logger\Monolog;
-
-class Logger extends Monolog
-{
-}
+?>
+<?php
+if ($block->getViewModel()->isApplePayEnabledForAllBrowsers()):
+?>
+    <script src="https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js"></script>
+<?php
+endif;
+?>

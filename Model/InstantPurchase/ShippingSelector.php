@@ -32,7 +32,7 @@ class ShippingSelector
      *
      * @param Address $address
      *
-     * @return string
+     * @return string|null
      */
     public function getShippingMethod(Address $address): ?string
     {
