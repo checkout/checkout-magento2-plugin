@@ -30,19 +30,8 @@ use Magento\Framework\View\Result\PageFactory;
  */
 class View extends Action
 {
-    /**
-     * $resultPageFactory field
-     *
-     * @var PageFactory $resultPageFactory
-     */
-    protected $resultPageFactory;
+    protected PageFactory $resultPageFactory;
 
-    /**
-     * View constructor
-     *
-     * @param Context     $context
-     * @param PageFactory $resultPageFactory
-     */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory

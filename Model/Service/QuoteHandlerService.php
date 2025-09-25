@@ -24,6 +24,7 @@ use CheckoutCom\Magento2\Helper\Logger;
 use Magento\Catalog\Api\ProductRepositoryInterface;
 use Magento\Checkout\Model\Session;
 use Magento\Customer\Api\Data\GroupInterface;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\DataObjectFactory;
 use Magento\Framework\Exception\InputException;
 use Magento\Framework\Exception\LocalizedException;
@@ -42,91 +43,21 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class QuoteHandlerService
 {
-    /**
-     * $checkoutSession field
-     *
-     * @var Session $checkoutSession
-     */
-    private $checkoutSession;
-    /**
-     * $customerSession field
-     *
-     * @var Session $customerSession
-     */
-    private $customerSession;
-    /**
-     * $cookieManager field
-     *
-     * @var CookieManagerInterface $cookieManager
-     */
-    private $cookieManager;
-    /**
-     * $quoteFactory field
-     *
-     * @var QuoteFactory $quoteFactory
-     */
-    private $quoteFactory;
-    /**
-     * $cartRepository field
-     *
-     * @var CartRepositoryInterface $cartRepository
-     */
-    private $cartRepository;
-    /**
-     * $storeManager field
-     *
-     * @var StoreManagerInterface $storeManager
-     */
-    private $storeManager;
-    /**
-     * $productRepository field
-     *
-     * @var ProductRepositoryInterface $productRepository
-     */
-    private $productRepository;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $shopperHandler field
-     *
-     * @var ShopperHandlerService $shopperHandler
-     */
-    private $shopperHandler;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
-    /**
-     * $dataObjectFactory field
-     *
-     * @var DataObjectFactory $dataOjbectFactory
-     */
-    private $dataObjectFactory;
+    private Session $checkoutSession;
+    private CustomerSession $customerSession;
+    private CookieManagerInterface $cookieManager;
+    private QuoteFactory $quoteFactory;
+    private CartRepositoryInterface $cartRepository;
+    private StoreManagerInterface $storeManager;
+    private ProductRepositoryInterface $productRepository;
+    private Config $config;
+    private ShopperHandlerService $shopperHandler;
+    private Logger $logger;
+    private DataObjectFactory $dataObjectFactory;
 
-    /**
-     * QuoteHandlerService constructor
-     *
-     * @param Session $checkoutSession
-     * @param \Magento\Customer\Model\Session $customerSession
-     * @param CookieManagerInterface $cookieManager
-     * @param QuoteFactory $quoteFactory
-     * @param CartRepositoryInterface $cartRepository
-     * @param StoreManagerInterface $storeManager
-     * @param ProductRepositoryInterface $productRepository
-     * @param Config $config
-     * @param ShopperHandlerService $shopperHandler
-     * @param Logger $logger
-     * @param DataObjectFactory $dataObjectFactory
-     */
     public function __construct(
         Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
+        CustomerSession $customerSession,
         CookieManagerInterface $cookieManager,
         QuoteFactory $quoteFactory,
         CartRepositoryInterface $cartRepository,
@@ -148,6 +79,88 @@ class QuoteHandlerService
         $this->shopperHandler = $shopperHandler;
         $this->logger = $logger;
         $this->dataObjectFactory = $dataObjectFactory;
+    }
+
+    /**
+     * Create a new quote
+     *
+     * @param string|null $currency
+     * @param mixed|null $customer
+     *
+     * @return CartInterface
+     * @throws NoSuchEntityException|LocalizedException
+     */
+    public function createQuote(?string $currency = null, $customer = null): CartInterface
+    {
+        // Create the quote instance
+        $quote = $this->quoteFactory->create();
+        $quote->setStore($this->storeManager->getStore());
+
+        // Set the currency
+        if ($currency) {
+            $quote->setCurrency($currency);
+        } else {
+            $quote->setCurrency();
+        }
+
+        // Set the quote customer
+        if ($customer) {
+            $quote->assignCustomer($customer);
+        } else {
+            $quote->assignCustomer($this->shopperHandler->getCustomerData());
+        }
+
+        return $quote;
+    }
+
+    /**
+     * Get the order increment id from a quote
+     *
+     * @param CartInterface $quote
+     *
+     * @return string|null
+     */
+    public function getReference(CartInterface $quote): ?string
+    {
+        $this->cartRepository->save($quote->reserveOrderId());
+
+        return $quote->getReservedOrderId();
+    }
+
+    /**
+     * Prepares a quote for order placement
+     *
+     * @param string $methodId
+     * @param CartInterface|null $quote
+     *
+     * @return Quote|null
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function prepareQuote(string $methodId, ?CartInterface $quote = null): ?Quote
+    {
+        // Find quote and perform tasks
+        $quote = $quote ?: $this->getQuote();
+        if ($this->isQuote($quote)) {
+            // Prepare the inventory
+            $quote->setInventoryProcessed(false);
+
+            // Collect totals
+            $quote->collectTotals();
+
+            // Check for guest user quote
+            if (!$this->customerSession->isLoggedIn() && $quote->getCustomerId() == null) {
+                $quote = $this->prepareGuestQuote($quote);
+            }
+
+            // Set the payment information
+            $payment = $quote->getPayment();
+            $payment->setMethod($methodId);
+
+            return $quote;
+        }
+
+        return null;
     }
 
     /**
@@ -184,38 +197,6 @@ class QuoteHandlerService
     }
 
     /**
-     * Create a new quote
-     *
-     * @param string|null $currency
-     * @param mixed|null $customer
-     *
-     * @return CartInterface
-     * @throws NoSuchEntityException|LocalizedException
-     */
-    public function createQuote(string $currency = null, $customer = null): CartInterface
-    {
-        // Create the quote instance
-        $quote = $this->quoteFactory->create();
-        $quote->setStore($this->storeManager->getStore());
-
-        // Set the currency
-        if ($currency) {
-            $quote->setCurrency($currency);
-        } else {
-            $quote->setCurrency();
-        }
-
-        // Set the quote customer
-        if ($customer) {
-            $quote->assignCustomer($customer);
-        } else {
-            $quote->assignCustomer($this->shopperHandler->getCustomerData());
-        }
-
-        return $quote;
-    }
-
-    /**
      * Checks if a quote exists and is valid
      *
      * @param mixed $quote
@@ -228,56 +209,6 @@ class QuoteHandlerService
     }
 
     /**
-     * Get the order increment id from a quote
-     *
-     * @param CartInterface $quote
-     *
-     * @return string|null
-     */
-    public function getReference(CartInterface $quote): ?string
-    {
-        $this->cartRepository->save($quote->reserveOrderId());
-
-        return $quote->getReservedOrderId();
-    }
-
-    /**
-     * Prepares a quote for order placement
-     *
-     * @param string $methodId
-     * @param CartInterface|null $quote
-     *
-     * @return Quote|null
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    public function prepareQuote(string $methodId, CartInterface $quote = null): ?Quote
-    {
-        // Find quote and perform tasks
-        $quote = $quote ?: $this->getQuote();
-        if ($this->isQuote($quote)) {
-            // Prepare the inventory
-            $quote->setInventoryProcessed(false);
-
-            // Collect totals
-            $quote->collectTotals();
-
-            // Check for guest user quote
-            if (!$this->customerSession->isLoggedIn() && $quote->getCustomerId() == null) {
-                $quote = $this->prepareGuestQuote($quote);
-            }
-
-            // Set the payment information
-            $payment = $quote->getPayment();
-            $payment->setMethod($methodId);
-
-            return $quote;
-        }
-
-        return null;
-    }
-
-    /**
      * Sets the email for guest users
      *
      * @param CartInterface $quote
@@ -287,13 +218,13 @@ class QuoteHandlerService
      * @throws InputException
      * @throws FailureToSendException
      */
-    public function prepareGuestQuote(CartInterface $quote, string $email = null): CartInterface
+    public function prepareGuestQuote(CartInterface $quote, ?string $email = null): CartInterface
     {
         // Retrieve the user email
         $guestEmail = ($email) ? $email : $this->findEmail($quote);
 
         // Set the quote as guest
-        $quote->setCustomerId(null)->setCustomerEmail($guestEmail)->setCustomerIsGuest(true)->setCustomerGroupId(
+        $quote->setCustomerId(0)->setCustomerEmail($guestEmail)->setCustomerIsGuest(true)->setCustomerGroupId(
             GroupInterface::NOT_LOGGED_IN_ID
         );
 
@@ -334,6 +265,18 @@ class QuoteHandlerService
     }
 
     /**
+     * Gets the billing address.
+     *
+     * @return AddressInterface|null
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getBillingAddress(): ?AddressInterface
+    {
+        return $this->getQuote()->getBillingAddress();
+    }
+
+    /**
      * Gets an array of quote parameters
      *
      * @return mixed[]
@@ -353,6 +296,18 @@ class QuoteHandlerService
     }
 
     /**
+     * Gets a quote value
+     *
+     * @return float
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getQuoteValue(): float
+    {
+        return $this->getQuote()->collectTotals()->getGrandTotal();
+    }
+
+    /**
      * Gets a quote currency
      *
      * @param CartInterface|null $quote
@@ -361,7 +316,7 @@ class QuoteHandlerService
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function getQuoteCurrency(CartInterface $quote = null): string
+    public function getQuoteCurrency(?CartInterface $quote = null): string
     {
         $quote = ($quote) ? $quote : $this->getQuote();
         $quoteCurrencyCode = $quote->getQuoteCurrencyCode();
@@ -405,18 +360,6 @@ class QuoteHandlerService
         } else {
             return $amount * 100;
         }
-    }
-
-    /**
-     * Gets a quote value
-     *
-     * @return float
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    public function getQuoteValue(): float
-    {
-        return $this->getQuote()->collectTotals()->getGrandTotal();
     }
 
     /**
@@ -487,18 +430,6 @@ class QuoteHandlerService
         }
 
         return [$output];
-    }
-
-    /**
-     * Gets the billing address.
-     *
-     * @return AddressInterface|Quote\Address|null
-     * @throws LocalizedException
-     * @throws NoSuchEntityException
-     */
-    public function getBillingAddress(): ?AddressInterface
-    {
-        return $this->getQuote()->getBillingAddress();
     }
 
     /**

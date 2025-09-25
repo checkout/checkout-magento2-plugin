@@ -16,22 +16,28 @@
  */
 
 use CheckoutCom\Magento2\Block\Account\AddCard;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
 
-/** @var AddCard $block */
+/**
+ * @var AddCard $block
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
 ?>
 
 <button id="ckoShowForm" class="action submit primary">
-    <?= $block->escapeHtml(__('Add a card')) ?>
+    <?= $escaper->escapeHtml(__('Add a card')) ?>
 </button>
 
 <div id="cko-form-holder" style="display: none;">
     <br>
     <div class="frames-field" id="cc-tooltip" style="display: none;">
-        <span><?= $block->escapeHtml(__('Select your preferred brand')) ?></span>
+        <span><?= $escaper->escapeHtml(__('Select your preferred brand')) ?></span>
         <span class="tooltip">
-            <button type="button" id="tooltip-trigger"><?= $block->escapeHtml(__('?')); ?></button>
+            <button type="button" id="tooltip-trigger"><?= $escaper->escapeHtml(__('?')); ?></button>
             <span class="tooltip-content" id="cc-tooltip-content" style="display: none;">
-                <?= $block->escapeHtml(__('Your card has two brands, and you can choose your preferred one for this payment. If you do not, then the merchant’s preferred brand will be selected.')); ?>
+                <?= $escaper->escapeHtml(__('Your card has two brands, and you can choose your preferred one for this payment. If you do not, then the merchant’s preferred brand will be selected.')); ?>
             </span>
         </span>
     </div>
@@ -48,11 +54,16 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
         <input type="hidden" id="ckoCardToken" name="ckoCardToken">
     </form>
 </div>
-<button id="ckoSaveCard" type="button" class="action primary"  title="<?= $block->escapeHtmlAttr(__('Save the card')) ?>" style="display: none;">
-    <?= $block->escapeHtml(__('Save the card')) ?>
+<button id="ckoSaveCard" type="button" class="action primary"  title="<?= $escaper->escapeHtmlAttr(__('Save the card')) ?>" style="display: none;">
+    <?= $escaper->escapeHtml(__('Save the card')) ?>
 </button>
 
-<script type="text/javascript">
+<?php
+$publicKey = $block->escapeHtml($block->getConfig()->getValue('public_key'));
+$debugFlag = (int) ($block->getConfig()->getValue('debug') && $block->getConfig()->getValue('console_logging'));
+$saveCardUrl = $block->escapeHtml($block->getUrl('checkout_com/account/savecard'));
+
+$script = <<<script
     require([
         'jquery',
         'domReady!',
@@ -63,7 +74,7 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
         var showFormButton = $('#ckoShowForm');
         var cardTokenField = $('#ckoCardToken');
         var cardFormContainerId = '#cko-form-holder';
-        var ckoPublicKey = '<?= $block->escapeHtml($block->getConfig()->getValue('public_key')); ?>';
+        var ckoPublicKey = '{$publicKey}'
         var paymentForm = document.getElementById('saveCardForm');
         const ccTooltip = document.getElementById('cc-tooltip');
         const tooltipBtn = document.getElementById('tooltip-trigger');
@@ -73,7 +84,7 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
         Frames.init(
             {
                 publicKey: ckoPublicKey,
-                debug: Boolean(<?= $block->escapeHtml(($block->getConfig()->getValue('debug') && $block->getConfig()->getValue('console_logging'))); ?>),
+                debug: Boolean({$debugFlag}),
                 schemeChoice: true,
                 modes: [ Frames.modes.FEATURE_FLAG_SCHEME_CHOICE],
                 cardValidationChanged: function() {
@@ -134,9 +145,8 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
             // Send the request
             $.ajax({
                 type: 'POST',
-                url: '<?= $block->escapeHtml($block->getUrl('checkout_com/account/savecard')); ?>',
+                url: '{$saveCardUrl}',
                 data: {cardToken: cardTokenField.val()},
-                contentType: "application/json",
                 dataType: "json",
                 success: function (data) {
                     window.location.href = data.url;
@@ -157,4 +167,6 @@ use CheckoutCom\Magento2\Block\Account\AddCard;
             });
         });
     });
-</script>
+script
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false);

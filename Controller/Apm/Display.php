@@ -40,57 +40,14 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Display extends Action
 {
-    /**
-     * @var ScopeConfigInterface
-     */
-    private $scopeConfig;
-    /**
-     * @var StoreManagerInterface
-     */
-    private $storeManager;
-    /**
-     * $pageFactory field
-     *
-     * @var PageFactory $pageFactory
-     */
-    private $pageFactory;
-    /**
-     * $jsonFactory field
-     *
-     * @var JsonFactory $jsonFactory
-     */
-    private $jsonFactory;
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
+    private PageFactory $pageFactory;
+    private JsonFactory $jsonFactory;
+    private Config $config;
+    private QuoteHandlerService $quoteHandler;
+    private StoreManagerInterface $storeManager;
+    private ScopeConfigInterface $scopeConfig;
+    private ApiHandlerService $apiHandler;
 
-    /**
-     * Display constructor
-     *
-     * @param Context $context
-     * @param PageFactory $pageFactory
-     * @param JsonFactory $jsonFactory
-     * @param Config $config
-     * @param QuoteHandlerService $quoteHandler
-     * @param StoreManagerInterface $storeManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param ApiHandlerService $apiHandler
-     */
     public function __construct(
         Context $context,
         PageFactory $pageFactory,

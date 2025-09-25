@@ -53,46 +53,19 @@ class Webhooks extends Command
      * @var string END_DATE
      */
     const END_DATE = 'end-date';
-    /**
-     * $state field
-     *
-     * @var State $state
-     */
-    protected $state;
-    /**
-     * $webhookHandlerFactory field
-     *
-     * @var WebhookHandlerServiceFactory $webhookHandlerFactory
-     */
-    private $webhookHandlerFactory;
-    /**
-     * $webhookEntityRepository field
-     *
-     * @var WebhookEntityRepositoryInterface $webhookEntityRepository
-     */
-    private $webhookEntityRepository;
-    /**
-     * $webhookHandler field
-     *
-     * @var WebhookHandlerService $webhookHandler
-     */
-    private $webhookHandler;
+    protected State $state;
+    private WebhookHandlerService $webhookHandler;
+    private WebhookEntityRepositoryInterface $webhookEntityRepository;
+    private WebhookHandlerServiceFactory $webhookHandlerFactory;
 
-    /**
-     * Webhook constructor
-     *
-     * @param State                            $state
-     * @param WebhookEntityRepositoryInterface $webhookEntityRepository
-     * @param WebhookHandlerServiceFactory     $webhookHandlerServiceFactory
-     */
     public function __construct(
         State $state,
         WebhookEntityRepositoryInterface $webhookEntityRepository,
-        WebhookHandlerServiceFactory $webhookHandlerServiceFactory
+        WebhookHandlerServiceFactory $webhookHandlerServiceFactory,
     ) {
-        $this->state                   = $state;
+        $this->state = $state;
         $this->webhookEntityRepository = $webhookEntityRepository;
-        $this->webhookHandlerFactory   = $webhookHandlerServiceFactory;
+        $this->webhookHandlerFactory = $webhookHandlerServiceFactory;
 
         parent::__construct();
     }
@@ -145,7 +118,7 @@ class Webhooks extends Command
     /**
      * Executes "cko:webhooks:clean" command.
      *
-     * @param InputInterface  $input
+     * @param InputInterface $input
      * @param OutputInterface $output
      *
      * @return void
@@ -155,19 +128,19 @@ class Webhooks extends Command
     {
         $this->createRequiredObjects();
 
-        $date      = $input->getOption(self::DATE);
+        $date = $input->getOption(self::DATE);
         $startDate = $input->getOption(self::START_DATE);
-        $endDate   = $input->getOption(self::END_DATE);
+        $endDate = $input->getOption(self::END_DATE);
 
         $webhooks = $this->webhookHandler->loadWebhookEntities();
-        $deleted  = 0;
+        $deleted = 0;
 
         foreach ($webhooks as $webhook) {
-            $payload     = json_decode($webhook['event_data'], true);
+            $payload = json_decode($webhook['event_data'], true);
             $webhookDate = date('Y-m-d', strtotime($webhook['received_at']));
 
             $webhookTime = strtotime($webhook['received_at']);
-            $timeBuffer  = strtotime('-1 day');
+            $timeBuffer = strtotime('-1 day');
             if ($webhookTime > $timeBuffer) {
                 continue;
             }
@@ -209,7 +182,7 @@ class Webhooks extends Command
      * Output a webhook to the console.
      *
      * @param OutputInterface $output
-     * @param                 $webhook
+     * @param $webhook
      *
      * @return OutputInterface
      */

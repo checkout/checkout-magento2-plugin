@@ -28,36 +28,11 @@ use Psr\Log\LoggerInterface;
  */
 class Logger
 {
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
-    private $messageManager;
-    /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    private $scopeConfig;
-    /**
-     * $logger field
-     *
-     * @var LoggerInterface $logger
-     */
-    private $logger;
-    /**
-     * @var ResponseHandler $responseLogger
-     */
-    private $responseLogger;
+    private ManagerInterface $messageManager;
+    private ScopeConfigInterface $scopeConfig;
+    private LoggerInterface $logger;
+    private ResponseHandler $responseLogger;
 
-    /**
-     * Logger constructor
-     *
-     * @param ManagerInterface $messageManager
-     * @param ScopeConfigInterface $scopeConfig
-     * @param LoggerInterface $logger
-     */
     public function __construct(
         ManagerInterface $messageManager,
         ScopeConfigInterface $scopeConfig,
@@ -94,7 +69,7 @@ class Logger
         // Handle the file logging
         if ($debug && $fileLogging) {
             $message = is_array($msg) ? $msg : [$msg];
-            $this->logger->debug('Checkout Logging: ' , $message);
+            $this->logger->debug('Checkout Logging: ', $message);
         }
     }
 
@@ -129,6 +104,7 @@ class Logger
      * Write additional debug logging
      *
      * @param mixed $msg The message
+     * @param $type
      *
      * @return void
      */

@@ -24,32 +24,15 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Creditmemo;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderCreditMemoSaveAfter
  */
 class OrderCreditMemoSaveAfter implements ObserverInterface
 {
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
+    private Config $config;
+    private OrderRepositoryInterface $orderRepository;
 
-    /**
-     * OrderCreditMemoSaveAfter constructor
-     *
-     * @param Config $config
-     * @param OrderRepositoryInterface $orderRepository
-     */
     public function __construct(
         Config $config,
         OrderRepositoryInterface $orderRepository

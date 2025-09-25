@@ -42,47 +42,14 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Webhook extends Action
 {
-    /**
-     * @var JsonFactory
-     */
-    private $resultJsonFactory;
-    /**
-     * $apiHandler field
-     *
-     * @var ApiHandlerService $apiHandler
-     */
-    private $apiHandler;
-    /**
-     * $resourceConfig field
-     *
-     * @var Config $resourceConfig
-     */
-    private $resourceConfig;
-    /**
-     * $cacheTypeList field
-     *
-     * @var TypeListInterface $cacheTypeList
-     */
-    private $cacheTypeList;
-    /**
-     * $logger field
-     *
-     * @var Logger $logger
-     */
-    private $logger;
+    private JsonFactory $resultJsonFactory;
+    private ApiHandlerService $apiHandler;
+    private Config $resourceConfig;
+    private TypeListInterface $cacheTypeList;
+    private Logger $logger;
+    private ScopeConfigInterface $scopeConfig;
+    private EncryptorInterface $encryptor;
 
-    /**
-     * Webhook constructor
-     *
-     * @param Context $context
-     * @param JsonFactory $resultJsonFactory
-     * @param ApiHandlerService $apiHandler
-     * @param Config $resourceConfig
-     * @param TypeListInterface $cacheTypeList
-     * @param Logger $logger
-     * @param ScopeConfigInterface $scopeConfig
-     * @param EncryptorInterface $encryptor
-     */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,

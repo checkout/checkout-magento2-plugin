@@ -34,63 +34,26 @@ class PaymentErrorHandlerService
 {
     /**
      * TRANSACTION_ERROR_LABEL const
-     *
-     * @var array TRANSACTION_ERROR_LABEL
      */
     const TRANSACTION_ERROR_LABEL = [
-        'payment_declined'         => 'Failed payment authorization',
+        'payment_declined' => 'Failed payment authorization',
         'payment_capture_declined' => 'Failed payment capture',
-        'payment_void_declined'    => 'Failed payment void',
-        'payment_refund_declined'  => 'Failed payment refund',
-        'payment_pending'          => 'Failed payment request',
+        'payment_void_declined' => 'Failed payment void',
+        'payment_refund_declined' => 'Failed payment refund',
+        'payment_pending' => 'Failed payment request',
     ];
 
     /**
      * TRANSACTION_SUCCESS_DIGITS const
-     *
-     * @var string TRANSACTION_SUCCESS_DIGITS
      */
     const TRANSACTION_SUCCESS_DIGITS = '10';
-    /**
-     * $transactionHandler field
-     *
-     * @var TransactionHandlerService $transactionHandler
-     */
-    private $transactionHandler;
-    /**
-     * $orderHandler field
-     *
-     * @var OrderHandlerService $orderHandler
-     */
-    private $orderHandler;
-    /**
-     * $orderPaymentRepository field
-     *
-     * @var OrderPaymentRepositoryInterface $orderPaymentRepository
-     */
-    private $orderPaymentRepository;
-    /**
-     * $orderRepository field
-     *
-     * @var OrderRepositoryInterface $orderRepository
-     */
-    private $orderRepository;
-    /**
-     * $orderStatusHistoryRepository field
-     *
-     * @var OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
-     */
-    private $orderStatusHistoryRepository;
 
-    /**
-     * PaymentErrorHandlerService constructor
-     *
-     * @param TransactionHandlerService             $transactionHandler
-     * @param OrderHandlerService                   $orderHandler
-     * @param OrderRepositoryInterface              $orderRepository
-     * @param OrderPaymentRepositoryInterface       $orderPaymentRepository
-     * @param OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
-     */
+    private TransactionHandlerService $transactionHandler;
+    private OrderHandlerService $orderHandler;
+    private OrderRepositoryInterface $orderRepository;
+    private OrderPaymentRepositoryInterface $orderPaymentRepository;
+    private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository;
+
     public function __construct(
         TransactionHandlerService $transactionHandler,
         OrderHandlerService $orderHandler,
@@ -98,17 +61,17 @@ class PaymentErrorHandlerService
         OrderPaymentRepositoryInterface $orderPaymentRepository,
         OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
     ) {
-        $this->transactionHandler           = $transactionHandler;
-        $this->orderHandler                 = $orderHandler;
-        $this->orderRepository              = $orderRepository;
-        $this->orderPaymentRepository       = $orderPaymentRepository;
+        $this->transactionHandler = $transactionHandler;
+        $this->orderHandler = $orderHandler;
+        $this->orderRepository = $orderRepository;
+        $this->orderPaymentRepository = $orderPaymentRepository;
         $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
     }
 
     /**
      * Log payment error for webhooks
      *
-     * @param array          $response
+     * @param array $response
      * @param OrderInterface $order
      *
      * @return void
@@ -153,7 +116,7 @@ class PaymentErrorHandlerService
     /**
      * Prepare the amount received from the gateway
      *
-     * @param float|int      $amount
+     * @param float|int $amount
      * @param OrderInterface $order
      *
      * @return string

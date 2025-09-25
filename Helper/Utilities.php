@@ -28,10 +28,7 @@ use Magento\Sales\Api\Data\OrderInterface;
  */
 class Utilities
 {
-    /**
-     * @var Json
-     */
-    protected $json;
+    protected Json $json;
 
     public function __construct(
         Json $json
@@ -104,7 +101,7 @@ class Utilities
      * @return OrderInterface
      * @throws LocalizedException
      */
-    public function setPaymentData(OrderInterface $order, array $data, array $source = null): OrderInterface
+    public function setPaymentData(OrderInterface $order, array $data, ?array $source = null): OrderInterface
     {
         // Get the payment info instance
         $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();

@@ -73,39 +73,11 @@ class Loader
      * @var string KEY_CONFIG
      */
     const KEY_CONFIG = 'checkoutcom_configuration';
-    /**
-     * $moduleDirReader field
-     *
-     * @var Dir $moduleDirReader
-     */
-    private $moduleDirReader;
-    /**
-     * $xmlParser field
-     *
-     * @var Parser $xmlParser
-     */
-    private $xmlParser;
-    /**
-     * $scopeConfig field
-     *
-     * @var ScopeConfigInterface $scopeConfig
-     */
-    private $scopeConfig;
-    /**
-     * $encryptor field
-     *
-     * @var EncryptorInterface $encryptor
-     */
-    private $encryptor;
+    private Reader $moduleDirReader;
+    private Parser $xmlParser;
+    private ScopeConfigInterface $scopeConfig;
+    private EncryptorInterface $encryptor;
 
-    /**
-     * Loader constructor
-     *
-     * @param Reader $moduleDirReader
-     * @param Parser $xmlParser
-     * @param ScopeConfigInterface $scopeConfig
-     * @param EncryptorInterface $encryptor
-     */
     public function __construct(
         Reader $moduleDirReader,
         Parser $xmlParser,
@@ -147,6 +119,7 @@ class Loader
 
     public function getApmLabel(string $value = ''): array
     {
+        $output = [];
         /** @var array $apmXmlData */
         $apmXmlData = $this->loadApmXmlData();
 
@@ -154,7 +127,7 @@ class Loader
             if ($value === $row['id']) {
                 return [$row['id'] => $row['title']];
             }
-            $output[$row['id']] =  $row['title'];
+            $output[$row['id']] = $row['title'];
         }
 
         return $output;
@@ -271,8 +244,8 @@ class Loader
      */
     public function getValue(
         string $key,
-        string $methodId = null,
-        $storeCode = null,
+        ?string $methodId = null,
+        ?string $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
         // Prepare the path

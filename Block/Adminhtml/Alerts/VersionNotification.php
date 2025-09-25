@@ -30,16 +30,8 @@ use Magento\Framework\Phrase;
  */
 class VersionNotification implements MessageInterface
 {
-    /**
-     * $versionHandler field
-     *
-     * @var VersionHandlerService $versionHandler
-     */
-    private $versionHandler;
+    private VersionHandlerService $versionHandler;
 
-    /**
-     * @param VersionHandlerService $versionHandler
-     */
     public function __construct(
         VersionHandlerService $versionHandler
     ) {
@@ -56,13 +48,40 @@ class VersionNotification implements MessageInterface
     public function getText(): Phrase
     {
         $versions = $this->getModuleVersions();
-        $message = __(
+
+        return __(
             'Please keep your website safe! Your checkout plugin (v' . $versions["current"] . ') is not the latest version (v' . $versions["latest"] . ').
          Update now to get the latest features and security updates.
          See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.'
         );
+    }
 
-        return $message;
+    /**
+     * Get module versions
+     *
+     * @return string[]
+     * @throws FileSystemException
+     * @throws NoSuchEntityException
+     */
+    protected function getModuleVersions(): array
+    {
+        /** @var string $current */
+        $current = '0.0.0';
+        /** @var string $latest */
+        $latest = '0.0.0';
+        /** @var mixed $versions */
+        $versions = $this->versionHandler->getVersions();
+        if (is_array($versions) && isset($versions[0]['tag_name'])) {
+            /** @var string $current */
+            $current = $this->versionHandler->getModuleVersion();
+            /** @var string $latest */
+            $latest = $this->versionHandler->getLatestVersion($versions);
+        }
+
+        return [
+            'current' => $current,
+            'latest' => $latest,
+        ];
     }
 
     /**
@@ -93,34 +112,6 @@ class VersionNotification implements MessageInterface
     }
 
     /**
-     * Get module versions
-     *
-     * @return string[]
-     * @throws FileSystemException
-     * @throws NoSuchEntityException
-     */
-    protected function getModuleVersions(): array
-    {
-        /** @var string $current */
-        $current = '0.0.0';
-        /** @var string $latest */
-        $latest = '0.0.0';
-        /** @var mixed $versions */
-        $versions = $this->versionHandler->getVersions();
-        if (is_array($versions) && isset($versions[0]['tag_name'])) {
-            /** @var string $current */
-            $current = $this->versionHandler->getModuleVersion();
-            /** @var string $latest */
-            $latest = $this->versionHandler->getLatestVersion($versions);
-        }
-
-        return [
-            'current' => $current,
-            'latest'  => $latest,
-        ];
-    }
-
-    /**
      * Description getSeverity function
      *
      * @return int
@@ -129,7 +120,7 @@ class VersionNotification implements MessageInterface
      */
     public function getSeverity(): int
     {
-        $versions    = $this->getModuleVersions();
+        $versions = $this->getModuleVersions();
         $releaseType = $this->versionHandler->getVersionType($versions['current'], $versions['latest']);
 
         switch ($releaseType) {

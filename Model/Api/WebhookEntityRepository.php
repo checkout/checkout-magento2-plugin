@@ -31,29 +31,15 @@ use Magento\Framework\Exception\NoSuchEntityException;
  */
 class WebhookEntityRepository implements WebhookEntityRepositoryInterface
 {
-    /**
-     * $resource $field
-     *
-     * @var WebhookResource $resource
-     */
-    private $resource;
-    /**
-     * $webhookFactory field
-     *
-     * @var WebhookEntityFactory $webhookFactory
-     */
-    private $webhookFactory;
+    private WebhookResource $resource;
+    private WebhookEntityFactory $webhookFactory;
 
-    /**
-     * @param WebhookResource      $resource
-     * @param WebhookEntityFactory $entityFactory
-     */
     public function __construct(
         WebhookResource $resource,
-        WebhookEntityFactory $entityFactory
+        WebhookEntityFactory $webhookFactory
     ) {
-        $this->resource       = $resource;
-        $this->webhookFactory = $entityFactory;
+        $this->resource = $resource;
+        $this->webhookFactory = $webhookFactory;
     }
 
     /**

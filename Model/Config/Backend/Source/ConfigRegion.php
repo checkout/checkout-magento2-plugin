@@ -21,10 +21,12 @@ namespace CheckoutCom\Magento2\Model\Config\Backend\Source;
 
 use Magento\Framework\Data\OptionSourceInterface;
 
+/**
+ * Class ConfigRegion
+ */
 class ConfigRegion implements OptionSourceInterface
 {
     public const REGION_GLOBAL = 'global';
-    public const REGION_KSA = 'ksa';
 
     /**
      * Options getter
@@ -37,10 +39,6 @@ class ConfigRegion implements OptionSourceInterface
             [
                 'value' => self::REGION_GLOBAL,
                 'label' => __('--')
-            ],
-            [
-                'value' => self::REGION_KSA,
-                'label' => __('KSA')
             ]
         ];
     }

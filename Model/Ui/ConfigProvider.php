@@ -35,59 +35,14 @@ use Magento\Framework\Exception\NoSuchEntityException;
  */
 class ConfigProvider implements ConfigProviderInterface
 {
-    /**
-     * $config field
-     *
-     * @var Config $config
-     */
-    private $config;
-    /**
-     * $shopperHandler field
-     *
-     * @var ShopperHandlerService $shopperHandler
-     */
-    private $shopperHandler;
-    /**
-     * $quoteHandler field
-     *
-     * @var QuoteHandlerService $quoteHandler
-     */
-    private $quoteHandler;
-    /**
-     * $cardHandler field
-     *
-     * @var CardHandlerService $cardHandler
-     */
-    private $cardHandler;
-    /**
-     * $methodHandler field
-     *
-     * @var MethodHandlerService $methodHandler
-     */
-    private $methodHandler;
-    /**
-     * $vaultHandler
-     *
-     * @var VaultHandlerService $vaultHandler
-     */
-    private $vaultHandler;
-    /**
-     * $paypalMethod
-     *
-     * @var PaypalMethod $paypalMethod
-     */
-    private $paypalMethod;
+    private Config $config;
+    private ShopperHandlerService $shopperHandler;
+    private QuoteHandlerService $quoteHandler;
+    private VaultHandlerService $vaultHandler;
+    private CardHandlerService $cardHandler;
+    private MethodHandlerService $methodHandler;
+    private PaypalMethod $paypalMethod;
 
-    /**
-     * ConfigProvider constructor
-     *
-     * @param Config $config
-     * @param ShopperHandlerService $shopperHandler
-     * @param QuoteHandlerService $quoteHandler
-     * @param VaultHandlerService $vaultHandler
-     * @param CardHandlerService $cardHandler
-     * @param MethodHandlerService $methodHandler
-     */
     public function __construct(
         Config $config,
         ShopperHandlerService $shopperHandler,

@@ -40,16 +40,19 @@ define(
              * Make a call to the Magento API
              */
             getRestData: function(requestBody, m2ApiEndpoint) {
+                var store = window.checkoutConfig && window.checkoutConfig.storeCode ? window.checkoutConfig.storeCode : 'default';
                 let restUrl =
                     window.BASE_URL +
-                    "rest/all/V1/guest-carts/" +
+                    "rest/" +
+                    store +
+                    "/V1/guest-carts/" +
                     window.checkoutConfig.quoteData.entity_id +
                     "/" +
                     m2ApiEndpoint;
                 "?form_key=" + window.checkoutConfig.formKey;
 
-                if (Customer.isLoggedIn()) {
-                    var store = window.checkoutConfig.storeCode ? window.checkoutConfig.storeCode : 'default';
+                const customerIsLoggedIn = window.checkoutConfig && window.checkoutConfig.isCustomerLoggedIn ? true : false;
+                if (customerIsLoggedIn) {
                     restUrl =
                         window.BASE_URL +
                         "rest/" + store + "/V1/carts/mine/" +

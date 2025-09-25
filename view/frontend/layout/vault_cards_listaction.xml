@@ -21,8 +21,8 @@
     </head>
     <body>
         <referenceContainer name="content">
-            <block 
-                template="CheckoutCom_Magento2::account/add-card.phtml" 
+            <block
+                template="CheckoutCom_Magento2::account/add-card.phtml"
                 class="CheckoutCom\Magento2\Block\Account\AddCard"
                 name="checkoutcom_magento2.add_card"
                 after="-"
@@ -30,7 +30,7 @@
         </referenceContainer>
         <referenceContainer name="content">
             <referenceBlock name="vault.cards.list">
-                <block 
+                <block
                     class="CheckoutCom\Magento2\Block\Account\CardRenderer"
                     name="checkoutcom_magento2.card.renderer"
                     template="CheckoutCom_Magento2::account/cards-list.phtml"

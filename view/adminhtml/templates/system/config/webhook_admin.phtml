@@ -17,19 +17,31 @@
 
 use CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\AbstractCallbackUrl;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
 
-/** @var AbstractCallbackUrl $block */
+/**
+ * @var AbstractCallbackUrl $block
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
 ?>
 
-<?php echo $block->getElementHtml(); ?>
-<p id="webhook-message" class="webhook-message <?= $block->getMessageClass(); ?>"><?= $block->getMessage(); ?></p>
-<script>
+<?= $escaper->escapeHtml($block->getElementHtml()); ?>
+<p id="webhook-message" class="webhook-message <?= $escaper->escapeHtml($block->getMessageClass()); ?>"><?= $escaper->escapeHtml($block->getMessage()); ?></p>
+<?php
+$scope = $block->getScope();
+$scopeId = $block->getScopeId();
+$webhookUrl = $block->getWebhookUrl();
+$ajaxUrl = $block->getAjaxUrl();
+
+$script = <<<script
 require([
     'jquery',
     'prototype',
 ], function(jQuery) {
     let privateKeyId = document.getElementsByName(
-    'groups[checkoutcom][groups][module][groups][account_settings][fields][private_shared_key][value]')[0].id;
+        'groups[checkoutcom][groups][module][groups][account_settings][fields][private_shared_key][value]')[0].id;
     let label = document.getElementById('row_' + privateKeyId).getElementsByClassName('label');
     let service = document.getElementsByName(
         'groups[checkoutcom][groups][module][groups][account_settings][fields][service][value]');
@@ -46,7 +58,7 @@ require([
     }
 
     function processNAS() {
-        label[0].children[0].children[0].innerText = "<?= __('Authorization Header Key') ?>";
+        label[0].children[0].children[0].innerText = "<?= /* @noEscape */ __('Authorization Header Key') ?>";
         document.getElementById('webhook_auto_set').style.display = 'none';
         document.getElementById('webhook-message').style.display = 'none';
         document.getElementById('webhook_spinner').style.display = 'none';
@@ -54,7 +66,7 @@ require([
     }
 
     function processABC() {
-        label[0].children[0].children[0].innerText = "<?= __('Private Shared Key') ?>";
+        label[0].children[0].children[0].innerText = "<?= /* @noEscape */ __('Private Shared Key') ?>";
         document.getElementById('webhook_nas').style.display = 'none';
         if (checkFormFields()) {
             document.getElementById('webhook_auto_set').style.display = 'block';
@@ -65,9 +77,9 @@ require([
     }
 
     function checkService() {
-        if (getService() === "<?= ConfigService::SERVICE_NAS ?>") {
+        if (getService() === "<?= /* @noEscape */ ConfigService::SERVICE_NAS ?>") {
             processNAS();
-        } else if (getService() === "<?= ConfigService::SERVICE_ABC ?>") {
+        } else if (getService() === "<?= /* @noEscape */ ConfigService::SERVICE_ABC ?>") {
             processABC();
         }
     }
@@ -102,14 +114,14 @@ require([
 
     jQuery('#webhook_button').click(function() {
         var params = {
-            scope: '<?= $block->getScope(); ?>',
-            scope_id: '<?= $block->getScopeId(); ?>',
-            webhook_url: '<?= $block->getWebhookUrl(); ?>',
+            scope: '{$scope}',
+            scope_id: '{$scopeId}',
+            webhook_url: '{webhookUrl}',
             secret_key: secretKey[0].value,
             public_key: publicKey[0].value,
         };
 
-        new Ajax.Request('<?php echo $block->getAjaxUrl() ?>', {
+        new Ajax.Request('{$ajaxUrl}', {
             parameters: params,
             loaderArea: false,
             asynchronous: true,
@@ -121,37 +133,41 @@ require([
                     let privateSharedKey = document.getElementsByName(
                         'groups[checkoutcom][groups][module][groups][account_settings][fields][private_shared_key][value]');
                     privateSharedKey[0].value = response.responseJSON.privateSharedKey;
-                    document.getElementById('webhook-message').textContent = "<?= __('Your webhook is all set!'); ?>";
+                    document.getElementById('webhook-message').textContent = "<?= /* @noEscape */ __('Your webhook is all set!'); ?>";
                     document.getElementById('webhook-message').classList.toggle('webhook-set');
                     document.getElementById('webhook_auto_set').style.display = 'none';
                 } else {
-                    alert("<?= __('Error! Could not set webhooks. Please check your secret key.'); ?>");
+                    alert("<?= /* @noEscape */ __('Error! Could not set webhooks. Please check your secret key.'); ?>");
                 }
                 document.getElementById('webhook_spinner').style.display = 'none';
             },
         });
     });
 });
-</script>
+script
+
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false) ?>
+
 <div id="webhook_auto_set" style="display: <?= ($block->getHidden() === true) ? 'none' : 'block' ?> ">
-    <?php echo $block->getButtonHtml() ?>
+    <?= $block->getButtonHtml() ?>
     <span id="webhook_span">
             <img id="webhook_spinner" style="display: none" alt="Processing Spinner" style="margin:0 5px"
-                 src="<?php echo $block->getViewFileUrl('images/process_spinner.gif') ?>"/>
+                 src="<?= /* @noEscape */ $block->getViewFileUrl('images/process_spinner.gif') ?>"/>
         </span>
 </div>
 
 <div id="webhook_nas" style="display: <?= ($block->getHidden() === true) ? 'none' : 'block' ?> ">
     <span id="webhook_span_nas">
         <br>
-        <p> <?= __('In order to set your webhook for the NAS mode, please follow these steps:') ?></p>
+        <p> <?= $escaper->escapeHtml(__('In order to set your webhook for the NAS mode, please follow these steps:')) ?></p>
         <br>
-        <p> <?= __('1- Create your Notification in Checkout Dashboard: ') ?> <a
-                href="https://www.checkout.com/docs/four/dashboard/notifications#Create_a_notification" target="_blank"><?= __('Notifications - Docs') ?></a></p>
-        <p><?= __('2- Select all the events in the Notification') ?></p>
-        <p><?= __('3- Fill the Notification URL from Magento "Webhook URL"') ?></p>
-        <p><?= __(
+        <p> <?= $escaper->escapeHtml(__('1- Create your Notification in Checkout Dashboard: ')) ?> <a
+                href="https://www.checkout.com/docs/four/dashboard/notifications#Create_a_notification" target="_blank"><?= $escaper->escapeHtml(__('Notifications - Docs')) ?></a></p>
+        <p><?= $escaper->escapeHtml(__('2- Select all the events in the Notification')) ?></p>
+        <p><?= $escaper->escapeHtml(__('3- Fill the Notification URL from Magento "Webhook URL"')) ?></p>
+        <p><?= $escaper->escapeHtml(__(
                 '4- Finally, copy the Authorization Header Key from your Notification into the "Authorization Header Key" field in Magento and save the configuration'
-            ) ?></p>
+            )) ?></p>
         </span>
 </div>
