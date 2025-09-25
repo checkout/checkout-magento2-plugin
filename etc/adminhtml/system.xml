@@ -207,7 +207,7 @@
                         </field>
 
                         <field id="private_shared_key" type="obscure" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="0">
-                            <label>Private Shared Key</label>
+                            <label>Authorization Header Key</label>
                             <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                             <config_path>settings/checkoutcom_configuration/private_shared_key</config_path>
                             <validate>required-entry</validate>
