@@ -38,13 +38,6 @@
                                                 <item name="context" xsi:type="string">express_minicart</item>
                                             </item>
                                         </item>
-                                        <item name="paypal" xsi:type="array">
-                                            <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method-renderer/checkoutcom_paypal_express</item>
-                                            <item name="config" xsi:type="array">
-                                                <item name="template" xsi:type="string">CheckoutCom_Magento2/payment/checkoutcom_paypal_express</item>
-                                                <item name="context" xsi:type="string">express_minicart</item>
-                                            </item>
-                                        </item>
                                     </item>
                                 </item>
                             </item>
