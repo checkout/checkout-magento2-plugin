@@ -361,6 +361,20 @@ define(
             },
 
             /**
+             * Show a message in global payment list and remove it after some time.
+             */
+            showGlobalMessage: function (type, message) {
+                let messageContainer = $('<div class="message message-cko"></div>');
+                $('.payment-methods .step-title').after(messageContainer);
+
+                messageContainer.addClass('message-' + type + ' ' + type);
+                messageContainer.append('<div>' + __(message) + '</div>');
+                messageContainer.show();
+
+                setTimeout(() => {messageContainer.hide()}, 15000);
+            },
+
+            /**
              * Show debug message.
              */
             showDebugMessage: function (type, message, methodId) {
