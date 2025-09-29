@@ -87,7 +87,7 @@ class AutoCancelPendingPayByLinkOrders
                     $orderCreation = $order->getCreatedAt();
                     $orderDate = date_create_immutable($orderCreation);
 
-                    if($orderDate >= $expirationDate) {
+                    if ($orderDate >= $expirationDate) {
                         continue;
                     }
 
