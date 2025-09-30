@@ -20,7 +20,12 @@ $paymentCode = $block->getMethod()?->getCode();
 
 if ($paymentCode === "checkoutcom_flow") {
     $orderPaymentMethod = $block->getInfo()->getOrder()?->getPayment()?->getMethodInstance()?->getInfoInstance();
-    $paymentTitle = $orderPaymentMethod?->getAdditionalInformation()['flow_method_id'] ?? $paymentTitle;
+    $flowMethod = $orderPaymentMethod?->getAdditionalInformation()['flow_method_id'] ?? null;
+    
+    if ($flowMethod) {
+        $suffix = "(" . __("using")->render() . " " . $flowMethod . ")";
+        $paymentTitle .= " " . $suffix;
+    }
 }
 // / Add @CheckoutCom
 ?>
