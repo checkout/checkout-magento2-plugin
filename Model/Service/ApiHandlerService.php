@@ -132,6 +132,14 @@ class ApiHandlerService
             ->secretKey($secretKey)
             ->environment($environment);
 
+        $this->logger->additional(
+            sprintf(
+                'SDK init with keys: %s %s',
+                '***' . substr($publicKey, -2),
+                '***' . substr($secretKey, -2),
+            ), 
+            'api');
+
         // Do not set subdomain when global region is used
         if ($region !== ConfigRegion::REGION_GLOBAL) {
             $sdkBuilder->environmentSubdomain($region);
