@@ -137,19 +137,6 @@ define(
                     }
                 },
 
-                toggleTooltip: function () {
-                    // todo à garder ?
-                    this.tooltipVisible(!this.tooltipVisible());
-                },
-
-                /**
-                 * @param {object} billingAddress
-                 */
-                checkBillingAdressCustomerName: function (billingAddress) {
-                    // todo
-                    const valid = billingAddress !== null;
-                },
-
                 /**
                  * Get context data from API
                  * @returns {Promise<void>}
@@ -159,6 +146,8 @@ define(
                     const data = await response.json();
 
                     if (!response.ok) {
+                        Utilities.getMethodContainer(METHOD_ID).css('display','none');
+                        Utilities.showGlobalMessage('error','Error with Flow payment method');
                         Utilities.log('Error creating payment session for flow');
                     } else {
                         await this.initComponent(data)
@@ -252,7 +241,7 @@ define(
                     let flowContainer = document.getElementById('flow-container');
 
                     if (!flowContainer) {
-                        const actions = document.getElementById('checkoutcom_flow_container').find('.payment-method-content .action-toolbar');
+                        const actions = Utilities.getMethodContainer(METHOD_ID).find('.payment-method-content .action-toolbar');
 
                         flowContainer = document.createElement('div');
                         flowContainer.id = 'flow-container-dynamic';
