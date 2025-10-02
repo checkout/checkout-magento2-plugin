@@ -142,15 +142,27 @@ define(
                  * @returns {Promise<void>}
                  */
                 getFlowContextData: async function () {
-                    const response = await fetch(Url.build('checkout_com/flow/prepare'), {method: "GET"});
-                    const data = await response.json();
+                    try {
+                        const response = await fetch(Url.build('checkout_com/flow/prepare'), {method: "GET"});
+                        const data = await response.json();
 
-                    if (!response.ok) {
-                        Utilities.getMethodContainer(METHOD_ID).css('display','none');
-                        Utilities.showGlobalMessage('error','Error with Flow payment method');
-                        Utilities.log('Error creating payment session for flow');
-                    } else {
-                        await this.initComponent(data)
+                        if (!response.ok) {
+                            this.showErrorMessage();
+                        } else {
+                            await this.initComponent(data);
+                        }
+                    } catch (e) {
+                        this.showErrorMessage(e);
+                    }
+                },
+
+                showErrorMessage: function (message = null) {
+                    Utilities.getMethodContainer(METHOD_ID).css('display','none');
+                    Utilities.showGlobalMessage('error','Error with Flow payment method');
+                    Utilities.log('Error creating payment session for flow');
+
+                    if (message) {
+                        Utilities.log(message);
                     }
                 },
 
