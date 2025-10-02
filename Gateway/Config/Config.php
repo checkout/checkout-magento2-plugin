@@ -268,7 +268,7 @@ class Config
                 && (int)$method['active'] === 1
             ) {
                 // Flow method can only be available if flow sdk is used
-                if (str_contains($key, FlowMethod::CODE) && !$this->flowSettings->useFlow($websiteCode)) {
+                if (strpos($key, FlowMethod::CODE) && !$this->flowSettings->useFlow($websiteCode) !== false) {
                     continue;
                 }
 
