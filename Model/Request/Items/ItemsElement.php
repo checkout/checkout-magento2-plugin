@@ -96,7 +96,7 @@ class ItemsElement
     {
         $adjustment = 0;
         foreach ($items as $item) {
-            if (str_contains((string)$item->unit_price, '.')) {
+            if (strpos((string)$item->unit_price, '.') !== false) {
                 $currentTotal = $item->total_amount;
                 $item->total_amount = (int)$item->unit_price * $item->quantity;
                 $item->unit_price = (int)$item->unit_price;
