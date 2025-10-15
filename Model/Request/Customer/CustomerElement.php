@@ -28,7 +28,7 @@ class CustomerElement
     protected PaymentCustomerRequestFactory $modelFactory;
 
     public function __construct(
-        PaymentCustomerRequestFactory $modelFactory,
+        PaymentCustomerRequestFactory $modelFactory
     ) {
         $this->modelFactory = $modelFactory;
     }

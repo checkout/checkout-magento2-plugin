@@ -35,7 +35,7 @@ class ShippingElement
     public function __construct(
         ShippingDetailsFactory $modelFactory,
         AddressElement $addressElement,
-        PhoneElement $phoneElement,
+        PhoneElement $phoneElement
     ) {
         $this->modelFactory = $modelFactory;
         $this->addressElement = $addressElement;

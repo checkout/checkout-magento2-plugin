@@ -61,7 +61,7 @@ class Webhooks extends Command
     public function __construct(
         State $state,
         WebhookEntityRepositoryInterface $webhookEntityRepository,
-        WebhookHandlerServiceFactory $webhookHandlerServiceFactory,
+        WebhookHandlerServiceFactory $webhookHandlerServiceFactory
     ) {
         $this->state = $state;
         $this->webhookEntityRepository = $webhookEntityRepository;

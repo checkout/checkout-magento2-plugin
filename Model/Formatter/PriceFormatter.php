@@ -26,12 +26,18 @@ class PriceFormatter
     protected CurrenciesSettings $currenciesSettings;
 
     public function __construct(
-        CurrenciesSettings $currenciesSettings,
+        CurrenciesSettings $currenciesSettings
     ) {
         $this->currenciesSettings = $currenciesSettings;
     }
 
-    public function getFormattedPrice(string|int|float $amount, string $currency)
+    /**
+     * @param string|int|float $amount
+     * @param string $currency
+     *
+     * @return float|int
+     */
+    public function getFormattedPrice($amount, string $currency)
     {
         $currenciesX1 = $this->currenciesSettings->getCurrenciesX1Table();
         $currenciesX1000 = $this->currenciesSettings->getCurrenciesX1000Table();

@@ -28,7 +28,7 @@ class CustomerResolver
     protected $customerFactory;
 
     public function __construct(
-        CustomerInterfaceFactory $customerFactory,
+        CustomerInterfaceFactory $customerFactory
     ) {
         $this->customerFactory = $customerFactory;
     }

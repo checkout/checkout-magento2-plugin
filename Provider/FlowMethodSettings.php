@@ -44,7 +44,7 @@ class FlowMethodSettings extends AbstractSettingsProvider
 
     public function __construct(
         FlowGeneralSettings $flowGeneralSettings,
-        ScopeConfigInterface $scopeConfig,
+        ScopeConfigInterface $scopeConfig
     ) {
         parent::__construct(
             $scopeConfig

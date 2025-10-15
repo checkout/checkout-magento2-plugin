@@ -33,7 +33,7 @@ class ApmMigrator
     public function __construct(
         Loader $configLoader,
         ScopeConfigInterface $scopeConfig,
-        WriterInterface $configWriter,
+        WriterInterface $configWriter
     ) {
         $this->configLoader = $configLoader;
         $this->scopeConfig = $scopeConfig;

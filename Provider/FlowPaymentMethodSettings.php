@@ -48,7 +48,7 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
 
     public function __construct(
         Loader $configLoader,
-        ScopeConfigInterface $scopeConfig,
+        ScopeConfigInterface $scopeConfig
     ) {
         parent::__construct(
             $scopeConfig

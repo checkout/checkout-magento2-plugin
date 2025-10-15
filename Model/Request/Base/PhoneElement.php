@@ -27,7 +27,7 @@ class PhoneElement
     protected PhoneFactory $modelFactory;
 
     public function __construct(
-        PhoneFactory $modelFactory,
+        PhoneFactory $modelFactory
     ) {
         $this->modelFactory = $modelFactory;
     }
