@@ -29,7 +29,7 @@ class AddressElement
     protected AddressFactory $modelFactory;
 
     public function __construct(
-        AddressFactory $modelFactory,
+        AddressFactory $modelFactory
     ) {
         $this->modelFactory = $modelFactory;
     }

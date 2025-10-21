@@ -28,7 +28,7 @@ class AccountHolderElement
     protected AccountHolderFactory $modelFactory;
 
     public function __construct(
-        AccountHolderFactory $modelFactory,
+        AccountHolderFactory $modelFactory
     ) {
         $this->modelFactory = $modelFactory;
     }

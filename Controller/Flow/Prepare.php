@@ -38,7 +38,7 @@ class Prepare implements ActionInterface, HttpGetActionInterface
         CheckoutSession $checkoutSession,
         FlowPrepareService $flowPrepareService,
         JsonFactory $resultJsonFactory,
-        ScopeConfigInterface $scopeConfig,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->flowPrepareService = $flowPrepareService;

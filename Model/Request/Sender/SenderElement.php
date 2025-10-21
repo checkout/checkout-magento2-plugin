@@ -28,7 +28,7 @@ class SenderElement
     protected PaymentSenderFactory $modelFactory;
 
     public function __construct(
-        PaymentSenderFactory $modelFactory,
+        PaymentSenderFactory $modelFactory
     ) {
         $this->modelFactory = $modelFactory;
     }

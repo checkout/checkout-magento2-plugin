@@ -27,7 +27,7 @@ class RiskElement
     protected RiskRequestFactory $modelFactory;
 
     public function __construct(
-        RiskRequestFactory $modelFactory,
+        RiskRequestFactory $modelFactory
     ) {
         $this->modelFactory = $modelFactory;
     }

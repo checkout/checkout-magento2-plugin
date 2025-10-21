@@ -27,7 +27,7 @@ class AbstractSettingsProvider {
     private ScopeConfigInterface $scopeConfig;
 
     public function __construct (
-        ScopeConfigInterface $scopeConfig,
+        ScopeConfigInterface $scopeConfig
     ) {
         $this->scopeConfig = $scopeConfig;
     }

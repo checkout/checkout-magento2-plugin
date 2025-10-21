@@ -54,9 +54,9 @@ class V2 extends Action
      * @var array|mixed|mixed[]
      */
     public $quote;
-    protected mixed $result;
+    protected $result;
     protected $order;
-    protected mixed $data;
+    protected $data;
     protected ApiHandlerService $api;
     private JsonFactory $jsonFactory;
     private Config $config;

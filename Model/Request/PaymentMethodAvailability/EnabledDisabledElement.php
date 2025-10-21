@@ -42,7 +42,12 @@ class EnabledDisabledElement
         $this->logger = $logger;
     }
 
-    public function get(PaymentSessionsRequest|PaymentLinkRequest $payload): array
+    /**
+     * @param PaymentSessionsRequest|PaymentLinkRequest $payload
+     *
+     * @return array
+     */
+    public function get($payload): array
     {
         try {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
@@ -80,7 +85,7 @@ class EnabledDisabledElement
         );
 
         $availablePaymentMethods = $this->checkMandatoriesFields($availablePaymentMethods, $allPaymentMethods, $payload);
-            
+
         $result = [
             'enabled_payment_methods' => array_values($availablePaymentMethods),
             'disabled_payment_methods' => array_values($this->getDisabledMethods($allPaymentMethods, $availablePaymentMethods))
@@ -94,7 +99,15 @@ class EnabledDisabledElement
         return $this->flowPaymentMethodSettings->getEnabledPaymentMethods($websiteCode);
     }
 
-    protected function doCheck(mixed $requestProperty, string $definitionProperty, array $payments, array $definition): array {
+    /**
+     * @param mixed $requestProperty
+     * @param string $definitionProperty
+     * @param array $payments
+     * @param array $definition
+     *
+     * @return array
+     */
+    protected function doCheck($requestProperty, string $definitionProperty, array $payments, array $definition): array {
         return array_filter($payments, function($method) use($requestProperty, $definitionProperty, $definition){
             $valueToCheck =  $definition[$method][$definitionProperty] ?? '';
 
@@ -102,7 +115,14 @@ class EnabledDisabledElement
         });
     }
 
-    protected function checkMandatoriesFields(array $payments, array $definition, PaymentSessionsRequest|PaymentLinkRequest $request): array
+    /**
+     * @param array $payments
+     * @param array $definition
+     * @param PaymentSessionsRequest|PaymentLinkRequest $request
+     *
+     * @return array
+     */
+    protected function checkMandatoriesFields(array $payments, array $definition, $request): array
     {
         $email = $request->customer->email ?? '';
         $description = $request->description ?? '';
@@ -115,7 +135,15 @@ class EnabledDisabledElement
         return $afterReferenceCheck;
     }
 
-    protected function doControl(mixed $property, string $definitionProperty, array $payments, array $definition): array
+    /**
+     * @param mixed $property
+     * @param string $definitionProperty
+     * @param array $payments
+     * @param array $definition
+     *
+     * @return array
+     */
+    protected function doControl($property, string $definitionProperty, array $payments, array $definition): array
     {
         if(!empty($property)) {
             return $payments;
