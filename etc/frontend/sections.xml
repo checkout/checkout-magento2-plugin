@@ -18,4 +18,7 @@
     <action name="checkout_com/payment/placeorder">
         <section name="cart"/>
     </action>
+    <action name="checkout_com/payment/placefloworder">
+        <section name="cart"/>
+    </action>
 </config>
