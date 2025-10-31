@@ -13,10 +13,13 @@
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
-?>
 
-<script type="text/javascript">
+$scriptString = <<<script
     require(['Magento_Customer/js/customer-data'], function(customerData) {
         customerData.reload(['cart'], true);
     });
-</script>
+script;
+?>
+
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false) ?>
+
