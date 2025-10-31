@@ -131,10 +131,14 @@ class Verify extends Action
                                     $order
                                 );
                             }
-
-                            if ($this->flowGeneralConfig->useFlow($websiteCode)) {
-                                $order = $this->utilities->setPaymentData($order, $response);
-                                $this->orderRepository->save($order);
+                            
+                            try {
+                                if ($this->flowGeneralConfig->useFlow($websiteCode)) {
+                                    $order = $this->utilities->setPaymentData($order, $response);
+                                    $this->orderRepository->save($order);
+                                }
+                            } catch (Exception $e) {
+                                $this->logger->write($e->getMessage());
                             }
 
                             if (isset($response['metadata']['successUrl']) &&
