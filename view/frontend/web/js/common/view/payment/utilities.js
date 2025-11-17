@@ -486,15 +486,6 @@ define(
                     Url.build('checkout_com/payment/fail');
 
                 window.location.href = url;
-            },
-
-            redirectCompletedPayment: function (token) {
-                let url = token ? Url.build(
-                    'checkout_com/payment/verify?cko-session-id=' +
-                    token) :
-                    Url.build('checkout_com/payment/verify');
-
-                window.location.href = url;
             }
         };
     }

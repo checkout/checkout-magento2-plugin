@@ -236,7 +236,7 @@ define(
                         onPaymentCompleted: async (_self, paymentResponse) => {
                             // Handle synchronous payment
                             if  (paymentResponse.status === "Approved") {
-                                Utilities.redirectCompletedPayment(paymentResponse.id)
+                                RedirectOnSuccessAction.execute();
                             }
                             FullScreenLoader.stopLoader();
                         },
