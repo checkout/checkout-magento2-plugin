@@ -70,12 +70,5 @@
         </referenceBlock>
 
         <referenceBlock name="minicart.checkout.config" remove="true"/>
-
-        <referenceContainer name="content">
-            <block class="Magento\Framework\View\Element\Template" 
-                   name="cart_reload_customer_data" 
-                   template="CheckoutCom_Magento2::frames/cart/reload_cart.phtml" />
-        </referenceContainer>
-
     </body>
 </page>
