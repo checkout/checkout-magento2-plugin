@@ -18,18 +18,25 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Observer\Backend;
 
+use CheckoutCom\Magento2\Model\Migration\ApmMigrator;
+use CheckoutCom\Magento2\Model\Migration\EnableForAllBrowserMigrator;
+use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use CheckoutCom\Magento2\Provider\FlowPaymentMethodSettings;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
-use CheckoutCom\Magento2\Model\Migration\ApmMigrator;
 
 class ApmConfigChangedObserver implements ObserverInterface
 {
-    protected $apmMigrator;
+    protected ApmMigrator $apmMigrator;
+    protected EnableForAllBrowserMigrator $enableForAllBrowserMigrator;
 
-    public function __construct(ApmMigrator $apmMigrator)
+    public function __construct(
+        ApmMigrator $apmMigrator,
+        EnableForAllBrowserMigrator $enableForAllBrowserMigrator
+    )
     {
         $this->apmMigrator = $apmMigrator;
+        $this->enableForAllBrowserMigrator = $enableForAllBrowserMigrator;
     }
 
     public function execute(Observer $observer)
@@ -39,6 +46,11 @@ class ApmConfigChangedObserver implements ObserverInterface
         if (is_array($changedPaths) && in_array(FlowPaymentMethodSettings::CONFIG_PAYMENT_OLD_APM_METHODS_LIST, $changedPaths)) {
             $eventWebsite = (int) $observer->getEvent()->getData('website') ?? 0;
             $this->apmMigrator->migrate($eventWebsite);
+        }
+
+        if (is_array($changedPaths) && in_array(FlowGeneralSettings::CONFIG_SDK, $changedPaths)) {
+            $eventWebsite = (int) $observer->getEvent()->getData('website') ?? 0;
+            $this->enableForAllBrowserMigrator->checkEnableForAllBrowser($eventWebsite);
         }
     }
 }
