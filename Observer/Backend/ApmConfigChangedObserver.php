@@ -22,21 +22,26 @@ use CheckoutCom\Magento2\Model\Migration\ApmMigrator;
 use CheckoutCom\Magento2\Model\Migration\EnableForAllBrowserMigrator;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use CheckoutCom\Magento2\Provider\FlowPaymentMethodSettings;
+use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Psr\Log\LoggerInterface;
 
 class ApmConfigChangedObserver implements ObserverInterface
 {
     protected ApmMigrator $apmMigrator;
     protected EnableForAllBrowserMigrator $enableForAllBrowserMigrator;
+    protected LoggerInterface $logger;
 
     public function __construct(
         ApmMigrator $apmMigrator,
-        EnableForAllBrowserMigrator $enableForAllBrowserMigrator
+        EnableForAllBrowserMigrator $enableForAllBrowserMigrator,
+        LoggerInterface $logger
     )
     {
         $this->apmMigrator = $apmMigrator;
         $this->enableForAllBrowserMigrator = $enableForAllBrowserMigrator;
+        $this->logger = $logger;
     }
 
     public function execute(Observer $observer)
@@ -48,9 +53,13 @@ class ApmConfigChangedObserver implements ObserverInterface
             $this->apmMigrator->migrate($eventWebsite);
         }
 
-        if (is_array($changedPaths) && in_array(FlowGeneralSettings::CONFIG_SDK, $changedPaths)) {
-            $eventWebsite = (int) $observer->getEvent()->getData('website') ?? 0;
-            $this->enableForAllBrowserMigrator->checkEnableForAllBrowser($eventWebsite);
+        try {
+            if (is_array($changedPaths) && in_array(FlowGeneralSettings::CONFIG_SDK, $changedPaths)) {
+                $eventWebsite = (int) $observer->getEvent()->getData('website') ?? 0;
+               $this->enableForAllBrowserMigrator->checkEnableForAllBrowser($eventWebsite);
+            }
+        } catch (Exception $error) {
+            $this->logger->error(sprintf('Unable to desactive Apple on all browser: %s', $error->getMessage()));
         }
     }
 }

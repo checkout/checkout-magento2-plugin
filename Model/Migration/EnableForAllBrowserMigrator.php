@@ -46,7 +46,7 @@ class EnableForAllBrowserMigrator
     /**
      * @throws LocalizedException
     */
-    public function checkEnableForAllBrowser(int $website = 0)
+    public function checkEnableForAllBrowser(int $website = 0): void
     {
         $scope = $website !== 0 ? ScopeInterface::SCOPE_WEBSITES : ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
 
