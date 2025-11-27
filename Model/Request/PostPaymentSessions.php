@@ -40,6 +40,7 @@ use CheckoutCom\Magento2\Provider\AccountSettings;
 use CheckoutCom\Magento2\Provider\ExternalSettings;
 use CheckoutCom\Magento2\Provider\GeneralSettings;
 use Exception;
+use Magento\Framework\Url;
 use Magento\Framework\Intl\DateTimeFactory;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Quote\Api\Data\CartInterface;
@@ -72,6 +73,7 @@ class PostPaymentSessions
     private ApiHandlerService $apiHandler;
     private SerializerInterface $serializer;
     private QuoteHandlerService $quoteHandler;
+    private Url $urlBuilder;
 
     public function __construct(
         PaymentSessionsRequestFactory $modelFactory,
@@ -97,6 +99,7 @@ class PostPaymentSessions
         ApiHandlerService $apiHandler,
         SerializerInterface $serializer,
         QuoteHandlerService $quoteHandler,
+        Url $urlBuilder,
         LoggerInterface $logger
     ) {
         $this->modelFactory = $modelFactory;
@@ -124,6 +127,7 @@ class PostPaymentSessions
         $this->apiHandler = $apiHandler;
         $this->serializer = $serializer;
         $this->quoteHandler = $quoteHandler;
+        $this->urlBuilder = $urlBuilder;
     }
 
     public function get(CartInterface $quote, array $data): PaymentSessionsRequest
@@ -197,15 +201,26 @@ class PostPaymentSessions
 
     protected function getSuccessUrl(array $data): string
     {
+        $urlParameters = [];
+        if (isset($data['reference'])) {
+            $urlParameters['reference'] = $data['reference'];
+        }
+        
         if (isset($data['successUrl'])) {
-            return $data['successUrl'];
+            $param = count($urlParameters) > 0 ? "?" . implode("&", $urlParameters) : '';
+            return $data['successUrl'] . $param;
         }
 
         try {
-            return $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/verify';
+            return $this->urlBuilder->getUrl(
+                'checkout_com/payment/verifyfloworder',
+                [
+                    '_query' => $urlParameters
+                ]
+            );
         } catch (Exception $error) {
             $this->logger->error(
-                sprintf("Unable to fetch website code: %s", $error->getMessage()),
+                sprintf('Unable to generate success URL: %s', $error->getMessage()),
             );
 
             return '';
@@ -214,15 +229,26 @@ class PostPaymentSessions
 
     protected function getFailureUrl(array $data): string
     {
+        $urlParameters = [];
+        if (isset($data['reference'])) {
+            $urlParameters['reference'] = $data['reference'];
+        }
+
         if (isset($data['failureUrl'])) {
-            return $data['failureUrl'];
+            $param = count($urlParameters) > 0 ? "?" . implode("&", $urlParameters) : '';
+            return $data['failureUrl'] . $param;
         }
 
         try {
-            return $this->storeManager->getStore()->getBaseUrl() . 'checkout_com/payment/fail';
+            return $this->urlBuilder->getUrl(
+                'checkout_com/payment/failfloworder',
+                [
+                    '_query' => $urlParameters
+                ]
+            );
         } catch (Exception $error) {
             $this->logger->error(
-                sprintf("Unable to fetch website code: %s", $error->getMessage()),
+                sprintf('Unable to generate failure URL: %s', $error->getMessage()),
             );
 
             return '';

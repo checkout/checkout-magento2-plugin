@@ -28,6 +28,7 @@ use Checkout\Common\Address;
 use Checkout\Common\CustomerRequest;
 use Checkout\HttpMetadata;
 use Checkout\Payments\CaptureRequest;
+use Checkout\Payments\PaymentsQueryFilterFactory;
 use Checkout\Payments\Product;
 use Checkout\Payments\RefundRequest;
 use Checkout\Payments\ShippingDetails;
@@ -71,6 +72,7 @@ class ApiHandlerService
     private VersionHandlerService $versionHandler;
     protected ScopeConfigInterface $scopeConfig;
     protected Json $json;
+    protected PaymentsQueryFilterFactory $paymentsQueryFilterFactory;
 
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -82,7 +84,8 @@ class ApiHandlerService
         QuoteHandlerService $quoteHandler,
         VersionHandlerService $versionHandler,
         ScopeConfigInterface $scopeConfig,
-        Json $json
+        Json $json,
+        PaymentsQueryFilterFactory $paymentsQueryFilterFactory
     ) {
         $this->storeManager = $storeManager;
         $this->productMeta = $productMeta;
@@ -94,6 +97,7 @@ class ApiHandlerService
         $this->versionHandler = $versionHandler;
         $this->scopeConfig = $scopeConfig;
         $this->json = $json;
+        $this->paymentsQueryFilterFactory = $paymentsQueryFilterFactory;
     }
 
     /**
@@ -287,6 +291,34 @@ class ApiHandlerService
         }
     }
 
+    public function getDetailsFromSessionId(string $sessionId): array
+    {
+        $response = $this->getPaymentDetails($sessionId);
+        
+        return [
+            'response' => $response,
+            'orderId' => $response['reference'] ?? '',
+            'isSaveCard' => $response['status'] === "Card Verified"
+        ];
+    }
+
+    public function getDetailsFromReference(string $reference): array
+    {
+        $response = $this->searchPaymentDetails($reference);
+        
+        if(!$response || empty($response['data']) || empty($response['data'][0])) {
+            return [];
+        }
+        $details = $response['data'][0];
+        $details['http_metadata'] = $response['http_metadata'];
+
+        return [
+            'response' => $details,
+            'orderId' => $reference,
+            'isSaveCard' => false
+        ];
+    }
+
     /**
      * Gets payment details
      *
@@ -298,6 +330,24 @@ class ApiHandlerService
     public function getPaymentDetails(string $paymentId): array
     {
         return $this->getCheckoutApi()->getPaymentsClient()->getPaymentDetails($paymentId);
+    }
+
+    /**
+     * search payment from reference
+     *
+     * @param string $paymentId
+     *
+     * @return array
+     * @throws CheckoutApiException
+     */
+    public function searchPaymentDetails(string $reference): array
+    {
+        $paymentsQueryFilter = $this->paymentsQueryFilterFactory->create();
+
+        $paymentsQueryFilter->reference = $reference;
+        $paymentsQueryFilter->limit = 1;
+        $paymentsQueryFilter->skip = 0;
+        return $this->getCheckoutApi()->getPaymentsClient()->getPaymentsList($paymentsQueryFilter);
     }
 
     /**

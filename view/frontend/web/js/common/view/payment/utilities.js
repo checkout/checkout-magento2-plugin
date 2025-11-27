@@ -481,18 +481,18 @@ define(
 
             redirectFailedPayment: function (token) {
                 let url = token ? Url.build(
-                    'checkout_com/payment/fail?cko-session-id=' +
+                    'checkout_com/payment/failfloworder?cko-session-id=' +
                     token) :
-                    Url.build('checkout_com/payment/fail');
+                    Url.build('checkout_com/payment/failfloworder');
 
                 window.location.href = url;
             },
 
             redirectCompletedPayment: function (token) {
                 let url = token ? Url.build(
-                    'checkout_com/payment/verify?cko-session-id=' +
+                    'checkout_com/payment/verifyfloworder?cko-session-id=' +
                     token) :
-                    Url.build('checkout_com/payment/verify');
+                    Url.build('checkout_com/payment/verifyfloworder');
 
                 window.location.href = url;
             }
