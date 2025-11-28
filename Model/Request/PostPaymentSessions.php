@@ -176,6 +176,11 @@ class PostPaymentSessions
             $model->capture_on = $this->getCaptureTime($websiteCode);
         }
 
+        if (!isset($model->billing->address->country)) {
+            $fallbackCountry = $this->externalSettings->getStoreCountry($storeCode);
+            $model->billing->address->country = $fallbackCountry;
+        }
+
         // Add Meta Data
         $customerId = $quote->getCustomerId();
         if ($customerId) {
