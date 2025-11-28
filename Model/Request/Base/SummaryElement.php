@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Model\Request\Base;
 use CheckoutCom\Magento2\Model\Formatter\DateFormatter;
 use CheckoutCom\Magento2\Model\Request\Additionnals\Summary;
 use CheckoutCom\Magento2\Model\Request\Additionnals\SummaryFactory;
+use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Customer\Api\Data\CustomerInterface;
 use Magento\Sales\Model\Order;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollectionFactory;
@@ -29,17 +30,20 @@ use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollection
 class SummaryElement
 {
     protected DateFormatter $dateFormatter;
+    protected JsonSerializer $serializer;
     protected OrderCollectionFactory $orderCollectionFactory;
     protected SummaryFactory $modelFactory;
 
     public function __construct(
         DateFormatter $dateFormatter,
+        JsonSerializer $serializer,
         OrderCollectionFactory $orderCollectionFactory,
-        SummaryFactory $modelFactory,
+        SummaryFactory $modelFactory
     ) {
         $this->dateFormatter = $dateFormatter;
         $this->modelFactory = $modelFactory;
         $this->orderCollectionFactory = $orderCollectionFactory;
+        $this->serializer = $serializer;
     }
 
     public function get(CustomerInterface $customer, string $currency): Summary
@@ -88,6 +92,14 @@ class SummaryElement
             ->addFieldToFilter('base_currency_code', $currency)
             ->setOrder('created_at', 'DESC');
 
+            $paymentTable = $collection->getResource()->getTable('sales_order_payment');
+
+            $collection->getSelect()->join(
+                ['sop' => $paymentTable],
+                'main_table.entity_id = sop.parent_id',
+                'additional_information'
+            );
+
         return $collection->getItems();
     }
 
@@ -111,13 +123,13 @@ class SummaryElement
                 return false;
             }
 
-            $payment = $order->getPayment();
+            $paymentData = $order->getAdditionalInformation();
 
-            if (empty($payment)) {
+            if (empty($paymentData)) {
                 return false;
             }
 
-            $additionnal_data = $payment->getAdditionalInformation();
+            $additionnal_data = $this->serializer->unserialize($paymentData);
 
             if (empty($additionnal_data)) {
                 return true;
