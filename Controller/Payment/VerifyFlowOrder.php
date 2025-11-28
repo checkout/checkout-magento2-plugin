@@ -37,62 +37,49 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class Verify
- */
 class VerifyFlowOrder extends Action
 {
-    /**
-     * $messageManager field
-     *
-     * @var ManagerInterface $messageManager
-     */
     protected $messageManager;
-    private TransactionHandlerService $transactionHandler;
-    private StoreManagerInterface $storeManager;
-    private ApiHandlerService $apiHandler;
-    private OrderHandlerService $orderHandler;
-    private VaultHandlerService $vaultHandler;
+    protected ApiHandlerService $apiHandler;
+    protected FlowGeneralSettings $flowGeneralConfig;
     protected Logger $logger;
+    protected OrderHandlerService $orderHandler;
+    protected OrderRepositoryInterface $orderRepository;
     protected Session $session;
-    private FlowGeneralSettings $flowGeneralConfig;
-    private Utilities $utilities;
-    private OrderRepositoryInterface $orderRepository;
+    protected StoreManagerInterface $storeManager;
+    protected TransactionHandlerService $transactionHandler;
+    protected Utilities $utilities;
+    protected VaultHandlerService $vaultHandler;
 
     public function __construct(
-        Context $context,
-        ManagerInterface $messageManager,
-        TransactionHandlerService $transactionHandler,
-        StoreManagerInterface $storeManager,
         ApiHandlerService $apiHandler,
-        OrderHandlerService $orderHandler,
-        VaultHandlerService $vaultHandler,
-        Logger $logger,
-        Session $session,
+        Context $context,
         FlowGeneralSettings $flowGeneralConfig,
+        Logger $logger,
+        ManagerInterface $messageManager,
+        OrderHandlerService $orderHandler,
+        OrderRepositoryInterface $orderRepository,
+        Session $session,
+        StoreManagerInterface $storeManager,
+        TransactionHandlerService $transactionHandler,
         Utilities $utilities,
-        OrderRepositoryInterface $orderRepository
+        VaultHandlerService $vaultHandler
     ) {
         parent::__construct($context);
 
-        $this->messageManager = $messageManager;
-        $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
-        $this->orderHandler = $orderHandler;
-        $this->vaultHandler = $vaultHandler;
-        $this->logger = $logger;
-        $this->session = $session;
-        $this->transactionHandler = $transactionHandler;
         $this->flowGeneralConfig = $flowGeneralConfig;
-        $this->utilities = $utilities;
+        $this->logger = $logger;
+        $this->messageManager = $messageManager;
+        $this->orderHandler = $orderHandler;
         $this->orderRepository = $orderRepository;
+        $this->transactionHandler = $transactionHandler;
+        $this->session = $session;
+        $this->storeManager = $storeManager;
+        $this->utilities = $utilities;
+        $this->vaultHandler = $vaultHandler;
     }
 
-    /**
-     * Handles the controller method
-     *
-     * @return ResponseInterface
-     */
     public function execute(): ResponseInterface
     {
         try {
@@ -121,7 +108,7 @@ class VerifyFlowOrder extends Action
             $apiCallResponse = $sessionId ? $api->getDetailsFromSessionId($sessionId) : $api->getDetailsFromReference($reference);
             
             // Case save card
-            if($apiCallResponse['isSaveCard']) {
+            if(isset($apiCallResponse['isSaveCard']) && $apiCallResponse['isSaveCard']) {
                 $this->saveCard($apiCallResponse['response']);
 
                 return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
@@ -129,7 +116,7 @@ class VerifyFlowOrder extends Action
 
             //Validate data from API
 
-            if (empty($apiCallResponse) || !$api->isValidResponse($apiCallResponse['response'])) {
+            if (empty($apiCallResponse) || !isset($apiCallResponse['response']) || !$api->isValidResponse($apiCallResponse['response'])) {
                 // Restore the quote
                 $this->session->restoreQuote();
 
@@ -195,14 +182,9 @@ class VerifyFlowOrder extends Action
     }
 
     /**
-     * Save card
-     *
-     * @param array $response
-     *
-     * @return void
      * @throws Exception
      */
-    public function saveCard(array $response): void
+    private function saveCard(array $response): void
     {
         // Save the card
         $success = $this->vaultHandler->setCardToken($response['source']['id'])

@@ -34,50 +34,42 @@ use Magento\Framework\Message\ManagerInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-/**
- * Class Fail
- */
 class FailFlowOrder extends Action
 {
-    private StoreManagerInterface $storeManager;
     private ApiHandlerService $apiHandler;
-    private OrderSettings $orderSettings;
-    private OrderHandlerService $orderHandler;
-    private OrderStatusHandlerService $orderStatusHandler;
     private Logger $logger;
+    private OrderHandlerService $orderHandler;
+    private OrderSettings $orderSettings;
+    private OrderStatusHandlerService $orderStatusHandler;
     private PaymentErrorHandlerService $paymentErrorHandlerService;
     private Session $session;
+    private StoreManagerInterface $storeManager;
 
     public function __construct(
-        Context $context,
-        ManagerInterface $messageManager,
-        StoreManagerInterface $storeManager,
         ApiHandlerService $apiHandler,
-        OrderSettings $orderSettings,
-        OrderHandlerService $orderHandler,
-        OrderStatusHandlerService $orderStatusHandler,
+        Context $context,
         Logger $logger,
+        ManagerInterface $messageManager,
+        OrderHandlerService $orderHandler,
+        OrderSettings $orderSettings,
+        OrderStatusHandlerService $orderStatusHandler,
         PaymentErrorHandlerService $paymentErrorHandlerService,
-        Session $session
+        Session $session,
+        StoreManagerInterface $storeManager
     ) {
         parent::__construct($context);
 
-        $this->messageManager = $messageManager;
-        $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
-        $this->orderHandler = $orderHandler;
-        $this->orderStatusHandler = $orderStatusHandler;
         $this->logger = $logger;
+        $this->messageManager = $messageManager;
+        $this->orderHandler = $orderHandler;
+        $this->orderSettings = $orderSettings;
+        $this->orderStatusHandler = $orderStatusHandler;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
         $this->session = $session;
-        $this->orderSettings = $orderSettings;
+        $this->storeManager = $storeManager;
     }
 
-    /**
-     * Handles the controller method
-     *
-     * @return ResponseInterface
-     */
     public function execute(): ResponseInterface
     {
         try {
@@ -88,7 +80,7 @@ class FailFlowOrder extends Action
 
             if (empty($reference) && empty($sessionId)) {
                 $this->messageManager->addErrorMessage(
-                    __('Invalid request. No session ID or reference found.')
+                   __('The transaction could not be processed.')
                 );
 
                 return $this->_redirect('checkout/cart', ['_secure' => true]);
@@ -104,7 +96,7 @@ class FailFlowOrder extends Action
             $apiCallResponse = $sessionId ? $api->getDetailsFromSessionId($sessionId) : $api->getDetailsFromReference($reference);
 
             // Case save card
-            if($apiCallResponse['isSaveCard']) {
+            if (isset($apiCallResponse['isSaveCard']) && $apiCallResponse['isSaveCard']) {
                 $this->messageManager->addErrorMessage(
                     __('The card could not be saved.')
                 );
@@ -112,7 +104,7 @@ class FailFlowOrder extends Action
                 return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
             }
             
-            if (empty($apiCallResponse) || !$api->isValidResponse($apiCallResponse['response'])) {
+            if (empty($apiCallResponse) || !isset($apiCallResponse['response']) || !$api->isValidResponse($apiCallResponse['response'])) {
                 $this->session->restoreQuote();
 
                 $this->messageManager->addErrorMessage(
@@ -134,7 +126,7 @@ class FailFlowOrder extends Action
 
             if (!$this->orderHandler->isOrder($order)) {
                 $this->messageManager->addErrorMessage(
-                    __('Invalid request. No order found.')
+                    __('The transaction could not be processed.')
                 );
 
                 return $this->_redirect('checkout/cart', ['_secure' => true]);
@@ -158,7 +150,9 @@ class FailFlowOrder extends Action
             $this->orderHandler->deleteOrder($order);
 
             $errorMessage = null;
-            if (isset($response['actions'][0]['response_code']) && $response['source']['type'] !== 'knet') {
+            $type = $response['source']['type'] ?? '';
+
+            if (isset($response['actions'][0]['response_code']) && $type !== 'knet') {
                 $errorMessage = $this->paymentErrorHandlerService->getErrorMessage(
                     $response['actions'][0]['response_code']
                 );
@@ -181,6 +175,8 @@ class FailFlowOrder extends Action
             $this->messageManager->addErrorMessage(
                 __('The transaction could not be processed.')
             );
+
+            $this->logger->display(sprintf('The transaction could not be processed: %s', $e->getMessage()));
         }
 
         return $this->_redirect('checkout/cart', ['_secure' => true]);
