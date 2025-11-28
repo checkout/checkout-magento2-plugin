@@ -158,7 +158,7 @@ define(
 
                 showErrorMessage: function (message = null) {
                     Utilities.getMethodContainer(METHOD_ID).css('display','none');
-                    Utilities.showGlobalMessage('error','Error with Flow payment method');
+                    Utilities.showGlobalMessage('error','This payment method is currently unavailable. Please select an alternative payment option to complete your purchase.');
                     Utilities.log('Error creating payment session for flow');
 
                     if (message) {
