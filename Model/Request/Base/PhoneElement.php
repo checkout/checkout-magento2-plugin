@@ -287,11 +287,15 @@ class PhoneElement
         $this->modelFactory = $modelFactory;
     }
 
-    public function get(string $countryCode, string $number): Phone
+    public function get(string $countryCode, string $number): ?Phone
     {
         $model = $this->modelFactory->create();
 
         $phoneCode = self::COUNTRY_LIST[$countryCode] ?? '';
+
+        if(empty($phoneCode)) {
+            return null;
+        }
 
         $model->country_code = '+' . $phoneCode;
         $model->number = $number;

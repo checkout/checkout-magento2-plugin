@@ -28,5 +28,4 @@ class PaymentCustomerRequest extends BasePaymentCustomerRequest
      * @var Summary
      */
     public $summary;
-
 }

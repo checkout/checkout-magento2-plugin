@@ -19,33 +19,13 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Request\Additionnals;
 
-class Summary {
-
+class Summary
+{
     /**
      * @var string
-     */
-    public $registration_date;
-
-    /**
-     * @var string
-     */
+    */
     public $first_transaction_date;
-
-    /**
-     * @var string
-     */
-    public $last_payment_date;
-
-    /**
-     * @var int
-     */
-    public $total_order_count;
-
-    /**
-     * @var float
-     */
-    public $last_payment_amount;
-
+    
     /**
      * @var bool
      */
@@ -59,5 +39,26 @@ class Summary {
     /**
      * @var float
      */
+    public $last_payment_amount;
+
+    /**
+     * @var string
+    */
+    public $last_payment_date;
+
+    /**
+     * @var float
+     */
     public $lifetime_value;
+
+    /**
+     * @var string
+     */
+    public $registration_date;
+
+    /**
+     * @var int
+     */
+    public $total_order_count;
+
 }

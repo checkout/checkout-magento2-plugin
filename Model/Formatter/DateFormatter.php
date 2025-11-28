@@ -27,14 +27,14 @@ class DateFormatter
     private $dateTimeFactory;
     
     public function __construct(
-        DateTimeFactory $dateTimeFactory,
+        DateTimeFactory $dateTimeFactory
     ) {
         $this->dateTimeFactory = $dateTimeFactory;
     }
 
     public function getFormattedDate(string $date): string
     {
-        if (empty($date)) {
+        if ($date === '') {
             return '';
         }
 
@@ -42,7 +42,6 @@ class DateFormatter
             $dateAsObject = $this->dateTimeFactory->create($date);
 
             return $dateAsObject->format('Y-m-d');
-
         } catch (Exception $e) {
             return '';
         }

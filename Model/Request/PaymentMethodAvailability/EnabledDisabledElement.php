@@ -178,9 +178,14 @@ class EnabledDisabledElement
             $requiredProperties = explode(',', $configuration);
 
             $objectProperties = get_object_vars($object);
-            return array_all($requiredProperties, function($property) use($objectProperties) {
-                return !empty($objectProperties[$property] ?? null);
-            });
+
+            foreach ($requiredProperties as $property) {
+                if (empty($objectProperties[$property] ?? null)) {
+                    return false;
+                }
+            }
+
+            return true;
         });
     }
 

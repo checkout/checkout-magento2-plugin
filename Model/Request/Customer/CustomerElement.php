@@ -36,14 +36,19 @@ class CustomerElement
     public function __construct(
         PaymentCustomerRequestFactory $modelFactory,
         PhoneElement $phoneElement,
-        SummaryElement $summaryElement,
+        SummaryElement $summaryElement
     ) {
         $this->modelFactory = $modelFactory;
         $this->phoneElement = $phoneElement;
         $this->summaryElement = $summaryElement;
     }
 
-    public function get(CustomerInterface $customer, QuoteAddressInterface|OrderAddressInterface $billingAddress): PaymentCustomerRequest
+    /**
+     * @param QuoteAddressInterface|OrderAddressInterface $billingAddress
+     *
+     * @return PaymentCustomerRequest
+     */
+    public function get(CustomerInterface $customer, $billingAddress): PaymentCustomerRequest
     {
         $model = $this->modelFactory->create();
 
@@ -52,7 +57,11 @@ class CustomerElement
 
         $phone = $billingAddress->getTelephone();
         $country = $billingAddress->getCountryId();
-        $model->phone = $this->phoneElement->get($country, $phone);
+
+        $phoneElement = $this->phoneElement->get($country, $phone);
+        if ($phoneElement) {
+            $model->phone = $phoneElement;
+        }
 
         return $model;
     }

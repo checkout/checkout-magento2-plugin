@@ -28,18 +28,18 @@ use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollection
 
 class SummaryElement
 {
-    protected SummaryFactory $modelFactory;
-    protected OrderCollectionFactory $orderCollectionFactory;
     protected DateFormatter $dateFormatter;
+    protected OrderCollectionFactory $orderCollectionFactory;
+    protected SummaryFactory $modelFactory;
 
     public function __construct(
-        SummaryFactory $modelFactory,
+        DateFormatter $dateFormatter,
         OrderCollectionFactory $orderCollectionFactory,
-        DateFormatter $dateFormatter
+        SummaryFactory $modelFactory,
     ) {
+        $this->dateFormatter = $dateFormatter;
         $this->modelFactory = $modelFactory;
         $this->orderCollectionFactory = $orderCollectionFactory;
-        $this->dateFormatter = $dateFormatter;
     }
 
     public function get(CustomerInterface $customer, string $currency): Summary
