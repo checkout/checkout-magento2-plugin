@@ -53,7 +53,7 @@ class EnableForAllBrowserMigrator
         if ($this->flowGeneralSettings->useFlow((string) $website)) {
             $this->configWriter->save(
                 ApplePaymentSettings::CONFIG_ENABLED_ON_ALL_BROWSER,
-                "0",
+                '0',
                 $scope,
                 $website
             );
