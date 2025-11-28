@@ -180,6 +180,7 @@ define(
                     const paymentSession = data.paymentSession;
                     const publicKey = data.publicKey;
                     let appearance  = data.appearance;
+                    this.reference = data.reference ?? null;
 
                     if (appearance !== "") {
                         try {
