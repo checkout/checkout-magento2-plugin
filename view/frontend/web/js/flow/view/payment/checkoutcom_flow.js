@@ -55,8 +55,9 @@ define(
                         'applepay' : 'apple_pay'
                     },
                     currentMethod: null,
-                    currentCountryCode: null
+                    currentCountryCode: null,
                 },
+                reference: null,
 
                 /**
                  * @return {exports}
@@ -216,13 +217,15 @@ define(
                             }
                         },
                         onError: (component, error) => {
-                            const payment_id = error.details && error.details.paymentId;
+                            const payment_id = error.details?.paymentSessionId;
 
                             Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
                             Utilities.log("Error with payment method " + component.type, error);
                             FullScreenLoader.stopLoader();
 
-                            Utilities.redirectFailedPayment(payment_id);
+                            if (payment_id) {
+                                Utilities.redirectFailedPayment(payment_id, this.reference);
+                            }
                         }
                     });
 
@@ -236,7 +239,7 @@ define(
                         onPaymentCompleted: async (_self, paymentResponse) => {
                             // Handle synchronous payment
                             if  (paymentResponse.status === "Approved") {
-                                Utilities.redirectCompletedPayment(paymentResponse.id)
+                                Utilities.redirectCompletedPayment(paymentResponse.id, this.reference)
                             }
                             FullScreenLoader.stopLoader();
                         },
