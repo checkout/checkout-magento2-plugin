@@ -119,7 +119,11 @@ abstract class AbstractPayment extends Action
         $storeCode = $this->storeManager->getStore()->getCode();
         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
-        return $urlParameters['sessionId'] ? $api->getDetailsFromSessionId($urlParameters['sessionId']) : $api->getDetailsFromReference($urlParameters['reference']);
+        try {
+            return $urlParameters['sessionId'] ? $api->getDetailsFromSessionId($urlParameters['sessionId']) : $api->getDetailsFromReference($urlParameters['reference']);
+        } catch (Exception $e) {
+            return $api->getDetailsFromReference($urlParameters['reference']);
+        }
     }
 
     /**

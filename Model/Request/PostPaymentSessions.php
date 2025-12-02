@@ -147,6 +147,7 @@ class PostPaymentSessions
         }
 
         $customer = $this->customerResolver->resolve($quote);
+        $data['reference'] = $this->quoteHandlerService->getReference($quote);
 
         $billingAddress = $quote->getBillingAddress();
         $shippingAddress = $quote->getShippingAddress();
