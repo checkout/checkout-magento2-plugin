@@ -118,7 +118,7 @@ class RefundInvoice
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response->action_id);
+            $payment->setTransactionId($response['action_id']);
             $this->orderPaymentRepository->save($payment);
 
             $result = [$creditMemo, $order, $isOnline];
