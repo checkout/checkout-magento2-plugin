@@ -23,15 +23,13 @@ use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
 
 class OrderSettings extends AbstractSettingsProvider {
 
-
-
     public const CONFIG_ACTION_FAILED_PAYMENT = 'settings/checkoutcom_configuration/order_action_failed_payment';
     public const CONFIG_ORDER_EMAIL = 'settings/checkoutcom_configuration/order_email';
     public const CONFIG_STATUS_AUTHORIZED = 'settings/checkoutcom_configuration/order_status_authorized';
     public const CONFIG_STATUS_CAPTURED = 'settings/checkoutcom_configuration/order_status_captured';
-    public const CONFIG_STATUS_VOIDED = 'settings/checkoutcom_configuration/order_status_voided';
-    public const CONFIG_STATUS_REFUNDED = 'settings/checkoutcom_configuration/order_status_refunded';
     public const CONFIG_STATUS_FLAGGED = 'settings/checkoutcom_configuration/order_status_flagged';
+    public const CONFIG_STATUS_REFUNDED = 'settings/checkoutcom_configuration/order_status_refunded';
+    public const CONFIG_STATUS_VOIDED = 'settings/checkoutcom_configuration/order_status_voided';
 
     public function getActionOnFailedPayment(?string $website): ?string
     {

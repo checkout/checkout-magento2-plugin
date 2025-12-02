@@ -208,6 +208,7 @@ class PostPaymentSessions
         
         if (isset($data['successUrl'])) {
             $param = count($urlParameters) > 0 ? "?" . implode("&", $urlParameters) : '';
+
             return $data['successUrl'] . $param;
         }
 
@@ -236,6 +237,7 @@ class PostPaymentSessions
 
         if (isset($data['failureUrl'])) {
             $param = count($urlParameters) > 0 ? "?" . implode("&", $urlParameters) : '';
+
             return $data['failureUrl'] . $param;
         }
 

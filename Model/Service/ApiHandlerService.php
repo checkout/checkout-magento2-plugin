@@ -54,6 +54,7 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class ApiHandlerService
 {
+    public const CARD_VERIFIED = 'Card Verified';
     /**
      * Valid return code
      */
@@ -291,6 +292,9 @@ class ApiHandlerService
         }
     }
 
+    /**
+     * @throws CheckoutApiException
+     */
     public function getDetailsFromSessionId(string $sessionId): array
     {
         $response = $this->getPaymentDetails($sessionId);
@@ -298,15 +302,18 @@ class ApiHandlerService
         return [
             'response' => $response,
             'orderId' => $response['reference'] ?? '',
-            'isSaveCard' => $response['status'] === "Card Verified"
+            'isSaveCard' => $response['status'] === self::CARD_VERIFIED
         ];
     }
 
+    /**
+     * @throws CheckoutApiException
+     */
     public function getDetailsFromReference(string $reference): array
     {
         $response = $this->searchPaymentDetails($reference);
         
-        if(!$response || empty($response['data']) || empty($response['data'][0])) {
+        if(empty($response['data'][0])) {
             return [];
         }
         $details = $response['data'][0];
@@ -333,11 +340,6 @@ class ApiHandlerService
     }
 
     /**
-     * search payment from reference
-     *
-     * @param string $paymentId
-     *
-     * @return array
      * @throws CheckoutApiException
      */
     public function searchPaymentDetails(string $reference): array
@@ -347,6 +349,7 @@ class ApiHandlerService
         $paymentsQueryFilter->reference = $reference;
         $paymentsQueryFilter->limit = 1;
         $paymentsQueryFilter->skip = 0;
+
         return $this->getCheckoutApi()->getPaymentsClient()->getPaymentsList($paymentsQueryFilter);
     }
 

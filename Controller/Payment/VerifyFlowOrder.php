@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Payment;
 
-use Checkout\CheckoutApi;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
@@ -29,24 +28,17 @@ use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Exception;
 use Magento\Checkout\Model\Session;
-use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
-use Magento\Store\Model\ScopeInterface;
+use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
-class VerifyFlowOrder extends Action
+class VerifyFlowOrder extends AbstractPayment
 {
-    protected $messageManager;
-    protected ApiHandlerService $apiHandler;
     protected FlowGeneralSettings $flowGeneralConfig;
-    protected Logger $logger;
-    protected OrderHandlerService $orderHandler;
     protected OrderRepositoryInterface $orderRepository;
-    protected Session $session;
-    protected StoreManagerInterface $storeManager;
     protected TransactionHandlerService $transactionHandler;
     protected Utilities $utilities;
     protected VaultHandlerService $vaultHandler;
@@ -65,128 +57,65 @@ class VerifyFlowOrder extends Action
         Utilities $utilities,
         VaultHandlerService $vaultHandler
     ) {
-        parent::__construct($context);
+        parent::__construct(
+            $apiHandler,
+            $context,
+            $logger,
+            $messageManager,
+            $orderHandler,
+            $session,
+            $storeManager,
+        );
 
-        $this->apiHandler = $apiHandler;
         $this->flowGeneralConfig = $flowGeneralConfig;
-        $this->logger = $logger;
-        $this->messageManager = $messageManager;
-        $this->orderHandler = $orderHandler;
         $this->orderRepository = $orderRepository;
         $this->transactionHandler = $transactionHandler;
-        $this->session = $session;
-        $this->storeManager = $storeManager;
         $this->utilities = $utilities;
         $this->vaultHandler = $vaultHandler;
     }
 
-    public function execute(): ResponseInterface
+    protected function paymentAction(array $apiCallResponse, OrderInterface $order): ResponseInterface
     {
+        $this->logger->display($apiCallResponse['response']);
+
         try {
-
-            // Retrive data from parameters
-            $sessionId = $this->getRequest()->getParam('cko-session-id', null);
-
-            $reference = $this->getRequest()->getParam('reference', null);
-
-            if (empty($reference) && empty($sessionId)) {
-                $this->messageManager->addErrorMessage(
-                    __('Invalid request. No session ID or reference found.')
-                );
-
-                return $this->_redirect('checkout/cart', ['_secure' => true]);
-            }
-
-            // Get data from API
-            $apiCallResponse = [];
-
-            $storeCode = $this->storeManager->getStore()->getCode();
             $websiteCode = $this->storeManager->getWebsite()->getCode();
 
-            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-
-            $apiCallResponse = $sessionId ? $api->getDetailsFromSessionId($sessionId) : $api->getDetailsFromReference($reference);
-            
-            // Case save card
-            if(isset($apiCallResponse['isSaveCard']) && $apiCallResponse['isSaveCard']) {
-                $this->saveCard($apiCallResponse['response']);
-
-                return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
+            if ($this->flowGeneralConfig->useFlow($websiteCode)) {
+                $order = $this->utilities->setPaymentData($order, $apiCallResponse['response']);
+                $this->orderRepository->save($order);
             }
-
-            //Validate data from API
-
-            if (empty($apiCallResponse) || !isset($apiCallResponse['response']) || !$api->isValidResponse($apiCallResponse['response'])) {
-                // Restore the quote
-                $this->session->restoreQuote();
-
-                // Add and error message
-                $this->messageManager->addErrorMessage(
-                    __('The transaction could not be processed.')
-                );
-
-                return $this->_redirect('checkout/cart', ['_secure' => true]);
-            }
-
-            // Get order
-
-            $order = $this->orderHandler->getOrder([
-                'increment_id' => $apiCallResponse['orderId'],
-            ]);
-
-            if (!$this->orderHandler->isOrder($order)) {
-                $this->messageManager->addErrorMessage(
-                    __('Invalid request. No order found.')
-                );
-
-                return $this->_redirect('checkout/cart', ['_secure' => true]);
-            }
-
-            // All checks succeed
-            // Continue with actions
-
-            $this->logger->display($apiCallResponse['response']);
-
-            try {
-                if ($this->flowGeneralConfig->useFlow($websiteCode)) {
-                    $order = $this->utilities->setPaymentData($order, $apiCallResponse['response']);
-                    $this->orderRepository->save($order);
-                }
-            } catch (Exception $e) {
-                $this->logger->write($e->getMessage());
-            }
-
-            // Redirect
-            
-            if (isset($apiCallResponse['response']['metadata']['successUrl']) &&
-                false === strpos(
-                    $apiCallResponse['response']['metadata']['successUrl'],
-                    'checkout_com/payment/verify'
-                )
-            ) {
-                return $this->_redirect($apiCallResponse['response']['metadata']['successUrl']);
-            }
-
-            return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
-
         } catch (Exception $e) {
-            $this->messageManager->addErrorMessage(
-                __('An error has occurred, please select another payment method or retry in a few minutes')
-            );
-
             $this->logger->write($e->getMessage());
-
         }
 
-        return $this->_redirect('checkout/cart', ['_secure' => true]);
+        if (isset($apiCallResponse['response']['metadata']['successUrl']) &&
+            false === strpos(
+                $apiCallResponse['response']['metadata']['successUrl'],
+                'checkout_com/payment/verify'
+            )
+        ) {
+            return $this->_redirect($apiCallResponse['response']['metadata']['successUrl']);
+        }
+
+        return $this->_redirect('checkout/onepage/success', ['_secure' => true]);
     }
 
     /**
      * @throws Exception
      */
-    private function saveCard(array $response): void
+    protected function saveCardAction(array $apiCallResponse): ResponseInterface
     {
-        // Save the card
+        if (!isset($apiCallResponse['response'])) {
+            $this->messageManager->addErrorMessage(
+                __('The card could not be saved.')
+            );
+
+            return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
+        }
+        
+        $response = $apiCallResponse['response'];
+
         $success = $this->vaultHandler->setCardToken($response['source']['id'])
             ->setCustomerId()
             ->setCustomerEmail()
@@ -203,5 +132,7 @@ class VerifyFlowOrder extends Action
                 __('The card could not be saved.')
             );
         }
+
+        return $this->_redirect('vault/cards/listaction', ['_secure' => true]);
     }
 }
