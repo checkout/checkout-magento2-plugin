@@ -108,6 +108,7 @@ class FlowPrepareService
             'publicKey' => $publicKey,
             'reference' => $payload->reference
         ];
+
         return $response;
     }
 }

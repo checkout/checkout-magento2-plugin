@@ -103,7 +103,6 @@ class PostPaymentSessions
         LoggerInterface $logger
     ) {
         $this->modelFactory = $modelFactory;
-
         $this->billingDescriptorElement = $billingDescriptorElement;
         $this->billingElement = $billingElement;
         $this->customerElement = $customerElement;

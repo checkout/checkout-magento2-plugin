@@ -43,7 +43,6 @@ abstract class AbstractPayment extends Action
     protected StoreManagerInterface $storeManager;
 
     public function __construct(
-        
         ApiHandlerService $apiHandler,
         Context $context,
         Logger $logger,
@@ -75,9 +74,7 @@ abstract class AbstractPayment extends Action
 
             $this->validateResponse($apiCallResponse);
 
-            $order = $this->getOrder($apiCallResponse);
-
-            return $this->paymentAction($apiCallResponse, $order);
+            return $this->paymentAction($apiCallResponse, $this->getOrder($apiCallResponse));
 
         } catch (CkoException $e) {
             $this->messageManager->addErrorMessage(
@@ -97,7 +94,8 @@ abstract class AbstractPayment extends Action
     /**
      * @throws CkoException
      */
-    protected function getUrlParameters(): array {
+    protected function getUrlParameters(): array
+    {
         $sessionId = $this->getRequest()->getParam('cko-session-id', null);
 
         $reference = $this->getRequest()->getParam('reference', null);
@@ -107,20 +105,21 @@ abstract class AbstractPayment extends Action
         }
 
         return [
-            "sessionId" => $sessionId ?? '',
-            "reference" => $reference ?? ''
+            'sessionId' => $sessionId ?? '',
+            'reference' => $reference ?? ''
         ];
     }
 
     /**
      * @throws CheckoutApiException
      */
-    protected function requestCkoApi($urlParameters): array {
+    protected function requestCkoApi($urlParameters): array
+    {
         $storeCode = $this->storeManager->getStore()->getCode();
         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
-
+        $sessionId = $urlParameters['sessionId'] ?? '';
         try {
-            return $urlParameters['sessionId'] ? $api->getDetailsFromSessionId($urlParameters['sessionId']) : $api->getDetailsFromReference($urlParameters['reference']);
+            return !empty($sessionId) ? $api->getDetailsFromSessionId($sessionId) : $api->getDetailsFromReference($urlParameters['reference']);
         } catch (Exception $e) {
             return $api->getDetailsFromReference($urlParameters['reference']);
         }
@@ -129,7 +128,8 @@ abstract class AbstractPayment extends Action
     /**
      * @throws CkoException
      */
-    protected function validateResponse($apiCallResponse): void {
+    protected function validateResponse($apiCallResponse): void
+    {
         if (!isset($apiCallResponse['response']) || !$this->apiHandler->isValidResponse($apiCallResponse['response'])) {
             $this->session->restoreQuote();
 
@@ -140,7 +140,8 @@ abstract class AbstractPayment extends Action
     /**
      * @throws CkoException
      */
-    protected function getOrder(array $apiCallResponse): OrderInterface {
+    protected function getOrder(array $apiCallResponse): OrderInterface
+    {
         $order = $this->orderHandler->getOrder([
             'increment_id' => $apiCallResponse['orderId'],
         ]);

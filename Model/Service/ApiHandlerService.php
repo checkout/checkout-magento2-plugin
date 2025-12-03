@@ -63,14 +63,14 @@ class ApiHandlerService
      * @var mixed
      */
     protected $checkoutApi;
-    private StoreManagerInterface $storeManager;
-    private ProductMetadataInterface $productMeta;
-    private Config $config;
-    private Utilities $utilities;
-    private Logger $logger;
-    private OrderHandlerService $orderHandler;
-    private QuoteHandlerService $quoteHandler;
-    private VersionHandlerService $versionHandler;
+    protected StoreManagerInterface $storeManager;
+    protected ProductMetadataInterface $productMeta;
+    protected Config $config;
+    protected Utilities $utilities;
+    protected Logger $logger;
+    protected OrderHandlerService $orderHandler;
+    protected QuoteHandlerService $quoteHandler;
+    protected VersionHandlerService $versionHandler;
     protected ScopeConfigInterface $scopeConfig;
     protected Json $json;
     protected PaymentsQueryFilterFactory $paymentsQueryFilterFactory;
