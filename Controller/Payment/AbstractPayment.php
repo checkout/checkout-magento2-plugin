@@ -61,6 +61,10 @@ abstract class AbstractPayment extends Action
         $this->storeManager = $storeManager;
     }
 
+    abstract protected function saveCardAction(array $apiCallResponse): ResponseInterface;
+
+    abstract protected function paymentAction(array $apiCallResponse, OrderInterface $order): ResponseInterface;
+
     public function execute(): ResponseInterface
     {
         try {
@@ -80,6 +84,8 @@ abstract class AbstractPayment extends Action
             $this->messageManager->addErrorMessage(
                 $e->getMessage()
             );
+
+            $this->logger->write($e->getMessage());
         } catch (Exception $e) {
             $this->messageManager->addErrorMessage(
                 __('An error has occurred, please select another payment method or retry in a few minutes')
@@ -152,8 +158,4 @@ abstract class AbstractPayment extends Action
 
         return $order;
     }
-
-    abstract protected function saveCardAction(array $apiCallResponse): ResponseInterface;
-
-    abstract protected function paymentAction(array $apiCallResponse, OrderInterface $order): ResponseInterface;
 }
