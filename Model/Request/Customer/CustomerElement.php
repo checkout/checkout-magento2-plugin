@@ -45,8 +45,6 @@ class CustomerElement
 
     /**
      * @param QuoteAddressInterface|OrderAddressInterface $billingAddress
-     *
-     * @return PaymentCustomerRequest
      */
     public function get(CustomerInterface $customer, $billingAddress): PaymentCustomerRequest
     {
@@ -55,10 +53,11 @@ class CustomerElement
         $model->email = $customer->getEmail();
         $model->name = $customer->getFirstname() . ' ' . $customer->getLastname();
 
-        $phone = $billingAddress->getTelephone();
-        $country = $billingAddress->getCountryId();
+        $phoneElement = $this->phoneElement->get(
+            $billingAddress->getCountryId(), 
+            $billingAddress->getTelephone()
+        );
 
-        $phoneElement = $this->phoneElement->get($country, $phone);
         if ($phoneElement) {
             $model->phone = $phoneElement;
         }

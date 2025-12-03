@@ -48,6 +48,8 @@ use Psr\Log\LoggerInterface;
 
 class PostPaymentSessions
 {
+    protected const TAMARA_CURRENCIES = ['AED', 'SAR'];
+
     protected PaymentSessionsRequestFactory $modelFactory;
     protected BillingDescriptorElement $billingDescriptorElement;
     protected BillingElement $billingElement;
@@ -172,7 +174,7 @@ class PostPaymentSessions
         $model->capture = $this->generalSettings->isAuthorizeAndCapture($websiteCode);
         $model->reference = $this->quoteHandlerService->getReference($quote);
 
-        if ($currency === 'AED' || $currency === 'SAR') {
+        if (in_array($currency, self::TAMARA_CURRENCIES)) {
             $this->customerElement->fillSummary($model->customer, $customer, $currency);
         }
 

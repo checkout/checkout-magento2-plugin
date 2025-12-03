@@ -26,7 +26,7 @@ class PhoneElement
 {
     protected PhoneFactory $modelFactory;
 
-    public const  COUNTRY_LIST = [
+    public const COUNTRY_LIST = [
         'AF' => '93',
         'AX' => '358 18',
         'AL' => '355',

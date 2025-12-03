@@ -29,6 +29,9 @@ use Magento\Sales\Model\ResourceModel\Order\CollectionFactory as OrderCollection
 
 class SummaryElement
 {
+
+    protected const TAMARA_METHOD = 'checkoutcom_tamara';
+
     protected DateFormatter $dateFormatter;
     protected JsonSerializer $serializer;
     protected OrderCollectionFactory $orderCollectionFactory;
@@ -137,7 +140,7 @@ class SummaryElement
 
             $flowMethod = $additionnal_data['flow_method_id'] ?? null;
 
-            return $flowMethod !== 'checkoutcom_tamara';
+            return $flowMethod !== self::TAMARA_METHOD;
         });
     }
 }

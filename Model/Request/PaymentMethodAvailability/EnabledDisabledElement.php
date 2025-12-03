@@ -175,14 +175,24 @@ class EnabledDisabledElement
                 return true;
             }
 
-            $requiredProperties = explode(',', $configuration);
+            try {
+                $requiredProperties = explode(',', $configuration);
+                $objectProperties = get_object_vars($object);
 
-            $objectProperties = get_object_vars($object);
-
-            foreach ($requiredProperties as $property) {
-                if (empty($objectProperties[$property] ?? null)) {
-                    return false;
+                foreach ($requiredProperties as $property) {
+                    if (empty($objectProperties[$property])) {
+                        return false;
+                    }
                 }
+            } catch (Exception $error) {
+                $this->logger->error(
+                    sprintf("Unable to control object %s for %s Message: %s", 
+                    $definitionProperty,
+                    $method,
+                    $error->getMessage()),
+                );
+
+                return false;
             }
 
             return true;
