@@ -49,6 +49,8 @@ use Psr\Log\LoggerInterface;
 
 class PostPaymentSessions
 {
+    protected const TAMARA_CURRENCIES = ['AED', 'SAR'];
+
     protected PaymentSessionsRequestFactory $modelFactory;
     protected BillingDescriptorElement $billingDescriptorElement;
     protected BillingElement $billingElement;
@@ -141,7 +143,7 @@ class PostPaymentSessions
             $storeCode = null;
 
             $this->logger->error(
-                sprintf("Unable to fetch website code or store code: %s", $error->getMessage()),
+                sprintf('Unable to fetch website code or store code: %s', $error->getMessage()),
             );
         }
 
@@ -157,12 +159,12 @@ class PostPaymentSessions
         $model->billing = $this->billingElement->get($billingAddress);
         $model->success_url = $this->getSuccessUrl($data);
         $model->failure_url = $this->getFailureUrl($data);
-        $model->payment_type = "Regular";
+        $model->payment_type = 'Regular';
 
         if ($this->generalSettings->isDynamicDescriptorEnabled($websiteCode)) {
             $model->billing_descriptor = $this->billingDescriptorElement->get();
         }
-        $model->customer = $this->customerElement->get($customer);
+        $model->customer = $this->customerElement->get($customer, $billingAddress);
         $model->shipping = $this->shippingElement->get($shippingAddress);
         $model->processing_channel_id = $this->accountSettings->getChannelId($websiteCode);
         $model->payment_method_configuration = $this->paymentMethodConfigurationElement->get($customer);
@@ -175,6 +177,10 @@ class PostPaymentSessions
         $model->sender = $this->senderElement->get($customer);
         $model->capture = $this->generalSettings->isAuthorizeAndCapture($websiteCode);
         $model->reference = $this->quoteHandlerService->getReference($quote);
+
+        if (in_array($currency, self::TAMARA_CURRENCIES)) {
+            $this->customerElement->fillSummary($model->customer, $customer, $currency);
+        }
 
         if ($this->generalSettings->isAuthorizeAndCapture($websiteCode)) {
             $model->capture_on = $this->getCaptureTime($websiteCode);
@@ -210,7 +216,7 @@ class PostPaymentSessions
         if (isset($data['reference'])) {
             $urlParameters['reference'] = $data['reference'];
         }
-        
+
         if (isset($data['successUrl'])) {
             $param = count($urlParameters) > 0 ? '?' . implode('&', $urlParameters) : '';
 
@@ -276,7 +282,7 @@ class PostPaymentSessions
         $dateTime = $this->dateTimeFactory->create();
         $dateTime->setTimestamp($captureDate);
 
-        return $dateTime->format("Y-m-d\TH:i:s\Z");
+        return $dateTime->format('Y-m-d\TH:i:s\Z');
 
     }
 }

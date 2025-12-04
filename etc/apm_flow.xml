@@ -155,6 +155,14 @@
         <countries>AE,KW,SA</countries>
         <reference mandatory = '1' />
     </item>
+    <item>
+        <id>tamara</id>
+        <title>Tamara</title>
+        <currencies>AED,SAR</currencies>
+        <countries>AE,SA</countries>
+        <shipping>address_line1,city,country</shipping>
+        <reference mandatory = '1' />
+    </item>
     <!-- <item>
         <id>venmo</id>
         <title>Venmo</title>

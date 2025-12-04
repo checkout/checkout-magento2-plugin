@@ -71,7 +71,7 @@ class Verify extends Action
         Session $session,
         FlowGeneralSettings $flowGeneralConfig,
         Utilities $utilities,
-        OrderRepositoryInterface $orderRepository,
+        OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
 

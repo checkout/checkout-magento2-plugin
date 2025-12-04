@@ -123,6 +123,7 @@ class Loader
                 'referenceMandatory' => ($row['reference']['_attribute']['mandatory'] ?? '0') === '1',
                 'descriptionMandatory' => ($row['description']['_attribute']['mandatory'] ?? '0') === '1',
                 'oldApm' => $row['old_apm'] ?? $row['id'],
+                'shipping' => $row['shipping'] ?? '',
             ];
         }
 

@@ -127,12 +127,14 @@ class EnabledDisabledElement
         $email = $request->customer->email ?? '';
         $description = $request->description ?? '';
         $reference = $request->reference ?? '';
+        $shipping = $request->shipping->address;
 
-        $afterEmailCheck = $this->doControl($email, 'emailMandatory', $payments, $definition);
-        $afterDefinitionCheck = $this->doControl($description, 'descriptionMandatory', $afterEmailCheck, $definition);
-        $afterReferenceCheck = $this->doControl($reference, 'referenceMandatory', $afterDefinitionCheck, $definition);
+        $afterEmailCheck = $this->doEmptyControl($email, 'emailMandatory', $payments, $definition);
+        $afterDefinitionCheck = $this->doEmptyControl($description, 'descriptionMandatory', $afterEmailCheck, $definition);
+        $afterReferenceCheck = $this->doEmptyControl($reference, 'referenceMandatory', $afterDefinitionCheck, $definition);
+        $afterShippingCheck = $this->doObjectControl($shipping, 'shipping', $afterReferenceCheck, $definition);
 
-        return $afterReferenceCheck;
+        return $afterShippingCheck;
     }
 
     /**
@@ -143,7 +145,7 @@ class EnabledDisabledElement
      *
      * @return array
      */
-    protected function doControl($property, string $definitionProperty, array $payments, array $definition): array
+    protected function doEmptyControl($property, string $definitionProperty, array $payments, array $definition): array
     {
         if(!empty($property)) {
             return $payments;
@@ -153,6 +155,47 @@ class EnabledDisabledElement
             $isDefinitionRequired = $definition[$method][$definitionProperty] ?? false;
 
             return !$isDefinitionRequired;
+        });
+    }
+
+    /**
+     * @param mixed $object
+     * @param string $definitionProperty
+     * @param array $payments
+     * @param array $definition
+     *
+     * @return array
+     */
+    protected function doObjectControl($object, string $definitionProperty, array $payments, array $definition): array
+    {
+        return array_filter($payments, function($method) use($object, $definitionProperty, $definition) {
+            $configuration = $definition[$method][$definitionProperty] ?? '';
+            
+            if (empty($configuration)) {
+                return true;
+            }
+
+            try {
+                $requiredProperties = explode(',', $configuration);
+                $objectProperties = get_object_vars($object);
+
+                foreach ($requiredProperties as $property) {
+                    if (empty($objectProperties[$property])) {
+                        return false;
+                    }
+                }
+            } catch (Exception $error) {
+                $this->logger->error(
+                    sprintf("Unable to control object %s for %s Message: %s", 
+                    $definitionProperty,
+                    $method,
+                    $error->getMessage()),
+                );
+
+                return false;
+            }
+
+            return true;
         });
     }
 
