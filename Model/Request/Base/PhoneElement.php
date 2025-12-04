@@ -293,7 +293,7 @@ class PhoneElement
 
         $phoneCode = self::COUNTRY_LIST[$countryCode] ?? '';
 
-        if(empty($phoneCode) || empty($number)) {
+        if (empty($phoneCode) || empty($number)) {
             return null;
         }
 
