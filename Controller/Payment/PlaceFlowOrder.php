@@ -38,24 +38,24 @@ class PlaceFlowOrder extends Action
     private const METHOD_PREFIX = "checkoutcom_";
     private const FLOW_ID = "checkoutcom_flow";
 
-    private StoreManagerInterface $storeManager;
-    private JsonFactory $jsonFactory;
-    private QuoteHandlerService $quoteHandler;
-    private OrderHandlerService $orderHandler;
-    private Logger $logger;
-    private OrderRepositoryInterface $orderRepository;
-    protected JsonSerializer $json;
     private FlowGeneralSettings $flowGeneralConfig;
+    private JsonFactory $jsonFactory;
+    protected JsonSerializer $json;
+    private Logger $logger;
+    private OrderHandlerService $orderHandler;
+    private OrderRepositoryInterface $orderRepository;
+    private QuoteHandlerService $quoteHandler;
+    private StoreManagerInterface $storeManager;
 
     public function __construct(
         Context $context,
-        StoreManagerInterface $storeManager,
+        FlowGeneralSettings $flowGeneralConfig,
         JsonFactory $jsonFactory,
-        QuoteHandlerService $quoteHandler,
-        OrderHandlerService $orderHandler,
         Logger $logger,
+        OrderHandlerService $orderHandler,
         OrderRepositoryInterface $orderRepository,
-        FlowGeneralSettings $flowGeneralConfig
+        QuoteHandlerService $quoteHandler,
+        StoreManagerInterface $storeManager
     ) {
         parent::__construct($context);
 
@@ -125,7 +125,7 @@ class PlaceFlowOrder extends Action
             $this->orderRepository->save($order);
 
             return $json->setData([
-                'success' => true,
+                'success' => true
             ]);
 
         } catch (Exception $e) {
