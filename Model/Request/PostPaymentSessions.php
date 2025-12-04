@@ -152,7 +152,7 @@ class PostPaymentSessions
 
         $billingAddress = $quote->getBillingAddress();
         $shippingAddress = $quote->getShippingAddress();
-        $currency = $quote->getCurrency()->getBaseCurrencyCode() ?? '';
+        $currency = $quote->getCurrency()->getQuoteCurrencyCode() ?? '';
 
         $model->amount = $this->priceFormatter->getFormattedPrice($quote->getGrandTotal() ?? 0, $currency);
         $model->currency = $currency;
