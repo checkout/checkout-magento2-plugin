@@ -21,6 +21,7 @@ namespace CheckoutCom\Magento2\Provider;
 
 use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
 use Exception;
+use Magento\Config\Model\Config\Backend\Admin\Custom;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -69,4 +70,11 @@ class ExternalSettings extends AbstractSettingsProvider {
         );
     }
 
+    public function getStoreCountry(?string $storeCode): ?string
+    {
+        return $this->getStoreLevelConfiguration(
+            Custom::XML_PATH_GENERAL_COUNTRY_DEFAULT,
+            $storeCode,
+        );
+    }
 }
