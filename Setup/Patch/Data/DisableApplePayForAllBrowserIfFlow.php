@@ -48,7 +48,7 @@ class DisableApplePayForAllBrowserIfFlow implements DataPatchInterface
 
     public function apply()
     {
-        $this->enableForAllBrowserMigrator->checkEnableForAllBrowser();
+        $this->enableForAllBrowserMigrator->disableIfFlow();
 
         $websites = $this->storeManager->getWebsites();
         /**
@@ -56,7 +56,7 @@ class DisableApplePayForAllBrowserIfFlow implements DataPatchInterface
          */
         foreach ($websites as $website) {
             $id = (int) $website->getId();
-            $this->enableForAllBrowserMigrator->checkEnableForAllBrowser($id);
+            $this->enableForAllBrowserMigrator->disableIfFlow($id);
         }
     }
 }

@@ -25,6 +25,7 @@ use CheckoutCom\Magento2\Provider\FlowPaymentMethodSettings;
 use Exception;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 
 class ApmConfigChangedObserver implements ObserverInterface
@@ -32,16 +33,19 @@ class ApmConfigChangedObserver implements ObserverInterface
     protected ApmMigrator $apmMigrator;
     protected EnableForAllBrowserMigrator $enableForAllBrowserMigrator;
     protected LoggerInterface $logger;
+    protected StoreManagerInterface $storeManager;
 
     public function __construct(
         ApmMigrator $apmMigrator,
         EnableForAllBrowserMigrator $enableForAllBrowserMigrator,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        StoreManagerInterface $storeManager
     )
     {
         $this->apmMigrator = $apmMigrator;
         $this->enableForAllBrowserMigrator = $enableForAllBrowserMigrator;
         $this->logger = $logger;
+        $this->storeManager = $storeManager;
     }
 
     public function execute(Observer $observer)
@@ -56,7 +60,17 @@ class ApmConfigChangedObserver implements ObserverInterface
         try {
             if (is_array($changedPaths) && in_array(FlowGeneralSettings::CONFIG_SDK, $changedPaths)) {
                 $eventWebsite = (int) $observer->getEvent()->getData('website') ?? 0;
-               $this->enableForAllBrowserMigrator->checkEnableForAllBrowser($eventWebsite);
+                $this->enableForAllBrowserMigrator->disableIfFlow($eventWebsite);
+
+                if ($eventWebsite === 0) {
+                    $websites = $this->storeManager->getWebsites();
+
+                    foreach ($websites as $website) {
+                        $id = (int) $website->getId();
+                        $this->enableForAllBrowserMigrator->disableIfFlow($id);
+                        $this->enableForAllBrowserMigrator->enableIfFrame($id);
+                    }
+                }
             }
         } catch (Exception $error) {
             $this->logger->error(sprintf('Unable to desactive Apple on all browser: %s', $error->getMessage()));

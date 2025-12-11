@@ -46,7 +46,7 @@ class EnableForAllBrowserMigrator
     /**
      * @throws LocalizedException
     */
-    public function checkEnableForAllBrowser(int $website = 0): void
+    public function disableIfFlow(int $website = 0): void
     {
         $scope = $website !== 0 ? ScopeInterface::SCOPE_WEBSITES : ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
 
@@ -58,6 +58,22 @@ class EnableForAllBrowserMigrator
                 $website
             );
         };
+    }
 
+    /**
+     * @throws LocalizedException
+    */
+    public function enableIfFrame(int $website = 0): void
+    {
+        $scope = $website !== 0 ? ScopeInterface::SCOPE_WEBSITES : ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
+
+        if ($this->flowGeneralSettings->useFrames((string) $website)) {
+            $this->configWriter->save(
+                ApplePaymentSettings::CONFIG_ENABLED_ON_ALL_BROWSER,
+                '1',
+                $scope,
+                $website
+            );
+        };
     }
 }
