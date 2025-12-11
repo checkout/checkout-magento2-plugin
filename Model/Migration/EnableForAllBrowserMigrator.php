@@ -48,32 +48,28 @@ class EnableForAllBrowserMigrator
     */
     public function disableIfFlow(int $website = 0): void
     {
-        $scope = $website !== 0 ? ScopeInterface::SCOPE_WEBSITES : ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
-
         if ($this->flowGeneralSettings->useFlow((string) $website)) {
-            $this->configWriter->save(
-                ApplePaymentSettings::CONFIG_ENABLED_ON_ALL_BROWSER,
-                '0',
-                $scope,
-                $website
-            );
+            $this->updateEnabledOnAllBrowser($website, true);
         };
     }
 
-    /**
-     * @throws LocalizedException
-    */
-    public function enableIfFrame(int $website = 0): void
+    public function updateEnabledOnAllBrowser(int $website = 0, ?bool $isFlow = null): void
     {
         $scope = $website !== 0 ? ScopeInterface::SCOPE_WEBSITES : ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
 
-        if ($this->flowGeneralSettings->useFrames((string) $website)) {
-            $this->configWriter->save(
-                ApplePaymentSettings::CONFIG_ENABLED_ON_ALL_BROWSER,
-                '1',
-                $scope,
-                $website
-            );
+        if ($isFlow && $this->flowGeneralSettings->useFrames((string) $website)) {
+            return;
+        }
+
+        if (!$isFlow && $this->flowGeneralSettings->useFlow((string) $website)) {
+            return;
         };
+
+        $this->configWriter->save(
+            ApplePaymentSettings::CONFIG_ENABLED_ON_ALL_BROWSER,
+            (string) (int) !$isFlow,
+            $scope,
+            $website
+        );
     }
 }

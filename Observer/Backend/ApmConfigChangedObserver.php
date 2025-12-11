@@ -34,16 +34,19 @@ class ApmConfigChangedObserver implements ObserverInterface
     protected EnableForAllBrowserMigrator $enableForAllBrowserMigrator;
     protected LoggerInterface $logger;
     protected StoreManagerInterface $storeManager;
+    protected FlowGeneralSettings $flowGeneralSettings;
 
     public function __construct(
         ApmMigrator $apmMigrator,
         EnableForAllBrowserMigrator $enableForAllBrowserMigrator,
+        FlowGeneralSettings $flowGeneralSettings,
         LoggerInterface $logger,
         StoreManagerInterface $storeManager
     )
     {
         $this->apmMigrator = $apmMigrator;
         $this->enableForAllBrowserMigrator = $enableForAllBrowserMigrator;
+        $this->flowGeneralSettings = $flowGeneralSettings;
         $this->logger = $logger;
         $this->storeManager = $storeManager;
     }
@@ -64,11 +67,11 @@ class ApmConfigChangedObserver implements ObserverInterface
 
                 if ($eventWebsite === 0) {
                     $websites = $this->storeManager->getWebsites();
+                    $defaultSdk = $this->flowGeneralSettings->useFlow(null);
 
                     foreach ($websites as $website) {
                         $id = (int) $website->getId();
-                        $this->enableForAllBrowserMigrator->disableIfFlow($id);
-                        $this->enableForAllBrowserMigrator->enableIfFrame($id);
+                        $this->enableForAllBrowserMigrator->updateEnabledOnAllBrowser($id, $defaultSdk);
                     }
                 }
             }
