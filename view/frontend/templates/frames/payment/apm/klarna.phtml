@@ -1,0 +1,179 @@
+<?php
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+
+/**
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
+?>
+
+<div data-role="collapsible" id="<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>" class="cko-apm <?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>">
+    <div data-role="trigger">
+        <span class="bg-<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?> bg-apm"></span>
+        <span><?= $escaper->escapeHtml($block->getData('title'))?></span>
+    </div>
+</div>
+<div data-role="content" class="apm-content <?= $block->escapeHtmlAttr($block->getData('apm_id'))?>" id="body-<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>">
+    <form id="cko-apm-form-<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>">
+        <input type="hidden" name="source" value="<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>" required>
+        <input type="hidden" id="cko-apm-form-klarna-key" name="authorization_token" value="" required>
+        <input type="hidden" id="cko-apm-form-klarna-session" name="session_id" value="" required>
+    </form>
+    <div id="klarna_container" align="center">
+        <?= $escaper->escapeHtml(__('Could not load the Klarna script.')) ?>
+    </div>
+    <script type="text/javascript" src="https://x.klarnacdn.net/kp/lib/v1/api.js"></script>
+
+    <?php
+    $url = $escaper->escapeUrl($block->getUrl('checkout_com/apm/displayklarna'));
+
+    $script = <<<script
+/**
+         * Klarna controller.
+         */
+        require([
+            "jquery",
+            'CheckoutCom_Magento2/js/common/view/payment/utilities',
+            "Klarna",
+            'Magento_Checkout/js/model/full-screen-loader',
+            "domReady!"
+            ], function ($, Utilities, Klarna, FullScreenLoader) {
+                Klarna = window.Klarna;
+                var k = {
+                    /**
+                     * Remove Klarna elements.
+                     */
+                    remove: function() {
+                        $("#klarna").remove();
+                        $("#body-klarna").remove();
+                        $('#apm-container').show();
+                        FullScreenLoader.stopLoader();
+                    },
+                    /**
+                     * Load Klarna object.
+                     *
+                     * @param      {Obj}  data     The data
+                     * @param      {Array}  methods  The methods
+                     */
+                    load: function(data, methods) {
+                        var self = this;
+                        try {
+                            Klarna.Payments.init({client_token: data.source.client_token}); // Initialize Klarna
+                            Klarna.Payments.load({
+                                container: "#klarna_container",
+                                payment_method_categories: methods,
+                                instance_id: "klarna-payments-instance"
+                            },
+                            {
+                                purchase_country:   data.billing.country_id,
+                                purchase_currency:  data.quote.quote_currency_code,
+                                locale:             data.locale,
+                                order_amount:       (parseFloat(data.quote.grand_total) * 100).toFixed(0),
+                                order_tax_amount:   (parseFloat(data.tax_amount) * 100).toFixed(0),
+                                order_lines:        data.products,
+                                billing_address:    {
+                                    given_name:     data.billing.firstname,
+                                    family_name:    data.billing.lastname,
+                                    email:          data.billing.email || Utilities.getEmail(),
+                                    //title:          data.billing.email,
+                                    street_address: data.billing.street,
+                                    //street_address2:          data.billing.email,
+                                    postal_code:    data.billing.postcode,
+                                    city:           data.billing.city,
+                                    region:         data.billing.region,
+                                    phone:          data.billing.phone,
+                                    country:        data.billing.country_id.toLowerCase()
+                                }
+                            },
+                            function (response) {
+                                if (!response.show_form) {
+                                    self.remove();
+                                }
+                                $('#apm-container').show();
+                                FullScreenLoader.stopLoader();
+
+                                // Auto select the default/previous method
+                                self.checkLastPaymentMethod();
+                            });
+
+                        } catch(er) {
+                            this.remove();
+                        }
+
+                    },
+
+                    /**
+                     * @return {void}
+                     */
+                    checkLastPaymentMethod: function () {
+                        return Utilities.checkLastPaymentMethod();
+                    },
+
+                    /**
+                     * Get methods from source.
+                     *
+                     * @param      {Array}  [methods=[]]  The methods
+                     * @return     {Array}   The methods.
+                     */
+                    getMethods: function(methods = []) {
+
+                        var list = [];
+                            methods.forEach(function(el) {
+                                list.push(el.identifier);
+                            });
+
+                        return list;
+
+                    }
+                }
+
+                /**
+                 * Verify if Klarna is available.
+                 */
+                if (window.Klarna !== undefined) {
+                    $.ajax({
+                            type: 'POST',
+                            url: '{$url}',
+                            data: {
+                                quote_id: window.checkoutConfig.quoteItemData[0].quote_id,
+                                form_key: window.checkoutConfig.formKey,
+                                store_id: window.checkoutConfig.quoteData.store_id
+                            },
+                            success: function (data) {
+                            if (data && data.hasOwnProperty('source')) {
+                                $('#cko-apm-form-klarna-session').val(data.source.session_id);
+                                $("#klarna_container").html("");
+                                k.load(
+                                    data,
+                                    k.getMethods(data.source.payment_method_categories)
+                                );
+                                return;
+                            }
+                            k.remove();
+                        },
+                        error: k.remove
+                    });
+                } else {
+                    k.remove();
+                }
+        });
+script;
+    ?>
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false) ?>
+</div>

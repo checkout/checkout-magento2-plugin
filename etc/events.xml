@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="email_order_set_template_vars_before">
+        <observer name="cko_add_payment_link_to_order" instance="CheckoutCom\Magento2\Observer\Email\AddPaymentLinkToOrder"/>
+    </event>
+    <!-- Saving the should save card option to order -->
+    <event name="sales_model_service_quote_submit_before">
+        <observer name="cko_store_save_card_option_to_order"
+                  instance="CheckoutCom\Magento2\Observer\Quote\SaveCardOptionToOrder" />
+    </event>
+</config>

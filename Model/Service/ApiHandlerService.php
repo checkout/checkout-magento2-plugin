@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -28,7 +28,7 @@ use Checkout\Common\Address;
 use Checkout\Common\CustomerRequest;
 use Checkout\HttpMetadata;
 use Checkout\Payments\CaptureRequest;
-use Checkout\Payments\Previous\CaptureRequest as PreviousCaptureRequest;
+use Checkout\Payments\PaymentsQueryFilterFactory;
 use Checkout\Payments\Product;
 use Checkout\Payments\RefundRequest;
 use Checkout\Payments\ShippingDetails;
@@ -38,7 +38,6 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigRegion;
-use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigService;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\FileSystemException;
@@ -55,6 +54,7 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class ApiHandlerService
 {
+    public const CARD_VERIFIED = 'Card Verified';
     /**
      * Valid return code
      */
@@ -63,16 +63,17 @@ class ApiHandlerService
      * @var mixed
      */
     protected $checkoutApi;
-    private StoreManagerInterface $storeManager;
-    private ProductMetadataInterface $productMeta;
-    private Config $config;
-    private Utilities $utilities;
-    private Logger $logger;
-    private OrderHandlerService $orderHandler;
-    private QuoteHandlerService $quoteHandler;
-    private VersionHandlerService $versionHandler;
+    protected StoreManagerInterface $storeManager;
+    protected ProductMetadataInterface $productMeta;
+    protected Config $config;
+    protected Utilities $utilities;
+    protected Logger $logger;
+    protected OrderHandlerService $orderHandler;
+    protected QuoteHandlerService $quoteHandler;
+    protected VersionHandlerService $versionHandler;
     protected ScopeConfigInterface $scopeConfig;
     protected Json $json;
+    protected PaymentsQueryFilterFactory $paymentsQueryFilterFactory;
 
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -84,7 +85,8 @@ class ApiHandlerService
         QuoteHandlerService $quoteHandler,
         VersionHandlerService $versionHandler,
         ScopeConfigInterface $scopeConfig,
-        Json $json
+        Json $json,
+        PaymentsQueryFilterFactory $paymentsQueryFilterFactory
     ) {
         $this->storeManager = $storeManager;
         $this->productMeta = $productMeta;
@@ -96,6 +98,7 @@ class ApiHandlerService
         $this->versionHandler = $versionHandler;
         $this->scopeConfig = $scopeConfig;
         $this->json = $json;
+        $this->paymentsQueryFilterFactory = $paymentsQueryFilterFactory;
     }
 
     /**
@@ -125,20 +128,22 @@ class ApiHandlerService
             $publicKey = $this->config->getValue('public_key', null, (string)$storeCode, $scope);
         }
 
-        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, $scope, $storeCode);
         $environment = $this->config->getEnvironment((string)$storeCode, $scope);
         $api = CheckoutSdk::builder();
-
-        if ($service === ConfigService::SERVICE_ABC) {
-            $api = $api->previous()->staticKeys();
-        } else {
-            $api = $api->staticKeys();
-        }
+        $api = $api->staticKeys();
 
         $sdkBuilder = $api
             ->publicKey($publicKey)
             ->secretKey($secretKey)
             ->environment($environment);
+
+        $this->logger->additional(
+            sprintf(
+                'SDK init with keys: %s %s',
+                '***' . substr($publicKey, -2),
+                '***' . substr($secretKey, -2),
+            ), 
+            'api');
 
         // Do not set subdomain when global region is used
         if ($region !== ConfigRegion::REGION_GLOBAL) {
@@ -146,26 +151,6 @@ class ApiHandlerService
         }
 
         $this->checkoutApi = $sdkBuilder->build();
-
-        return $this;
-    }
-
-    public function initAbcForRefund(
-        $storeCode = null,
-        string $scope = ScopeInterface::SCOPE_WEBSITE
-    ): ApiHandlerService {
-        $secretKey = $this->config->getValue('abc_refund_secret_key', null, (string)$storeCode, $scope);
-        $publicKey = $this->config->getValue('abc_refund_public_key', null, (string)$storeCode, $scope);
-
-        $api = CheckoutSdk::builder();
-        $environment = $this->config->getEnvironment((string)$storeCode, $scope);
-
-        $this->checkoutApi = $api
-            ->previous()->staticKeys()
-            ->publicKey($publicKey)
-            ->secretKey($secretKey)
-            ->environment($environment)
-            ->build();
 
         return $this;
     }
@@ -212,11 +197,7 @@ class ApiHandlerService
         // Process the capture request
         if (isset($paymentInfo['id'])) {
             // Prepare the request
-            if ($this->isPreviousMode()) {
-                $request = new PreviousCaptureRequest();
-            } else {
-                $request = new CaptureRequest();
-            }
+            $request = new CaptureRequest();
 
             $request->amount = $this->orderHandler->amountToGateway(
                 $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
@@ -312,6 +293,40 @@ class ApiHandlerService
     }
 
     /**
+     * @throws CheckoutApiException
+     */
+    public function getDetailsFromSessionId(string $sessionId): array
+    {
+        $response = $this->getPaymentDetails($sessionId);
+        
+        return [
+            'response' => $response,
+            'orderId' => $response['reference'] ?? '',
+            'isSaveCard' => $response['status'] === self::CARD_VERIFIED
+        ];
+    }
+
+    /**
+     * @throws CheckoutApiException
+     */
+    public function getDetailsFromReference(string $reference): array
+    {
+        $response = $this->searchPaymentDetails($reference);
+        
+        if(empty($response['data'][0])) {
+            return [];
+        }
+        $details = $response['data'][0];
+        $details['http_metadata'] = $response['http_metadata'];
+
+        return [
+            'response' => $details,
+            'orderId' => $reference,
+            'isSaveCard' => false
+        ];
+    }
+
+    /**
      * Gets payment details
      *
      * @param string $paymentId
@@ -322,6 +337,20 @@ class ApiHandlerService
     public function getPaymentDetails(string $paymentId): array
     {
         return $this->getCheckoutApi()->getPaymentsClient()->getPaymentDetails($paymentId);
+    }
+
+    /**
+     * @throws CheckoutApiException
+     */
+    public function searchPaymentDetails(string $reference): array
+    {
+        $paymentsQueryFilter = $this->paymentsQueryFilterFactory->create();
+
+        $paymentsQueryFilter->reference = $reference;
+        $paymentsQueryFilter->limit = 1;
+        $paymentsQueryFilter->skip = 0;
+
+        return $this->getCheckoutApi()->getPaymentsClient()->getPaymentsList($paymentsQueryFilter);
     }
 
     /**
@@ -466,17 +495,5 @@ class ApiHandlerService
                 'platform_data' => $platformData,
             ]),
         ];
-    }
-
-    /**
-     * @return bool
-     * @throws NoSuchEntityException|LocalizedException
-     */
-    public function isPreviousMode(): bool
-    {
-        $storeCode = $this->storeManager->getStore()->getCode();
-        $service = $this->scopeConfig->getValue(ConfigService::SERVICE_CONFIG_PATH, ScopeInterface::SCOPE_STORE, $storeCode);
-
-        return $service === ConfigService::SERVICE_ABC;
     }
 }

@@ -1,6 +1,7 @@
 var config = {
     map: {
         '*': {
+            flowjs: 'https://checkout-web-components.checkout.com/index.js',
             framesjs: 'https://cdn.checkout.com/js/framesv2.min.js',
             Klarna: 'https://x.klarnacdn.net/kp/lib/v1/api.js',
             googlepayjs: 'https://pay.google.com/gp/p/js/pay.js'
@@ -8,10 +9,10 @@ var config = {
     }, config: {
         mixins: {
             'Magento_Checkout/js/model/checkout-data-resolver': {
-                'CheckoutCom_Magento2/js/model/checkout-data-resolver': true
+                'CheckoutCom_Magento2/js/frames/model/checkout-data-resolver': true
             },
             'Magento_Tax/js/view/checkout/summary/grand-total': {
-                'CheckoutCom_Magento2/js/model/grand-total-hide': true
+                'CheckoutCom_Magento2/js/frames/model/grand-total-hide': true
             }
         }
     }

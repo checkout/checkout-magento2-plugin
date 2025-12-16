@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -22,8 +22,6 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
-use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
-use Checkout\Payments\Previous\Source\RequestTokenSource as PreviousRequestTokenSource;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestTokenSource;
 use Checkout\Payments\ThreeDsRequest;
@@ -197,21 +195,13 @@ class GooglePayMethod extends AbstractMethod
         // Create the Apple Pay token source
         $response = $api->getCheckoutApi()->getTokensClient()->requestWalletToken($tokenData);
 
-        if ($this->apiHandler->isPreviousMode()) {
-            $tokenSource = new PreviousRequestTokenSource();
-        } else {
-            $tokenSource = new RequestTokenSource();
-        }
+        $tokenSource = new RequestTokenSource();
 
         $tokenSource->token = $response['token'];
         $tokenSource->billing_address = $api->createBillingAddress($quote);
 
         // Set the payment
-        if ($this->apiHandler->isPreviousMode()) {
-            $request = new PreviousPaymentRequest();
-        } else {
-            $request = new PaymentRequest();
-        }
+        $request = new PaymentRequest();
 
         $request->source = $tokenSource;
         $request->currency = $currency;
@@ -414,10 +404,7 @@ class GooglePayMethod extends AbstractMethod
             try {
                 $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
             } catch (CheckoutArgumentException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             // Check the status
@@ -431,11 +418,7 @@ class GooglePayMethod extends AbstractMethod
             try {
                 $response = $api->refundOrder($payment, $amount);
             } catch (CheckoutApiException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
-                $response = $api->refundOrder($payment, $amount);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             if (!$api->isValidResponse($response)) {

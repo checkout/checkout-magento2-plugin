@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -26,6 +26,12 @@ use Magento\Framework\Data\OptionSourceInterface;
  */
 class ConfigEnvironment implements OptionSourceInterface
 {
+    public const ENVIRONMENT_PRODUCTION_CONFIG_VALUE = "0";
+    public const ENVIRONMENT_TEST_CONFIG_VALUE = "1";
+
+    public const ENVIRONMENT_PRODUCTION_CONFIG_LABEL = "Production";
+    public const ENVIRONMENT_TEST_CONFIG_LABEL = "Test";
+
     /**
      * Options getter
      *

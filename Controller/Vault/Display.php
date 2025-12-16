@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -90,7 +90,7 @@ class Display extends Action
         return $this->pageFactory->create()
             ->getLayout()
             ->createBlock('CheckoutCom\Magento2\Block\Vault\Form')
-            ->setTemplate('CheckoutCom_Magento2::payment/vault/card.phtml')
+            ->setTemplate('CheckoutCom_Magento2::frames/payment/vault/card.phtml')
             ->setData('card', $card)
             ->toHtml();
     }

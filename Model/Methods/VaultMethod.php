@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -22,8 +22,6 @@ namespace CheckoutCom\Magento2\Model\Methods;
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use Checkout\Payments\BillingDescriptor;
-use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
-use Checkout\Payments\Previous\Source\RequestIdSource as PreviousRequestIdSource;
 use Checkout\Payments\Request\PaymentRequest;
 use Checkout\Payments\Request\Source\RequestIdSource;
 use Checkout\Payments\ThreeDsRequest;
@@ -209,11 +207,7 @@ class VaultMethod extends AbstractMethod
         }
 
         // Set the token source
-        if ($this->apiHandler->isPreviousMode()) {
-            $idSource = new PreviousRequestIdSource();
-        } else {
-            $idSource = new RequestIdSource();
-        }
+        $idSource = new RequestIdSource();
         $idSource->id = $card->getGatewayToken();
 
         // Check CVV config
@@ -226,11 +220,7 @@ class VaultMethod extends AbstractMethod
         }
 
         // Set the payment
-        if ($this->apiHandler->isPreviousMode()) {
-            $request = new PreviousPaymentRequest();
-        } else {
-            $request = new PaymentRequest();
-        }
+        $request = new PaymentRequest();
 
         $request->currency = $currency;
         $request->source = $idSource;
@@ -468,10 +458,7 @@ class VaultMethod extends AbstractMethod
             try {
                 $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
             } catch (CheckoutArgumentException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             // Check the status
@@ -485,11 +472,7 @@ class VaultMethod extends AbstractMethod
             try {
                 $response = $api->refundOrder($payment, $amount);
             } catch (CheckoutApiException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
-                $response = $api->refundOrder($payment, $amount);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             if (!$api->isValidResponse($response)) {

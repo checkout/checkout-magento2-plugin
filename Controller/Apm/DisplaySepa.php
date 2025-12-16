@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -19,7 +19,6 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Apm;
 
-use Checkout\CheckoutApi;
 use Checkout\CheckoutArgumentException;
 use Checkout\Sources\Previous\SepaSourceRequest;
 use Checkout\Sources\Previous\SourceData;
@@ -260,7 +259,7 @@ class DisplaySepa extends Action
         return $this->pageFactory->create()
             ->getLayout()
             ->createBlock('CheckoutCom\Magento2\Block\Apm\Sepa\Mandate')
-            ->setTemplate('CheckoutCom_Magento2::payment/apm/sepa/mandate.phtml')
+            ->setTemplate('CheckoutCom_Magento2::frames/payment/apm/sepa/mandate.phtml')
             ->setData('billingAddress', $billingAddress)
             ->setData('store', $store)
             ->setData('reference', $reference)

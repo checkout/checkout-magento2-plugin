@@ -1,0 +1,172 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * PHP version 7
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <item>
+        <id>alipay_cn</id>
+        <title>Alipay CN</title>
+        <currencies>CNY,HKD,SGD</currencies>
+        <countries>CN</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+        <old_apm>alipay</old_apm>
+    </item>
+    <item>
+        <id>alipay_hk</id>
+        <title>Alipay HK</title>
+        <currencies>HKD,SGD</currencies>
+        <countries>HK</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+        <old_apm>alipay</old_apm>
+    </item>
+    <item>
+        <id>ideal</id>
+        <title>iDEAL</title>
+        <currencies>EUR</currencies>
+        <countries>NL</countries>
+    </item>
+    <item>
+        <id>sepa</id>
+        <title>Sepa</title>
+        <currencies>EUR</currencies>
+        <countries>AT,BE,CY,DE,EE,ES,FI,FR,GR,IE,IT,LT,LU,LV,MT,NL,PT,SI,SK,AD,BG,HR,LI,MC,SM,VA</countries>
+    </item>
+    <item>
+        <id>eps</id>
+        <title>EPS</title>
+        <currencies>EUR</currencies>
+        <countries>AT</countries>
+    </item>
+    <item>
+        <id>bancontact</id>
+        <title>Bancontact</title>
+        <currencies>EUR</currencies>
+        <countries>BE</countries>
+    </item>
+    <item>
+        <id>knet</id>
+        <title>KNet</title>
+        <currencies>KWD</currencies>
+        <countries>KW</countries>
+    </item>
+    <item>
+        <id>tng</id>
+        <title>Touch 'n Go</title>
+        <currencies>MYR,HKD,SGD</currencies>
+        <countries>MY</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+    </item>
+    <item>
+        <id>truemoney</id>
+        <title>TrueMoney</title>
+        <currencies>THB,HKD,SGD</currencies>
+        <countries>TH</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+    </item>
+    <item>
+        <id>alma</id>
+        <title>Alma</title>
+        <currencies>EUR</currencies>
+        <countries>FR</countries>
+    </item>
+    <item>
+        <id>benefit</id>
+        <title>Benefit Payment Gateway</title>
+        <currencies>BHD</currencies>
+        <countries>BH</countries>
+        <reference mandatory = '1' />
+    </item>
+    <item>
+        <id>dana</id>
+        <title>Dana</title>
+        <currencies>IDR,HKD,SGD</currencies>
+        <countries>ID</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+    </item>
+    <item>
+        <id>gcash</id>
+        <title>GCash</title>
+        <currencies>PHP,HKD,SGD</currencies>
+        <countries>PH</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+    </item>
+    <item>
+        <id>kakaopay</id>
+        <title>Kakao Pay</title>
+        <currencies>KRW,HKD,SGD</currencies>
+        <countries>KR</countries>
+        <email mandatory = '1' />
+        <payment_type>Regular,Recurring</payment_type>
+    </item>
+    <item>
+        <id>mbway</id>
+        <title>MB WAY</title>
+        <currencies>EUR</currencies>
+        <countries>PT</countries>
+        <reference mandatory = '1' />
+    </item>
+    <item>
+        <id>multibanco</id>
+        <title>Multibanco</title>
+        <currencies>EUR</currencies>
+        <countries>PT</countries>
+    </item>
+    <item>
+        <id>p24</id>
+        <title>Przelewy24</title>
+        <currencies>EUR,PLN</currencies>
+        <countries>PL</countries>
+    </item>
+    <item>
+        <id>qpay</id>
+        <title>QPay</title>
+        <currencies>QAR</currencies>
+        <countries>QA</countries>
+        <description mandatory = '1' />
+    </item>
+    <item>
+        <id>stcpay</id>
+        <title>stc pay</title>
+        <currencies>SAR</currencies>
+        <countries>SA</countries>
+        <reference mandatory = '1' />
+    </item>
+    <item>
+        <id>tabby</id>
+        <title>Tabby</title>
+        <currencies>AED,KWD,SAR</currencies>
+        <countries>AE,KW,SA</countries>
+        <reference mandatory = '1' />
+    </item>
+    <item>
+        <id>tamara</id>
+        <title>Tamara</title>
+        <currencies>AED,SAR</currencies>
+        <countries>AE,SA</countries>
+        <shipping>address_line1,city,country</shipping>
+        <reference mandatory = '1' />
+    </item>
+    <!-- <item>
+        <id>venmo</id>
+        <title>Venmo</title>
+        <currencies>USD</currencies>
+        <countries>US</countries>
+    </item> -->
+</config>

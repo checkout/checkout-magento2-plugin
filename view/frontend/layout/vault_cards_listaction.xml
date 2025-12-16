@@ -8,7 +8,7 @@
  * @category  Checkout.com
  * @package   Magento2
  * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://www.checkout.com
  */
@@ -16,13 +16,13 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <update handle="customer_account"/>
     <head>
-        <css src="CheckoutCom_Magento2::css/cards-list.css" />
-        <css src="CheckoutCom_Magento2::css/add-card.css" />
+        <css src="CheckoutCom_Magento2::css/frames/cards-list.css" />
+        <css src="CheckoutCom_Magento2::css/frames/add-card.css" />
     </head>
     <body>
         <referenceContainer name="content">
             <block
-                template="CheckoutCom_Magento2::account/add-card.phtml"
+                template="CheckoutCom_Magento2::frames/account/add-card.phtml"
                 class="CheckoutCom\Magento2\Block\Account\AddCard"
                 name="checkoutcom_magento2.add_card"
                 after="-"
@@ -33,7 +33,7 @@
                 <block
                     class="CheckoutCom\Magento2\Block\Account\CardRenderer"
                     name="checkoutcom_magento2.card.renderer"
-                    template="CheckoutCom_Magento2::account/cards-list.phtml"
+                    template="CheckoutCom_Magento2::frames/account/cards-list.phtml"
                     after="-"
                 />
             </referenceBlock>

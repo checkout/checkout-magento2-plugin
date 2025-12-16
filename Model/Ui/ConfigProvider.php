@@ -9,7 +9,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -104,6 +104,7 @@ class ConfigProvider implements ConfigProviderInterface
                 'cards' => $this->cardHandler->getCardIcons(),
                 'images_path' => $this->config->getImagesPath(),
                 'css_path' => $this->config->getCssPath(),
+                'css_common_path' => $this->config->getCommonCssPath(),
                 'use_minified_css' => $this->config->getCoreValue('dev/css/minify_files'),
                 'paypal_allowed_currencies' => array_filter(explode(',', $this->paypalMethod->getConfigData('specificcurrencies') ?? ''))
             ],

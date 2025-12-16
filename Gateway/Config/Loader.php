@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -43,6 +43,12 @@ class Loader
      * @var string APM_FILE_NAME
      */
     const APM_FILE_NAME = 'apm.xml';
+    /**
+     * APM_FLOW_FILE_NAME constant
+     *
+     * @var string APM_FLOW_FILE_NAME
+     */
+    const APM_FLOW_FILE_NAME = 'apm_flow.xml';
     /**
      * KEY_MODULE_NAME constant
      *
@@ -92,13 +98,14 @@ class Loader
 
     /**
      * Load the list of Alternative Payments.
+     * @param string|null $fileName
      *
      * @return string[][]
      */
-    public function loadApmList(): array
+    public function loadApmList(?string $fileName = self::APM_FILE_NAME): array
     {
         /** @var array $apmXmlData */
-        $apmXmlData = $this->loadApmXmlData();
+        $apmXmlData = $this->loadApmXmlData($fileName);
 
         // Build the APM array
         /** @var array $output */
@@ -111,6 +118,12 @@ class Loader
                 'currencies' => $row['currencies'],
                 'countries' => $row['countries'],
                 'mappings' => $row['mappings'] ?? '',
+                'paymentType' => $row['payment_type'] ?? '',
+                'emailMandatory' => ($row['email']['_attribute']['mandatory'] ?? '0') === '1',
+                'referenceMandatory' => ($row['reference']['_attribute']['mandatory'] ?? '0') === '1',
+                'descriptionMandatory' => ($row['description']['_attribute']['mandatory'] ?? '0') === '1',
+                'oldApm' => $row['old_apm'] ?? $row['id'],
+                'shipping' => $row['shipping'] ?? '',
             ];
         }
 
@@ -153,9 +166,9 @@ class Loader
      *
      * @return string[][]
      */
-    public function loadApmXmlData(): array
+    public function loadApmXmlData(?string $fileName = self::APM_FILE_NAME): array
     {
-        return $this->xmlParser->load($this->getFilePath(self::APM_FILE_NAME))->xmlToArray()['config']['_value']['item'];
+        return $this->xmlParser->load($this->getFilePath($fileName))->xmlToArray()['config']['_value']['item'];
     }
 
     /**

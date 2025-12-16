@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -103,7 +103,7 @@ class CardHandlerService
     public function getCardIcon(string $code): string
     {
         return $this->assetRepository->getUrl(
-            'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+            'CheckoutCom_Magento2::images/frames/cc/' . strtolower($code) . '.svg'
         );
     }
 
@@ -139,7 +139,7 @@ class CardHandlerService
                 'code' => $code,
                 'name' => __($value),
                 'url' => $this->assetRepository->getUrl(
-                    'CheckoutCom_Magento2::images/cc/' . strtolower($code) . '.svg'
+                    'CheckoutCom_Magento2::images/frames/cc/' . strtolower($code) . '.svg'
                 ),
             ];
         }

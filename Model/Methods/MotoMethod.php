@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -24,6 +24,7 @@ use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
@@ -41,6 +42,7 @@ use Magento\Payment\Model\InfoInterface;
 use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Class MotoMethod
@@ -101,6 +103,8 @@ class MotoMethod extends AbstractMethod
     private Session $backendAuthSession;
     private Config $config;
     private ApiHandlerService $apiHandler;
+    private FlowGeneralSettings $flowGeneralSettings;
+    private StoreManagerInterface $storeManager;
 
     /**
      * MotoMethod constructor
@@ -134,6 +138,8 @@ class MotoMethod extends AbstractMethod
         Logger $logger,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
+        FlowGeneralSettings $flowGeneralSettings,
+        StoreManagerInterface $storeManager,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
@@ -156,6 +162,8 @@ class MotoMethod extends AbstractMethod
         $this->backendAuthSession = $backendAuthSession;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
+        $this->flowGeneralSettings = $flowGeneralSettings;
+        $this->storeManager = $storeManager;
     }
 
     /**
@@ -303,10 +311,7 @@ class MotoMethod extends AbstractMethod
             try {
                 $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
             } catch (CheckoutArgumentException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             // Check the status
@@ -320,11 +325,7 @@ class MotoMethod extends AbstractMethod
             try {
                 $response = $api->refundOrder($payment, $amount);
             } catch (CheckoutApiException $e) {
-                if (!$this->config->isAbcRefundAfterNasMigrationActive($storeCode)) {
-                    throw new LocalizedException(__($e->getMessage()));
-                }
-                $api = $this->apiHandler->initAbcForRefund($storeCode, ScopeInterface::SCOPE_STORE);
-                $response = $api->refundOrder($payment, $amount);
+                throw new LocalizedException(__($e->getMessage()));
             }
 
             if (!$api->isValidResponse($response)) {
@@ -364,7 +365,7 @@ class MotoMethod extends AbstractMethod
     public function isAvailable(?CartInterface $quote = null): bool
     {
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
-            return $this->config->getValue('active', $this->code) && $this->backendAuthSession->isLoggedIn();
+            return $this->config->getValue('active', $this->code) && $this->backendAuthSession->isLoggedIn()  && $this->flowGeneralSettings->useFrames($this->storeManager->getStore($quote->getStoreId())->getWebsite()->getCode()) ;
         }
 
         return false;
