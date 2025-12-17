@@ -1,0 +1,44 @@
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+.checkoutcom-paypal-review .box .box-title {
+    display: block;
+    margin: 0 0 20px;
+    padding: 0 0 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.checkoutcom-paypal-review .box .box-title span {
+    font-weight: 300;
+    line-height: 1.2;
+    font-size: 18px;
+}
+
+.checkoutcom-paypal-review .box-order-shipping-method .item {
+    display: block;
+}
+
+@media screen and (min-width: 769px) {
+    .checkoutcom-paypal-review .boxes {
+        display: grid;
+        gap: 4%;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .checkoutcom-paypal-review .box .box-title {
+        border-bottom: 1px solid #C5C5C5;
+    }
+}

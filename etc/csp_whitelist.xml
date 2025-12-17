@@ -8,7 +8,7 @@
  * @category  Checkout.com
  * @package   Magento2
  * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://www.checkout.com
  */
@@ -17,39 +17,41 @@
     <policies>
         <policy id="style-src">
             <values>
-                <value id="cko-cdn" type="host">https://cdn.checkout.com</value>
+                <value id="cko-cdn" type="host">*.checkout.com</value>
             </values>
         </policy>
         <policy id="font-src">
             <values>
-                <value id="cko-cdn" type="host">https://cdn.checkout.com</value>
+                <value id="cko-all" type="host">*.checkout.com</value>
                 <value id="apple-cdn" type="host">*.cdn-apple.com</value>
             </values>
         </policy>
         <policy id="script-src">
             <values>
-                <value id="cko-cdn" type="host">https://*.checkout.com</value>
+                <value id="cko-all" type="host">*.checkout.com</value>
                 <value id="klarna-cdn" type="host">*.klarnacdn.net</value>
                 <value id="apple-cdn" type="host">*.cdn-apple.com</value>
             </values>
         </policy>
         <policy id="connect-src">
             <values>
-                <value id="cko-cdn" type="host">https://js.checkout.com</value>
+                <value id="cko-all" type="host">*.checkout.com</value>
                 <value id="klarna-cdn" type="host">*.klarnaevt.com</value>
                 <value id="klarnacdn" type="host">*.klarnacdn.net</value>
                 <value id="klarna" type="host">*.klarna.com</value>
+                <value id="datadoghq" type="host">*.browser-intake-datadoghq.com</value>
             </values>
         </policy>
         <policy id="frame-src">
             <values>
-                <value id="cko-cdn" type="host">https://js.checkout.com</value>
+                <value id="cko-all" type="host">*.checkout.com</value>
                 <value id="klarna" type="host">*.klarna.com</value>
             </values>
         </policy>
         <policy id="img-src">
             <values>
                 <value id="data" type="host">data:</value>
+                <value id="cko-all" type="host">*.checkout.com</value>
             </values>
         </policy>
     </policies>

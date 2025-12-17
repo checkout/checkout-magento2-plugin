@@ -8,7 +8,7 @@
  * PHP version 7
  *
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -173,13 +173,24 @@ class View extends Template
 
     public function getAlternativePaymentMethodName(): string
     {
-        $methodId = $this->getOrder()->getPayment()?->getAdditionalInformation()['method_id'] ?? '';
+        $methodId = '';
+        $payment = $this->getOrder()->getPayment();
 
-        return $methodId ?? $this->configLoader->getApmLabel($methodId)[$methodId];
+        if ($payment) {
+            $info = $payment->getAdditionalInformation();
+            if (is_array($info) && isset($info['method_id'])) {
+                $methodId = $info['method_id'];
+            }
+        }
+
+        return $methodId !== '' ? $methodId : ($this->configLoader->getApmLabel($methodId)[$methodId] ?? '');
     }
 
     public function getAlternativePaymentMethodTransactionInfo(): string
     {
-        return $this->getOrder()->getPayment()?->getAdditionalInformation()['transaction_info']['id'] ?? '';
+        $payment = $this->getOrder()->getPayment();
+        $info = $payment ? $payment->getAdditionalInformation() : null;
+
+        return $info['transaction_info']['id'] ?? '';
     }
 }

@@ -1,0 +1,53 @@
+<?php
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+/**
+ * @var Escaper $escaper
+ */
+
+use Magento\Framework\Escaper;
+
+?>
+
+<div class="checkoutcom-paypal-review view" id="checkoutcom-paypal-container">
+    <div class="block block-order-details-view">
+        <div class="block-content">
+            <div class="boxes">
+                <?= $block->getChildHtml('checkoutcom_paypal_review_shipping_method') ?>
+                <?= $block->getChildHtml('checkoutcom_paypal_review_payment_method') ?>
+            </div>
+            <div class="box box-order-shipping-address">
+                <?= $block->getChildHtml('checkoutcom_paypal_review_shipping_address') ?>
+            </div>
+        </div>
+    </div>
+
+    <div class="paypal-review-discount">
+        <?= $block->getChildHtml('checkoutcom_paypal.additional.actions') ?>
+    </div>
+
+    <div class="paypal-review-items">
+        <div class="paypal-review-title">
+            <strong><?= $escaper->escapeHtml(__('Items in Your Shopping Cart')) ?></strong>
+            <a href="<?= $escaper->escapeUrl($block->getUrl('checkout/cart')) ?>" class="action edit">
+                <span><?= $escaper->escapeHtml(__('Edit Shopping Cart')) ?></span>
+            </a>
+        </div>
+
+        <?= $block->getChildHtml('details') ?>
+        <?= $block->getChildHtml('checkoutcom_paypal_review_place_order') ?>
+    </div>
+</div>

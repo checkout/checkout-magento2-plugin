@@ -1,0 +1,47 @@
+<?php
+
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+$specificInfo = $block->getSpecificInformation();
+$paymentTitle = $block->getMethod()->getConfigData('title', $block->getInfo()->getOrder()->getStoreId());
+// Add @CheckoutCom
+$paymentCode = $block->getMethod()?->getCode();
+
+if ($paymentCode === "checkoutcom_flow") {
+    $orderPaymentMethod = $block->getInfo()->getOrder()?->getPayment()?->getMethodInstance()?->getInfoInstance();
+    $flowMethod = $orderPaymentMethod?->getAdditionalInformation()['flow_method_id'] ?? null;
+    
+    if ($flowMethod) {
+        $suffix = "(" . __("using")->render() . " " . $flowMethod . ")";
+        $paymentTitle .= " " . $suffix;
+    }
+}
+// / Add @CheckoutCom
+?>
+<?= $block->escapeHtml($paymentTitle) ?>
+
+<?php if ($specificInfo) : ?>
+    <table class="data-table admin__table-secondary">
+    <?php foreach ($specificInfo as $label => $value) : ?>
+        <tr>
+            <th><?= $block->escapeHtml($label) ?>:</th>
+            <td>
+                <?= /* @noEscape */ nl2br($block->escapeHtml(implode("\n", $block->getValueAsArray($value, true)))) ?>
+            </td>
+        </tr>
+    <?php endforeach; ?>
+    </table>
+<?php endif;?>
+
+<?= $block->getChildHtml() ?>

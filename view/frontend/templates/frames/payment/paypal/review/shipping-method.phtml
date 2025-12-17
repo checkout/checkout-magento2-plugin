@@ -1,0 +1,62 @@
+<?php
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+/**
+ * @var ShippingMethod $block
+ * @var Escaper $escaper
+ */
+
+use CheckoutCom\Magento2\Block\Paypal\Review\ShippingMethod;
+use Magento\Framework\Escaper;
+
+$rates = $block->getRates();
+?>
+<div class="box box-order-shipping-method">
+    <strong class="box-title"><span><?= $escaper->escapeHtml(__('Shipping Method')) ?></span></strong>
+    <div class="box-content">
+        <?php if (!empty($rates)): ?>
+            <?php foreach ($rates as $rate): ?>
+                <?php foreach ($rate as $carrierMethod): ?>
+                    <?php $isCurrentMethod = $block->isCurrentShippingRate($carrierMethod); ?>
+                    <?php if (!$isCurrentMethod): ?>
+                        <a title="<?= $escaper->escapeHtmlAttr(__('Choose this method')) ?>"
+                           class="item"
+                           href="<?= $escaper->escapeHtmlAttr($block->getShippingMethodUpdateUrl($carrierMethod)); ?>">
+                    <?php else: ?>
+                        <strong class="current item">
+                    <?php endif; ?>
+                    <?= $escaper->escapeHtml($carrierMethod->getCarrierTitle()) ?> -
+                    <?= $escaper->escapeHtml($carrierMethod->getMethodTitle()) ?> -
+                    <?= /* @noEscape */
+                        $block->getFormatedPrice($carrierMethod->getPrice()) ?>
+                    <?php if (!$isCurrentMethod): ?>
+                        </a>
+                    <?php else: ?>
+                        </strong>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>
+                <?= $escaper->escapeHtml(
+                    __(
+                        'Sorry, no quotes are available for this order right now.'
+                    )
+                ); ?>
+            </p>
+        <?php endif; ?>
+    </div>
+</div>

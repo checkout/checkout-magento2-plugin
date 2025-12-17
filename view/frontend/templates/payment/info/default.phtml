@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+$specificInfo = $block->getSpecificInformation();
+$title = $block->escapeHtml($block->getMethod()->getTitle());
+?>
+<dl class="payment-method">
+    <dt class="title"><?= /* @noEscape */ $title ?></dt>
+<?php if ($specificInfo) : ?>
+    <dd class="content">
+        <table class="data table">
+            <caption class="table-caption"><?= /* @noEscape */ $title ?></caption>
+            <?php foreach ($specificInfo as $label => $value) : ?>
+                <tr>
+                    <th scope="row"><?= $block->escapeHtml($label) ?></th>
+                    <td>
+                        <?= /* @noEscape */ nl2br($block->escapeHtml(implode("\n", $block->getValueAsArray($value, true)))) ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </table>
+    </dd>
+<?php endif;?>
+</dl>
+<?= $block->getChildHtml() ?>

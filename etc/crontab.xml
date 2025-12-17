@@ -8,7 +8,7 @@
  * @category  Checkout.com
  * @package   Magento2
  * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://www.checkout.com
  */
@@ -17,6 +17,11 @@
     <group id="webhooks_clean">
         <job name="webhooks_clean" instance="CheckoutCom\Magento2\Cron\Webhooks" method="execute">
             <schedule>0 * * * *</schedule>
+        </job>
+    </group>
+    <group id="cko_order_clean">
+        <job name="cko_paybylink_pending_order_cancel" instance="CheckoutCom\Magento2\Cron\AutoCancelPendingPayByLinkOrders" method="execute">
+            <schedule>*/5 * * * *</schedule>
         </job>
     </group>
 </config>

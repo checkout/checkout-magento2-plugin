@@ -9,7 +9,7 @@
  * @category  Checkout.com
  * @package   Magento2
  * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://www.checkout.com
  */
@@ -33,11 +33,57 @@
             <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
         </arguments>
     </type>
+    <type name="\CheckoutCom\Magento2\Cron\AutoCancelPendingPayByLinkOrders">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Model\Request\PaymentMethodConfiguration\PaymentMethodConfigurationElement">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Model\Request\BillingDescriptor\BillingDescriptorElement">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Model\Request\ThreeDS\ThreeDSElement">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Model\Request\PostPaymentLinks">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Model\Request\PostPaymentSessions">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Model\Service\FlowPrepareService">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Provider\ExternalSettings">
+        <arguments>
+            <argument name="logger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
+    <type name="CheckoutCom\Magento2\Gateway\Config\Config">
+        <arguments>
+            <argument name="nativeLogger" xsi:type="object">checkoutcom_magento2_logger</argument>
+        </arguments>
+    </type>
     <!-- Method handler configurations -->
     <type name="CheckoutCom\Magento2\Model\Service\MethodHandlerService">
         <arguments>
             <argument name="instances" xsi:type="array">
                 <item name="checkoutcom_card_payment" xsi:type="object">CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</item>
+                <item name="checkoutcom_flow" xsi:type="object">CheckoutCom\Magento2\Model\Methods\FlowMethod</item>
                 <item name="checkoutcom_apm" xsi:type="object">CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod</item>
                 <item name="checkoutcom_apple_pay" xsi:type="object">CheckoutCom\Magento2\Model\Methods\ApplePayMethod</item>
                 <item name="checkoutcom_google_pay" xsi:type="object">CheckoutCom\Magento2\Model\Methods\GooglePayMethod</item>
@@ -76,4 +122,18 @@
 
     <!-- Webhook entity repository preference -->
     <preference for="CheckoutCom\Magento2\Api\WebhookEntityRepositoryInterface" type="CheckoutCom\Magento2\Model\Api\WebhookEntityRepository" />
+
+    <!-- Flow Preferences -->
+    <preference for="Magento\Payment\Block\Info" type="CheckoutCom\Magento2\Block\Adminhtml\Order\View\Info" />
+    <!-- End Flow Preferences -->
+    
+    <!-- Flow Details in Order Grid -->
+    <virtualType name="Magento\Sales\Model\ResourceModel\Order\Grid" type="Magento\Sales\Model\ResourceModel\Grid">
+        <arguments>
+            <argument name="columns" xsi:type="array">
+                <item name="payment_additional_information" xsi:type="string">sales_order_payment.additional_information</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <!-- End Flow Details in Order Grid -->
 </config>

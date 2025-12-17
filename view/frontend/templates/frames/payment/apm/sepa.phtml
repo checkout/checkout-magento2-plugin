@@ -1,0 +1,103 @@
+<?php
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+
+/**
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
+?>
+
+<div data-role="collapsible" id="<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>" class="cko-apm <?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>">
+    <div data-role="trigger">
+        <span class="bg-<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?> bg-apm"></span>
+        <span><?= $escaper->escapeHtml($block->getData('title'))?></span>
+    </div>
+</div>
+<div data-role="content" class="apm-content <?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>">
+    <form id="cko-apm-form-<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>">
+        <input type="hidden" name="source" value="<?= $escaper->escapeHtmlAttr($block->getData('apm_id'))?>" required>
+        <input type="hidden" name="task" value="mandate">
+
+        <div class="input-group">
+            <label class="icon" for="account_iban">
+                <span class="ckojs ckojs-card"></span>
+            </label>
+            <input type="text" id="account_iban" name="account_iban" placeholder="<?= $escaper->escapeHtmlAttr(__('Account IBAN')); ?>" class="input-control" required>
+        </div>
+        <br>
+        <p align="center">
+            <button type="button"><?= $escaper->escapeHtml(__('Continue')) ?></button>
+        </p>
+    </form>
+
+    <?php
+    $apmId = $escaper->escapeHtml($block->getData('apm_id'));
+    $url = $escaper->escapeUrl($block->getUrl('checkout_com/apm/displaysepa'));
+
+    $script = <<<script
+require(['jquery', 'CheckoutCom_Magento2/js/common/view/payment/utilities', 'Magento_Checkout/js/model/full-screen-loader', 'domReady!'], function ($, Utilities, FullScreenLoader) {
+
+            const METHOD_ID = 'checkoutcom_apm';
+
+            // Prepare the form id
+            var sepaForm = $('#' + 'cko-apm-form-{$apmId}}');
+
+            // Form click event
+            sepaForm.find('button').on('click touch', function() {
+
+                if(sepaForm.valid()) {
+
+                    FullScreenLoader.startLoader();
+
+                    // Prepare the data array
+                    var formData = {};
+                    sepaForm.serializeArray().forEach(function (elt) {
+                        formData[elt.name] = elt.value;
+                    });
+
+                    // Send the request
+                    $.ajax({
+                        type: 'POST',
+                        url: '{$url}',
+                        data: formData,
+                        success: function (data) {
+                            if(data && data.hasOwnProperty('html')) {
+                                sepaForm.html(data.html);
+                                sepaForm.trigger('reset');
+                            } else {
+                                Utilities.showMessage('error', 'Invalid details.', METHOD_ID);
+                            }
+
+                            FullScreenLoader.stopLoader();
+                        },
+                        error: function (request, status, error) {
+                            Utilities.showMessage('error', 'Invalid details.', METHOD_ID);
+                            FullScreenLoader.stopLoader();
+                        }
+                    });
+
+                }
+
+            });
+        });
+script;
+
+    ?>
+    <?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false) ?>
+</div>

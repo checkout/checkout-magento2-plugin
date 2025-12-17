@@ -9,7 +9,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -54,9 +54,9 @@ class V2 extends Action
      * @var array|mixed|mixed[]
      */
     public $quote;
-    protected mixed $result;
+    protected $result;
     protected $order;
-    protected mixed $data;
+    protected $data;
     protected ApiHandlerService $api;
     private JsonFactory $jsonFactory;
     private Config $config;

@@ -9,7 +9,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -25,10 +25,6 @@ use Magento\Framework\Data\OptionSourceInterface;
  */
 class ConfigService implements OptionSourceInterface
 {
-    /**
-     * ABC service name
-     */
-    public const SERVICE_ABC = 'ABC';
     /**
      * NAS service name
      */
@@ -50,10 +46,6 @@ class ConfigService implements OptionSourceInterface
     public function toOptionArray(): array
     {
         return [
-            [
-                'label' => 'ABC',
-                'value' => self::SERVICE_ABC
-            ],
             [
                 'label' => 'NAS',
                 'value' => self::SERVICE_NAS

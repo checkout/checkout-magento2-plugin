@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -21,16 +21,19 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 
 use Checkout\CheckoutApi;
 use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\TransactionHandlerService;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
+use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -52,6 +55,9 @@ class Verify extends Action
     private VaultHandlerService $vaultHandler;
     protected Logger $logger;
     protected Session $session;
+    private FlowGeneralSettings $flowGeneralConfig;
+    private Utilities $utilities;
+    private OrderRepositoryInterface $orderRepository;
 
     public function __construct(
         Context $context,
@@ -62,7 +68,10 @@ class Verify extends Action
         OrderHandlerService $orderHandler,
         VaultHandlerService $vaultHandler,
         Logger $logger,
-        Session $session
+        Session $session,
+        FlowGeneralSettings $flowGeneralConfig,
+        Utilities $utilities,
+        OrderRepositoryInterface $orderRepository
     ) {
         parent::__construct($context);
 
@@ -74,6 +83,9 @@ class Verify extends Action
         $this->logger = $logger;
         $this->session = $session;
         $this->transactionHandler = $transactionHandler;
+        $this->flowGeneralConfig = $flowGeneralConfig;
+        $this->utilities = $utilities;
+        $this->orderRepository = $orderRepository;
     }
 
     /**
@@ -91,6 +103,7 @@ class Verify extends Action
             if ($sessionId) {
                 // Get the store code
                 $storeCode = $this->storeManager->getStore()->getCode();
+                $websiteCode = $this->storeManager->getWebsite()->getCode();
 
                 // Initialize the API handler
                 $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
@@ -117,6 +130,15 @@ class Verify extends Action
                                     $response['amount'] ?? null,
                                     $order
                                 );
+                            }
+                            
+                            try {
+                                if ($this->flowGeneralConfig->useFlow($websiteCode)) {
+                                    $order = $this->utilities->setPaymentData($order, $response);
+                                    $this->orderRepository->save($order);
+                                }
+                            } catch (Exception $e) {
+                                $this->logger->write($e->getMessage());
                             }
 
                             if (isset($response['metadata']['successUrl']) &&
