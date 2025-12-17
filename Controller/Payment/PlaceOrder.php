@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -142,9 +142,9 @@ class PlaceOrder extends Action
                         );
 
                         //Init values to request payment
-                        $amount = (float) $order->getGrandTotal();
-                        $currency = (string) $order->getOrderCurrencyCode();
-                        $reference = (string) $order->getIncrementId();
+                        $amount = (float)$order->getGrandTotal();
+                        $currency = (string)$order->getOrderCurrencyCode();
+                        $reference = (string)$order->getIncrementId();
 
                         // Get response and success
                         $response = $this->requestPayment($quote, $data, $amount, $currency, $reference);

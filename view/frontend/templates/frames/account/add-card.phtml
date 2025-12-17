@@ -1,0 +1,172 @@
+
+<?php
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+use CheckoutCom\Magento2\Block\Account\AddCard;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+
+/**
+ * @var AddCard $block
+ * @var Escaper $escaper
+ * @var SecureHtmlRenderer $secureRenderer
+ */
+?>
+
+<button id="ckoShowForm" class="action submit primary">
+    <?= $escaper->escapeHtml(__('Add a card')) ?>
+</button>
+
+<div id="cko-form-holder" style="display: none;">
+    <br>
+    <div class="frames-field" id="cc-tooltip" style="display: none;">
+        <span><?= $escaper->escapeHtml(__('Select your preferred brand')) ?></span>
+        <span class="tooltip">
+            <button type="button" id="tooltip-trigger"><?= $escaper->escapeHtml(__('?')); ?></button>
+            <span class="tooltip-content" id="cc-tooltip-content" style="display: none;">
+                <?= $escaper->escapeHtml(__('Your card has two brands, and you can choose your preferred one for this payment. If you do not, then the merchant’s preferred brand will be selected.')); ?>
+            </span>
+        </span>
+    </div>
+    <div class="one-liner">
+        <div class="card-frame">
+            <!-- form will be added here -->
+        </div>
+    </div>
+    <div class="scheme-choice-frame">
+        <!-- form will be added here -->
+    </div>
+    <form class="widget-container" id="saveCardForm" method="POST">
+        <?= $block->getBlockHtml('formkey') ?>
+        <input type="hidden" id="ckoCardToken" name="ckoCardToken">
+    </form>
+</div>
+<button id="ckoSaveCard" type="button" class="action primary"  title="<?= $escaper->escapeHtmlAttr(__('Save the card')) ?>" style="display: none;">
+    <?= $escaper->escapeHtml(__('Save the card')) ?>
+</button>
+
+<?php
+$publicKey = $block->escapeHtml($block->getConfig()->getValue('public_key'));
+$debugFlag = (int) ($block->getConfig()->getValue('debug') && $block->getConfig()->getValue('console_logging'));
+$saveCardUrl = $block->escapeHtml($block->getUrl('checkout_com/account/savecard'));
+
+$script = <<<script
+    require([
+        'jquery',
+        'domReady!',
+        'framesjs'
+    ], function ($) {
+        // Prepare the elements
+        var saveCardButton = $('#ckoSaveCard');
+        var showFormButton = $('#ckoShowForm');
+        var cardTokenField = $('#ckoCardToken');
+        var cardFormContainerId = '#cko-form-holder';
+        var ckoPublicKey = '{$publicKey}'
+        var paymentForm = document.getElementById('saveCardForm');
+        const ccTooltip = document.getElementById('cc-tooltip');
+        const tooltipBtn = document.getElementById('tooltip-trigger');
+        const tooltipContent = document.getElementById('cc-tooltip-content');
+
+        // Initialize the embedded form
+        Frames.init(
+            {
+                publicKey: ckoPublicKey,
+                debug: Boolean({$debugFlag}),
+                schemeChoice: true,
+                modes: [ Frames.modes.FEATURE_FLAG_SCHEME_CHOICE],
+                cardValidationChanged: function() {
+                    if (Frames.isCardValid()) {
+                        Frames.submitCard();
+                    }
+                    if (!Frames.isCardValid()) {
+                        saveCardButton.attr("disabled", true);
+                    } else if(cardTokenField.val() !== '') {
+                        saveCardButton.attr("disabled", false);
+                    }
+                },
+                frameActivated: function () {
+                    saveCardButton.attr("disabled", true);
+                },
+                cardTokenized: function(event) {
+                    // Add the card token to the form
+                    Frames.addCardToken(paymentForm, event.token);
+
+                    // Add the card token to the hidden input field
+                    cardTokenField.val(event.token);
+
+                    Frames.enableSubmitForm();
+
+                    if (Frames.isCardValid()) {
+                        saveCardButton.attr("disabled", false);
+                    }
+                }
+            }
+        );
+
+        Frames.addEventHandler(
+            Frames.Events.CARD_BIN_CHANGED,
+            function (event) {
+                if (event.isCoBadged) {
+                    ccTooltip.style.display = 'block';
+                } else {
+                    ccTooltip.style.display = 'none';
+                }
+            }
+        );
+
+        // Add card form controls
+        showFormButton.on('click touch', function (event) {
+            $(cardFormContainerId).show();
+            saveCardButton.show();
+            showFormButton.hide();
+        });
+
+        // Handle the submit event
+        saveCardButton.on('click touch', function (event) {
+            // Disable the save button
+            saveCardButton.attr("disabled", true);
+
+            // Start the loader
+            $('body').trigger('processStart');
+
+            // Send the request
+            $.ajax({
+                type: 'POST',
+                url: '{$saveCardUrl}',
+                data: {cardToken: cardTokenField.val()},
+                dataType: "json",
+                success: function (data) {
+                    window.location.href = data.url;
+                },
+                error: function (request, status, error) {
+                    $('body').trigger('processStop');
+                }
+            });
+        });
+
+        ['mouseenter','mouseleave'].forEach((eventName) => {
+            tooltipBtn.addEventListener(eventName, (event) => {
+                if (tooltipContent.style.display === 'none') {
+                    tooltipContent.style.display= 'block';
+                } else {
+                    tooltipContent.style.display= 'none';
+                }
+            });
+        });
+    });
+script
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', ['type' => 'text/javascript'], $script, false);

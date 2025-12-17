@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -20,8 +20,6 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Setup\Patch\Data;
 
 use Magento\Framework\App\Config\Storage\WriterInterface;
-use Magento\Framework\DB\Adapter\AdapterInterface;
-use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 
 class CreateVerificationDate implements DataPatchInterface

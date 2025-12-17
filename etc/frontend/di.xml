@@ -9,7 +9,7 @@
  * @category  Checkout.com
  * @package   Magento2
  * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://www.checkout.com
  */
@@ -43,7 +43,7 @@
                 <item name="ckoMessages" xsi:type="array">
                     <item name="renderer" xsi:type="const">\Magento\Framework\View\Element\Message\Renderer\BlockRenderer::CODE</item>
                     <item name="data" xsi:type="array">
-                        <item name="template" xsi:type="string">CheckoutCom_Magento2::ui/messages.phtml</item>
+                        <item name="template" xsi:type="string">CheckoutCom_Magento2::frames/ui/messages.phtml</item>
                     </item>
                 </item>
             </argument>

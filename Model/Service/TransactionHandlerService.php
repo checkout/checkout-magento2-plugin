@@ -9,7 +9,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -711,7 +711,7 @@ class TransactionHandlerService
 
         $methodId = '';
         if (isset($payload->data->metadata)) {
-            $methodId = $payload->data->metadata->methodId ?? $payload->data->metadata->method_id;
+            $methodId = $payload->data->metadata->methodId ?? '';
         }
 
         $condition3 = $this->config->getValue('order_email') === 'authorize'

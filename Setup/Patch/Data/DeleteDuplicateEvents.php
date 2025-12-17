@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -71,7 +71,6 @@ class DeleteDuplicateEvents implements DataPatchInterface
 
         $duplicateEventIds = array_column($duplicateEvents, 'event_id');
         $webhookIdsToKeep = array_column($duplicateEvents, 'id');
-
 
         $where = [
             'event_id IN (?)' => $duplicateEventIds,

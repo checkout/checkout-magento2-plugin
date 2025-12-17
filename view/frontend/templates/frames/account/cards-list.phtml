@@ -1,0 +1,65 @@
+<?php
+/**
+ * Checkout.com
+ * Authorized and regulated as an electronic money institution
+ * by the UK Financial Conduct Authority (FCA) under number 900816.
+ *
+ * PHP version 7
+ *
+ * @category  Magento2
+ * @package   Checkout.com
+ * @author    Platforms Development Team <platforms@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://docs.checkout.com/
+ */
+
+use CheckoutCom\Magento2\Block\Account\CardRenderer;
+use Magento\Framework\Escaper;
+use Magento\Vault\Api\Data\PaymentTokenInterface;
+
+/**
+ * @var CardRenderer $block
+ * @var Escaper $escaper
+ */
+
+$ccNumberView = $block->getNumberLast4Digits();
+?>
+<tr>
+    <td data-th="<?= $escaper->escapeHtmlAttr(__('Card Number')) ?>" class="col card-number">
+        <span><?= $escaper->escapeHtml(__('ending')); ?></span> <?= $escaper->escapeHtml($ccNumberView) ?>
+    </td>
+    <td data-th="<?= $escaper->escapeHtmlAttr(__('Expiration Date')) ?>" class="col card-expire">
+        <?= $escaper->escapeHtml($block->getExpDate()); ?>
+    </td>
+    <td data-th="<?= $escaper->escapeHtmlAttr(__('Type')) ?>" class="col card-type">
+        <img src="<?= $escaper->escapeHtmlAttr($block->getCardHandler()->getCardIcon($block->getCardType())); ?>">
+        <span><?= $escaper->escapeHtml($block->getCardHandler()->getCardScheme($block->getCardType())) ?></span>
+    </td>
+    <td data-th="<?= $escaper->escapeHtmlAttr(__('Actions')) ?>" class="col actions">
+        <form
+            class="form"
+            action="<?= $escaper->escapeUrl($block->getUrl('vault/cards/deleteaction')); ?>"
+            method="post"
+        >
+            <?= $block->getBlockHtml('formkey') ?>
+            <input
+                name="<?= $escaper->escapeHtmlAttr(PaymentTokenInterface::PUBLIC_HASH) ?>"
+                value="<?= $escaper->escapeHtmlAttr($block->getToken()->getPublicHash()) ?>"
+                type="hidden"/>
+            <button type="submit"
+                    class="action delete"
+                    data-mage-init='{
+                                    "Magento_Vault/js/customer_account/deleteWidget":{
+                                        "type": "popup",
+                                        "modalClass": "my-credit-cards-popup",
+                                        "toggleEvent": "click",
+                                        "title": "<?= $escaper->escapeHtmlAttr(__('Delete')) ?>",
+                                        "content": "<?= $escaper->escapeHtml(__('The card ending with %1 will be deleted.', $ccNumberView)) ?>"
+                                    }
+                                }'>
+                <span><?= $escaper->escapeHtml(__('Delete a card')) ?></span>
+            </button>
+        </form>
+    </td>
+</tr>

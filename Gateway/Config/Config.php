@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -23,12 +23,16 @@ use Checkout\Environment;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing;
+use CheckoutCom\Magento2\Model\Methods\FlowMethod;
+use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
+use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Asset\Repository;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Config
@@ -41,7 +45,9 @@ class Config
     private RequestInterface $request;
     private Loader $loader;
     private Utilities $utilities;
+    private FlowGeneralSettings $flowSettings;
     private Logger $logger;
+    private LoggerInterface $nativeLogger;
 
     public function __construct(
         Repository $assetRepository,
@@ -50,7 +56,9 @@ class Config
         RequestInterface $request,
         Loader $loader,
         Utilities $utilities,
-        Logger $logger
+        Logger $logger,
+        FlowGeneralSettings $flowSettings,
+        LoggerInterface $nativeLogger
     ) {
         $this->assetRepository = $assetRepository;
         $this->storeManager = $storeManager;
@@ -59,6 +67,8 @@ class Config
         $this->loader = $loader;
         $this->utilities = $utilities;
         $this->logger = $logger;
+        $this->nativeLogger = $nativeLogger;
+        $this->flowSettings = $flowSettings;
     }
 
     /**
@@ -240,6 +250,12 @@ class Config
         /** @var array $paymentMethodsConfig */
         $paymentMethodsConfig = $this->scopeConfig->getValue(Loader::KEY_PAYMENT, ScopeInterface::SCOPE_STORE);
 
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $exception) {
+            $websiteCode = null;
+        }
+
         /**
          * Get only the active CheckoutCom methods
          *
@@ -251,6 +267,11 @@ class Config
                 && isset($method['active'])
                 && (int)$method['active'] === 1
             ) {
+                // Flow method can only be available if flow sdk is used
+                if (false !== strpos($key, FlowMethod::CODE) && !$this->flowSettings->useFlow($websiteCode) !== false) {
+                    continue;
+                }
+
                 if (array_key_exists('private_shared_key', $method)) {
                     unset($method['private_shared_key']);
                 }
@@ -304,7 +325,7 @@ class Config
     public function needs3ds(string $methodId): bool
     {
         return (((bool)$this->getValue('three_ds', $methodId) === true)
-                || ((bool)$this->getValue('mada_enabled', $methodId) === true));
+            || ((bool)$this->getValue('mada_enabled', $methodId) === true));
     }
 
     /**
@@ -486,7 +507,19 @@ class Config
      */
     public function getImagesPath(): string
     {
-        return $this->assetRepository->getUrl('CheckoutCom_Magento2::images');
+        $websiteCode = null;
+
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $this->nativeLogger->error(
+                sprintf('Unable to get website code: %s', $error->getMessage()),
+            );
+        }
+
+        return $this->flowSettings->useFlow($websiteCode) ?
+            $this->assetRepository->getUrl('CheckoutCom_Magento2::images/flow') :
+            $this->assetRepository->getUrl('CheckoutCom_Magento2::images/frames');
     }
 
     /**
@@ -496,7 +529,24 @@ class Config
      */
     public function getCssPath(): string
     {
-        return $this->assetRepository->getUrl('CheckoutCom_Magento2::css');
+        $websiteCode = null;
+
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $this->nativeLogger->error(
+                sprintf('Unable to get website code: %s', $error->getMessage()),
+            );
+        }
+
+        return $this->flowSettings->useFlow($websiteCode) ?
+            $this->assetRepository->getUrl('CheckoutCom_Magento2::css/flow') :
+            $this->assetRepository->getUrl('CheckoutCom_Magento2::css/frames');
+    }
+
+    public function getCommonCssPath(): string
+    {
+        return $this->assetRepository->getUrl('CheckoutCom_Magento2::css/common');
     }
 
     /**
@@ -509,16 +559,6 @@ class Config
     public function needsRiskRules($methodId): bool
     {
         return (!$this->getValue('risk_rules_enabled', $methodId) === true);
-    }
-
-    /**
-     * Check ABC refund after NAS migration
-     *
-     * @return bool
-     */
-    public function isAbcRefundAfterNasMigrationActive($storeCode = null): bool
-    {
-        return (bool) $this->getValue('abc_refund_enable', null, $storeCode, ScopeInterface::SCOPE_STORE);
     }
 
     /**

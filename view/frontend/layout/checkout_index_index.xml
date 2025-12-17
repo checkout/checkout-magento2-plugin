@@ -8,15 +8,15 @@
  * @category  Checkout.com
  * @package   Magento2
  * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://www.checkout.com
  */
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>
-        <css src="CheckoutCom_Magento2::css/main.css" />
-        <css src="CheckoutCom_Magento2::css/sepa/sepa.css"/>
+        <css src="CheckoutCom_Magento2::css/frames/main.css" />
+        <css src="CheckoutCom_Magento2::css/frames/sepa/sepa.css"/>
     </head>
     <body>
         <!-- Add Paypal payment script and remove express one-->
@@ -25,7 +25,7 @@
             <block class="CheckoutCom\Magento2\Block\Paypal\Script"
                    ifconfig="payment/checkoutcom_paypal/active"
                    name="checkout.paypal.checkout.script"
-                   template="CheckoutCom_Magento2::script/paypal-script.phtml" >
+                   template="CheckoutCom_Magento2::frames/script/paypal-script.phtml" >
                 <arguments>
                     <argument name="mode" xsi:type="string">checkout</argument>
                     <argument name="script_type" xsi:type="string">checkout</argument>
@@ -33,7 +33,7 @@
             </block>
             <block class="Magento\Framework\View\Element\Template"
                    name="checkout.applepay.script"
-                   template="CheckoutCom_Magento2::script/applepay-script.phtml">
+                   template="CheckoutCom_Magento2::frames/script/applepay-script.phtml">
                 <arguments>
                     <argument name="mode" xsi:type="string">express</argument>
                     <argument name="script_type" xsi:type="string">mini-cart</argument>
@@ -58,7 +58,7 @@
                                                             <!-- merge payment method renders here -->
                                                             <item name="children" xsi:type="array">
                                                                 <item name="checkoutcom_magento2" xsi:type="array">
-                                                                    <item name="component" xsi:type="string">CheckoutCom_Magento2/js/view/payment/method-renderer</item>
+                                                                    <item name="component" xsi:type="string">CheckoutCom_Magento2/js/common/view/payment/method-selector</item>
                                                                     <item name="methods" xsi:type="array">
                                                                         <item name="checkoutcom_paypal" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
@@ -80,6 +80,30 @@
                                                                         </item>
                                                                         <item name="checkoutcom_vault" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
+                                                                        <item name="checkoutcom_flow" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
+                                                                    </item>
+                                                                </item>
+                                                            </item>
+                                                        </item>
+                                                        <item name="payments-list" xsi:type="array">
+                                                            <item name="children" xsi:type="array">
+                                                                <item name="flow-saved-card" xsi:type="array">
+                                                                    <item name="component" xsi:type="string">uiComponent</item>
+                                                                    <item name="displayArea" xsi:type="string">flow-saved-card</item>
+                                                                    <item name="dataScope" xsi:type="string">flowSavedCard</item>
+                                                                    <item name="provider" xsi:type="string">checkoutProvider</item>
+                                                                    <item name="config" xsi:type="array">
+                                                                        <item name="template" xsi:type="string">Magento_Checkout/payment/before-place-order</item>
+                                                                    </item>
+                                                                    <item name="children" xsi:type="array">
+                                                                        <item name="saved-card" xsi:type="array">
+                                                                            <item name="component" xsi:type="string">CheckoutCom_Magento2/js/flow/view/save-card</item>
+                                                                            <item name="sortOrder" xsi:type="string">10</item>
+                                                                            <item name="dataScope" xsi:type="string">flowSavedCard</item>
+                                                                            <item name="provider" xsi:type="string">checkoutProvider</item>
                                                                         </item>
                                                                     </item>
                                                                 </item>

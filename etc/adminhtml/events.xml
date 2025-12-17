@@ -8,7 +8,7 @@
  * @category  Checkout.com
  * @package   Magento2
  * @author    Checkout.com Development Team <integration@checkout.com>
- * @copyright 2019 Checkout.com all rights reserved
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://www.checkout.com
  */
@@ -16,7 +16,8 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
     <!-- Order save before event -->
     <event name="sales_order_save_before">
-        <observer name="cko_order_save_before" instance="CheckoutCom\Magento2\Observer\Backend\MotoPaymentRequest" />
+        <observer name="cko_order_generate_moto_before_save" instance="CheckoutCom\Magento2\Observer\Backend\MotoPaymentRequest" />
+        <observer name="cko_order_generate_paybylink_before_save" instance="CheckoutCom\Magento2\Observer\Backend\PayByLinkPaymentRequest" />
     </event>
 
     <!-- Order after void event -->
@@ -32,5 +33,10 @@
     <!-- Order after cancel event -->
     <event name="sales_order_payment_cancel">
         <observer name="cko_order_payment_cancel" instance="CheckoutCom\Magento2\Observer\Backend\OrderAfterCancel" />
+    </event>
+
+    <!-- Save apm configuration event -->
+    <event name="admin_system_config_changed_section_payment">
+        <observer name="cko_apm_config_changed" instance="CheckoutCom\Magento2\Observer\Backend\ApmConfigChangedObserver" />
     </event>
 </config>

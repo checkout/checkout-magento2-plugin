@@ -10,7 +10,7 @@
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Helper;
 
+use Checkout\JsonSerializer;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Sales\Api\Data\OrderInterface;
@@ -29,11 +30,14 @@ use Magento\Sales\Api\Data\OrderInterface;
 class Utilities
 {
     protected Json $json;
+    protected JsonSerializer $jsonSerializer;
 
     public function __construct(
-        Json $json
+        Json $json,
+        JsonSerializer $jsonSerializer
     ) {
         $this->json = $json;
+        $this->jsonSerializer = $jsonSerializer;
     }
 
     /**
@@ -67,9 +71,11 @@ class Utilities
      *
      * @return array
      */
-    public function objectToArray($object): array
+    public function objectToArray($object, bool $v2 = false): array
     {
-        return $this->json->unserialize($this->json->serialize($object));
+        $dataToUnserialize = $v2 ? $this->jsonSerializer->serialize($object) : $this->json->serialize($object);
+
+        return $this->json->unserialize($dataToUnserialize);
     }
 
     /**

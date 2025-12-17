@@ -12,7 +12,7 @@ declare(strict_types=1);
  * @category  Magento2
  * @package   Checkout.com
  * @author    Platforms Development Team <platforms@checkout.com>
- * @copyright 2010-present Checkout.com
+ * @copyright 2010-present Checkout.com all rights reserved
  * @license   https://opensource.org/licenses/mit-license.html MIT License
  * @link      https://docs.checkout.com/
  */
@@ -95,6 +95,6 @@ class CheckoutConfig extends Onepage
     public function isPaypalOrApplePayEnabled(): bool
     {
         return $this->checkoutComConfig->getValue('active', 'checkoutcom_apple_pay')
-            || $this->checkoutComConfig->getValue('active', 'checkoutcom_paypal');
+               || $this->checkoutComConfig->getValue('active', 'checkoutcom_paypal');
     }
 }
