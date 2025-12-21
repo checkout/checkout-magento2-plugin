@@ -104,6 +104,12 @@ define(
                             this.reloadFlow();
                         }
                     });
+
+                    Quote.totals.subscribe(() => {
+                        if (Utilities.methodIsSelected(METHOD_ID)) {
+                            this.reloadFlow();
+                        }
+                    });
                 },
 
                 /**
@@ -120,7 +126,9 @@ define(
                     this.setCountryCode();
                     this.sendSaveCardEvent();
 
-                    this.flowComponent.unmount();
+                    if (this.flowComponent) {
+                        this.flowComponent.unmount();
+                    }
 
                     this.getFlowContextData();
                 },
