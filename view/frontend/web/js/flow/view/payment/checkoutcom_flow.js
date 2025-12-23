@@ -25,9 +25,10 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/step-navigator',
-        'Magento_Checkout/js/action/redirect-on-success'
+        'Magento_Checkout/js/action/redirect-on-success',
+        'Magento_Checkout/js/model/quote',
     ],
-    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator, RedirectOnSuccessAction) {
+    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator, RedirectOnSuccessAction, Quote) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
@@ -104,6 +105,13 @@ define(
                             this.reloadFlow();
                         }
                     });
+
+                    Quote.totals.subscribe(() => {   
+                        if (Utilities.methodIsSelected(METHOD_ID)) {
+                            this.reloadFlow();   
+                        }                        
+                    }, null, 'change');
+                    
                 },
 
                 /**
