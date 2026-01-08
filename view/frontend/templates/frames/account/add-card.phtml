@@ -79,14 +79,17 @@ $script = <<<script
         const ccTooltip = document.getElementById('cc-tooltip');
         const tooltipBtn = document.getElementById('tooltip-trigger');
         const tooltipContent = document.getElementById('cc-tooltip-content');
-
+        var modes = [ 
+            Frames.modes.FEATURE_FLAG_SCHEME_CHOICE,
+            <?= $block->getConfig()->getValue('enable_right_to_left', 'checkoutcom_card_payment') ? 'Frames.modes.RIGHT_TO_LEFT' : ""; ?>
+        ];
         // Initialize the embedded form
         Frames.init(
             {
                 publicKey: ckoPublicKey,
                 debug: Boolean({$debugFlag}),
                 schemeChoice: true,
-                modes: [ Frames.modes.FEATURE_FLAG_SCHEME_CHOICE],
+                modes: modes,
                 cardValidationChanged: function() {
                     if (Frames.isCardValid()) {
                         Frames.submitCard();
