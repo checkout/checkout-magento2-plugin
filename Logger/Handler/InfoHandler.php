@@ -19,7 +19,6 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Logger\Handler;
 
 use Magento\Framework\Logger\Handler\Base as BaseHandler;
-use Monolog\Level as MonologLevel;
 
 class InfoHandler extends BaseHandler
 {
@@ -30,5 +29,5 @@ class InfoHandler extends BaseHandler
     /**
      * @var int
      */
-    protected $loggerType = MonologLevel::Info;
+    protected $loggerType = 200;
 }
