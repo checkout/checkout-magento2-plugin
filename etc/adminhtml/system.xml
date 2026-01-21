@@ -433,6 +433,9 @@
                         <comment>
                             Select a layout for the payment form display.
                         </comment>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="enable_right_to_left" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
