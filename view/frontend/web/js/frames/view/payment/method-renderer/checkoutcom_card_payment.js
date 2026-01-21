@@ -164,6 +164,12 @@ define(
 
                     return stylesObj;
                 },
+                /**
+                 * Gets the payment enable right to left option
+                 */
+                getEnableRightToLeft: function () {
+                    return this.getValue('enable_right_to_left') === '1';
+                },
 
                 /**
                  * Gets the payment form layout
@@ -197,12 +203,16 @@ define(
                     }
 
                     // Initialize the payment form
+                    var modes = [Frames.modes.FEATURE_FLAG_SCHEME_CHOICE]
+                    if (this.getEnableRightToLeft()) {
+                        modes.push(Frames.modes.RIGHT_TO_LEFT)
+                    }
                     Frames.init(
                         {
                             publicKey: self.getValue('public_key'),
                             debug: Boolean(self.getValue('debug') && self.getValue('console_logging')),
                             schemeChoice: true,
-                            modes: [ Frames.modes.FEATURE_FLAG_SCHEME_CHOICE],
+                            modes: modes,
                             localization: Utilities.getCardPlaceholders(METHOD_ID),
                             style: (formStyles) ? formStyles : {}
                         }
