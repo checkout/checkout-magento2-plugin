@@ -207,6 +207,9 @@ define(
                         componentOptions: {
                             flow: {
                                 showPayButton: false
+                            },
+                            card: {
+                                displayCardholderName: this.shouldDisplayCardholderName()
                             }
                         },
                         onReady: (_self) => {
@@ -338,6 +341,12 @@ define(
                     });
 
                     document.querySelector('body').dispatchEvent(cardEvent);
+                },
+
+                shouldDisplayCardholderName: function() {
+                    let displayCardholderName = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_card_payment?.display_cardholder_name;
+
+                    return Number(displayCardholderName) === 1 ? 'top' : 'hidden';
                 }
             }
         );
