@@ -346,7 +346,7 @@ define(
                 shouldDisplayCardholderName: function() {
                     let displayCardholderName = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_card_payment?.display_cardholder_name;
 
-                    return Number(displayCardholderName) === 1 ? 'top' : 'hidden';
+                    return Number(displayCardholderName) === 0 ? 'hidden' : 'top';
                 }
             }
         );
