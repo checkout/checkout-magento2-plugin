@@ -64,6 +64,8 @@ define(
                  * @return {exports}
                  */
                 initialize: function () {
+                    window.currentGrandTotal = Quote.totals().base_grand_total;
+
                     this._super();
 
                     return this;
@@ -106,12 +108,12 @@ define(
                         }
                     });
 
-                    Quote.totals.subscribe(() => {   
+                    Quote.totals.subscribe(() => {
                         if (Utilities.methodIsSelected(METHOD_ID)) {
-                            this.reloadFlow();   
-                        }                        
+                            this.reloadFlow();
+                            window.currentGrandTotal = Quote.totals().base_grand_total;
+                        }
                     }, null, 'change');
-                    
                 },
 
                 /**
