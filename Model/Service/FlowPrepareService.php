@@ -105,8 +105,7 @@ class FlowPrepareService
             'appearance' => $this->flowMethodConfiguration->getDesign($storeCode),
             'environment' => $this->generalConfiguration->isProductionModeEnabled(null) ? "production" : "sandbox",
             'paymentSession' => $responseAPI ?? '',
-            'publicKey' => $publicKey,
-            'reference' => $payload->reference
+            'publicKey' => $publicKey
         ];
 
         return $response;
