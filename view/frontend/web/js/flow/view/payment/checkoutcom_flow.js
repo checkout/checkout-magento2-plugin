@@ -25,10 +25,9 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/step-navigator',
-        'Magento_Checkout/js/action/redirect-on-success',
         'Magento_Checkout/js/model/quote',
     ],
-    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator, RedirectOnSuccessAction, Quote) {
+    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator, Quote) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
@@ -64,6 +63,8 @@ define(
                  * @return {exports}
                  */
                 initialize: function () {
+                    window.currentGrandTotal = Quote.totals().base_grand_total;
+
                     this._super();
 
                     return this;
@@ -106,12 +107,12 @@ define(
                         }
                     });
 
-                    Quote.totals.subscribe(() => {   
+                    Quote.totals.subscribe(() => {
                         if (Utilities.methodIsSelected(METHOD_ID)) {
-                            this.reloadFlow();   
-                        }                        
+                            this.reloadFlow();
+                            window.currentGrandTotal = Quote.totals().base_grand_total;
+                        }
                     }, null, 'change');
-                    
                 },
 
                 /**
@@ -188,7 +189,7 @@ define(
                     const paymentSession = data.paymentSession;
                     const publicKey = data.publicKey;
                     let appearance  = data.appearance;
-                    this.reference = data.reference ?? null;
+                    this.paymentSessionId = paymentSession?.id || (paymentSession && paymentSession.id) || null;
 
                     if (appearance !== "") {
                         try {
@@ -243,15 +244,13 @@ define(
 
                     let flowContainer = this.getContainer();
 
-
                     this.flowComponent = checkout.create('flow',{
-                        onSubmit: (_self) => {
-                            self.saveOrder(_self.type);
+                        handleSubmit: async (_self, submitData) => {
+                            return self.submitPaymentWithReference(_self, submitData);
                         },
                         onPaymentCompleted: async (_self, paymentResponse) => {
-                            // Handle synchronous payment
                             if  (paymentResponse.status === "Approved") {
-                                Utilities.redirectCompletedPayment(paymentResponse.id, this.reference)
+                                Utilities.redirectCompletedPayment(paymentResponse.id, this.reference);
                             }
                             FullScreenLoader.stopLoader();
                         },
@@ -279,40 +278,79 @@ define(
                 },
 
                 /**
-                 * Save Order after submit component
-                 * @param type
+                 * handleSubmit: place order first to get reference, then submit payment to Checkout.com
+                 * with session_data + reference so the payment is linked to the order.
+                 * @param {Object} flowSelf - Flow component instance (has type / selectedType)
+                 * @param {Object} submitData - From Flow, contains session_data
+                 * @returns {Promise<Object>} Checkout.com API response (unmodified for Flow)
                  */
-                saveOrder: function (type) {
-                    const data = {
+                submitPaymentWithReference: function (flowSelf, submitData) {
+                    const self = this;
+                    const selectedType = (flowSelf && (flowSelf.type || flowSelf.selectedType)) || 'card';
+                    const payload = {
                         methodId: METHOD_ID,
-                        selectedMethod: type
+                        selectedMethod: selectedType
                     };
-                    const has3DS = this.get3DSInfos(type);
 
-                    // Place the order
-                    if (AdditionalValidators.validate()) {
-                        Utilities.placeOrder(
-                            data,
-                            METHOD_ID,
-                            true,
-                            has3DS,
-                            function() {
-                                Utilities.log(__('Success'));
-                            },
-                            function() {
-                                Utilities.log(__('Fail'));
-                            },
-                        );
-                        Utilities.cleanCustomerShippingAddress();
+                    if (!AdditionalValidators.validate()) {
+                        FullScreenLoader.stopLoader();
+
+                        return Promise.reject(new Error('Validation failed'));
                     }
+
+                    FullScreenLoader.startLoader();
+
+                    const has3DS = this.get3DSInfos(selectedType);
+
+                    return Utilities.placeOrder(payload, METHOD_ID, false, has3DS)
+                        .then(function (orderResponse) {
+                            if (!orderResponse || !orderResponse.success) {
+                                FullScreenLoader.stopLoader();
+                                if (orderResponse && orderResponse.message) {
+                                    self.showMessage('error', orderResponse.message, METHOD_ID);
+                                }
+                                return Promise.reject(orderResponse || new Error('Place order failed'));
+                            }
+                            self.reference = orderResponse.reference || null;
+                            Utilities.cleanCustomerShippingAddress();
+
+                            if (!self.paymentSessionId || !submitData?.session_data || !self.reference) {
+                                FullScreenLoader.stopLoader();
+
+                                return Promise.reject(new Error('Missing session or reference'));
+                            }
+
+                            const formKey = (document.querySelector('input[name="form_key"]') || {}).value;
+                            const submitUrl = Url.build('checkout_com/flow/submit') + (formKey ? '?form_key=' + encodeURIComponent(formKey) : '');
+                            return fetch(submitUrl, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    session_id: self.paymentSessionId,
+                                    session_data: submitData.session_data,
+                                    reference: self.reference
+                                })
+                            });
+                        })
+                        .then(function (submitResponse) {
+                            return submitResponse.json().then(function (data) {
+                                if (!submitResponse.ok || data.error) {
+                                    FullScreenLoader.stopLoader();
+                                    self.showMessage('error', data.message || 'Payment submit failed', METHOD_ID);
+
+                                    return Promise.reject(data);
+                                }
+                                return data;
+                            });
+                        });
                 },
 
                 /**
                  * Get 3DS infos from checkoutConfig for current method
-                 * @param type
+                 * @param {string} type - Payment method type
                  * @returns {boolean}
                  */
-                get3DSInfos: function(type) {
+                get3DSInfos: function (type) {
                     if (this.methodNameMap[type]) {
                         type = this.methodNameMap[type];
                     }

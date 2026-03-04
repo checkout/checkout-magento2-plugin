@@ -124,7 +124,7 @@ class Config
      *
      * @param string $field
      * @param null $methodId
-     * @param string|null $storeCode
+     * @param string|int|null $storeCode
      * @param string $scope
      *
      * @return mixed
@@ -132,7 +132,7 @@ class Config
     public function getValue(
         string $field,
         $methodId = null,
-        ?string $storeCode = null,
+        $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
         return $this->loader->getValue($field, $methodId, $storeCode, $scope);

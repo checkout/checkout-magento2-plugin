@@ -125,7 +125,8 @@ class PlaceFlowOrder extends Action
             $this->orderRepository->save($order);
 
             return $json->setData([
-                'success' => true
+                'success' => true,
+                'reference' => $order->getIncrementId()
             ]);
 
         } catch (Exception $e) {
