@@ -81,7 +81,7 @@ class Submit extends Action implements HttpPostActionInterface
 
             return $result->setData([
                 'error' => true,
-                'message' => $e->getMessage(),
+                'message' => $exception->getMessage(),
             ]);
         }
     }

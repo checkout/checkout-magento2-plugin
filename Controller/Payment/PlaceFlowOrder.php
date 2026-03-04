@@ -129,8 +129,8 @@ class PlaceFlowOrder extends Action
                 'reference' => $order->getIncrementId()
             ]);
 
-        } catch (Exception $e) {
-            $this->logger->write($e->getMessage());
+        } catch (Exception $exception) {
+            $this->logger->write($exception->getMessage());
 
             return $json->setData([
                 'success' => false,
