@@ -184,173 +184,168 @@ class PaymentErrorHandlerService
      */
     public function getErrorMessage(string $responseCode): Phrase
     {
-        $generalErrors = array_fill_keys(
-            [
-                "20067",
-                "20099",
-            ],
-            __(
-                'The payment was declined, please try again. If the problem persists, try another card or payment method.'
-            )
-        );
-
-        $fundingErrors = array_fill_keys(
-            [
-                "20001",
-                "20002",
-                "20005",
-                "20010",
-                "20032",
-                "20039",
-                "20040",
-                "20044",
-                "20046",
-                "20051",
-                "20052",
-                "20053",
-                "20061",
-                "20062",
-                "20065",
-                "20075",
-                "20083",
-                "20084",
-                "20085",
-                "20091",
-                "20093",
-                "200N0",
-                "200O5",
-                "200P1",
-                "200P9",
-                "200R1",
-                "200R3",
-                "200S4",
-                "200T3",
-                "200T5",
-                "20103",
-                "20108",
-                "20150",
-                "30004",
-                "30021",
-                "30022",
-                "30035",
-                "30036",
-                "30038",
-            ],
-            __(
-                'You have reached the limit allowed for this card/account, please try again with another card or payment method.'
-            )
-        );
-
-        $technicalErrors = array_fill_keys(
-            [
-                "20003",
-                "20060",
-                "20102",
-                "20112",
-                "20121",
-                "30016",
-                "30017",
-                "30018",
-                "30019",
-                "20006",
-                "20009",
-                "20019",
-                "20020",
-                "20021",
-                "20022",
-                "20023",
-                "20024",
-                "20025",
-                "20026",
-                "20027",
-                "20028",
-                "20029",
-                "20030",
-                "20031",
-                "20042",
-                "20058",
-                "20064",
-                "20068",
-                "20086",
-                "20088",
-                "20089",
-                "20090",
-                "20092",
-                "20094",
-                "20095",
-                "20096",
-                "20097",
-                "20098",
-                "200T2",
-                "20101",
-                "20104",
-                "20105",
-                "20106",
-                "20107",
-                "20109",
-                "20110",
-                "20111",
-                "20113",
-                "20114",
-                "20115",
-                "20116",
-                "20117",
-                "20118",
-                "20119",
-                "20120",
-                "20123",
-                "30015",
-                "30020",
-                "20059",
-                "20063",
-                "20066",
-                "20082",
-                "30007",
-                "30034",
-                "30037",
-                "4XXXX" // Fraud response codes
-            ],
-            __('Something went wrong, please try again later')
-        );
-
-        $invalidCardErrors = array_fill_keys(
-            [
-                "20014",
-                "20054",
-                "20055",
-                "20056",
-                "20087",
-                "200N7",
-                "20100",
-                "30033",
-                "30041",
-                "30043",
-            ],
-            __('It looks like your card is invalid or blocked, please try with another card')
-        );
-
-        $blockedCardErrors = array_fill_keys(
-            [
-                "20017",
-                "20018",
-                "20057",
-            ],
-            __(
-                'It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method'
-            )
-        );
-
-        $threeDsErrors = array_fill_keys(
-            [
-                "20151",
-                "20152",
-                "20154",
-            ],
-            __('3DS has expired or authentication failed, please try again')
-        );
-
-        $messageMapper = $generalErrors + $fundingErrors + $technicalErrors + $invalidCardErrors + $blockedCardErrors + $threeDsErrors;
-
-        return $messageMapper[$responseCode] ?? __('The transaction could not be processed');
+        switch ($responseCode) {
+            case '20001':
+            case '20002':
+            case '20005':
+            case '20010':
+            case '20032':
+            case '20039':
+            case '20040':
+            case '20044':
+            case '20046':
+            case '20051':
+            case '20052':
+            case '20053':
+            case '20061':
+            case '20062':
+            case '20065':
+            case '20075':
+            case '20083':
+            case '20084':
+            case '20085':
+            case '20091':
+            case '20093':
+            case '200N0':
+            case '200O5':
+            case '200P1':
+            case '200P9':
+            case '200R1':
+            case '200R3':
+            case '200S4':
+            case '200T3':
+            case '200T5':
+            case '20103':
+            case '20108':
+            case '20150':
+            case '30004':
+            case '30021':
+            case '30022':
+            case '30035':
+            case '30036':
+            case '30038':
+                return __('You have reached the limit allowed for this card/account, please try again with another card or payment method.');
+            case '20006':
+                return __('Invalid payment request. Please check your details and try again.');
+            case '20019':
+                return __('Your session expired. Please start your payment again.');
+            case '20023':
+                return __('This transaction cannot be completed with this card. Please use another payment method.');
+            case '20031':
+                return __('This bank or card is not supported. Please use another payment method.');
+            case '20058':
+                return __('This transaction is not permitted with this card. Please use another payment method.');
+            case '20059':
+                return __('Payment was blocked for security reasons. Please use another card.');
+            case '20066':
+            case '20063':
+                return __('Payment was blocked for security reasons. Please contact your bank.');
+            case '20067':
+            case '20099':
+                return __('The payment was declined, please try again. If the problem persists, try another card or payment method.');
+            case '20068':
+                return __('The request timed out. Please try again.');
+            case '20082':
+                return __('Security check failed. Please verify your details and try again.');
+            case '20101':
+                return __('We couldn\'t find this account. Please check your card details.');
+            case '20102':
+                return __('A configuration issue occurred. Please contact support.');
+            case '20104':
+                return __('Your card could not be processed. Please use another card.');
+            case '20105':
+                return __('Payment could not be processed. Please try again later.');
+            case '20106':
+                return __('This currency is not supported. Please use another payment method.');
+            case '20110':
+                return __('This payment has already been authorised.');
+            case '20112':
+                return __('This card cannot be authenticated. Please use another card.');
+            case '20114':
+                return __('Your session expired. Please refresh the page and try again.');
+            case '20120':
+                return __('Please complete all required fields correctly.');
+            case '20121':
+                return __('This transaction exceeds allowed limits. Please use another card.');
+            case '4XXXX':
+                return __('Additional verification is required to complete your payment.');
+            case '20003':
+            case '20020':
+            case '20021':
+            case '20022':
+            case '20024':
+            case '20028':
+            case '20029':
+            case '20086':
+            case '20088':
+            case '20089':
+            case '20090':
+            case '20092':
+            case '20095':
+            case '20096':
+            case '20097':
+            case '20098':
+                return __('We\'re unable to process your payment right now. Please try again.');
+            case '20009':
+            case '20118':
+                return __('Your payment is being processed. Please wait.');
+            case '20025':
+            case '20027':
+            case '20030':
+                return __('Some payment details are incorrect. Please check and try again.');
+            case '20026':
+            case '20094':
+                return __('This payment has already been processed.');
+            case '20042':
+            case '20064':
+            case '200T2':
+                return __('The payment information provided is invalid. Please check and try again.');
+            case '20107':
+            case '20123':
+                return __('Please complete all required fields before proceeding.');
+            case '20109':
+            case '20111':
+                return __('This transaction was already reversed.');
+            case '20113':
+            case '20115':
+            case '20116':
+                return __('Invalid payment request. Please try again.');
+            case '20117':
+            case '20119':
+                return __('System configuration error. Please contact support.');
+            case '20060':
+            case '30007':
+            case '30015':
+            case '30016':
+            case '30017':
+            case '30020':
+            case '30034':
+            case '30037':
+                return __('Your card was declined. Please try another card.');
+            case '30018':
+            case '30019':
+                return __('Your bank declined the payment. Please contact your bank.');
+            case '20014':
+            case '20054':
+            case '20055':
+            case '20056':
+            case '20087':
+            case '200N7':
+            case '20100':
+            case '30033':
+            case '30041':
+            case '30043':
+                return __('It looks like your card is invalid or blocked, please try with another card');
+            case '20017':
+            case '20018':
+            case '20057':
+                return __('It looks like this transaction has been blocked due to account holder action, please contact your bank or use another card or payment method');
+            case '20151':
+            case '20152':
+            case '20154':
+                return __('3DS has expired or authentication failed, please try again');
+            default:
+                return __('The transaction could not be processed');
+        }
     }
 }

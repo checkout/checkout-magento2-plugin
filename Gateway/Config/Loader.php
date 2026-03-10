@@ -258,7 +258,7 @@ class Loader
     public function getValue(
         string $key,
         ?string $methodId = null,
-        ?string $storeCode = null,
+        $storeCode = null,
         string $scope = ScopeInterface::SCOPE_WEBSITE
     ) {
         // Prepare the path
