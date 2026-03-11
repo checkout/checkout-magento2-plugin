@@ -49,7 +49,7 @@ abstract class AbstractPayment extends Action
         ManagerInterface $messageManager,
         OrderHandlerService $orderHandler,
         Session $session,
-        StoreManagerInterface $storeManager,
+        StoreManagerInterface $storeManager
     ) {
         parent::__construct($context);
 
