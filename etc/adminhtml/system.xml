@@ -433,6 +433,21 @@
                         <comment>
                             Select a layout for the payment form display.
                         </comment>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
+                    </field>
+
+                    <field id="enable_right_to_left" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable right to left writting</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_card_payment/enable_right_to_left</config_path>
+                        <comment>
+                            Initialize Frame.js with RIGHT_TO_LEFT constant.
+                        </comment>
+                        <depends>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
                     </field>
 
                     <field id="display_cardholder_name" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
