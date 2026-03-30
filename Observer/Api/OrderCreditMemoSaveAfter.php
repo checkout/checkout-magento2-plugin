@@ -24,6 +24,7 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order\Creditmemo;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderCreditMemoSaveAfter
