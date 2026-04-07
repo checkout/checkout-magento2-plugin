@@ -110,9 +110,11 @@ define(
                     });
 
                     Quote.totals.subscribe(() => {
-                        if (Utilities.methodIsSelected(METHOD_ID) && Quote.totals().base_grand_total !== window.currentGrandTotal) {
+                        const newGrandTotal = Quote.totals().base_grand_total;
+                        
+                        if (Utilities.methodIsSelected(METHOD_ID) && newGrandTotal !== window.currentGrandTotal) {
                             this.reloadFlow();
-                            window.currentGrandTotal = Quote.totals().base_grand_total;
+                            window.currentGrandTotal = newGrandTotal;
                         }
                     }, null, 'change');
                 },
