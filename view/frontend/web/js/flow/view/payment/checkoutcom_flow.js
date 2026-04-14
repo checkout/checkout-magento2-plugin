@@ -49,6 +49,7 @@ define(
                     isCoBadged: ko.observable(false),
                     tooltipVisible: ko.observable(false),
                     flowComponent: null,
+                    isLoading: false,
                     methodNameMap: {
                         'card' : 'card_payment',
                         'googlepay' : 'google_pay',
@@ -85,6 +86,7 @@ define(
                 },
 
                 initEvents: function () {
+                    this.isLoading = true;
                     this.getFlowContextData();
 
                     if (Utilities.getBillingAddress().country_id) {
@@ -108,9 +110,11 @@ define(
                     });
 
                     Quote.totals.subscribe(() => {
-                        if (Utilities.methodIsSelected(METHOD_ID)) {
+                        const newGrandTotal = Quote.totals().base_grand_total;
+                        
+                        if (Utilities.methodIsSelected(METHOD_ID) && newGrandTotal !== window.currentGrandTotal) {
                             this.reloadFlow();
-                            window.currentGrandTotal = Quote.totals().base_grand_total;
+                            window.currentGrandTotal = newGrandTotal;
                         }
                     }, null, 'change');
                 },
@@ -126,12 +130,18 @@ define(
                  * Reload Flow component if country changed
                  */
                 reloadFlow: function () {
-                    this.setCountryCode();
-                    this.sendSaveCardEvent();
+                    if (!this.isLoading) {
+                        this.isLoading = true;
 
-                    this.flowComponent.unmount();
+                        this.setCountryCode();
+                        this.sendSaveCardEvent();
 
-                    this.getFlowContextData();
+                        if (this.flowComponent) {
+                            this.flowComponent.unmount();
+                        }
+
+                        this.getFlowContextData();
+                    }
                 },
 
                 /**
@@ -163,6 +173,8 @@ define(
                         }
                     } catch (e) {
                         this.showErrorMessage(e);
+                    } finally {
+                        this.isLoading = false;
                     }
                 },
 
