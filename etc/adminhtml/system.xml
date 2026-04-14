@@ -44,7 +44,6 @@
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigSdk</source_model>
                             <config_path>settings/checkoutcom_configuration/sdk</config_path>
                             <frontend_class>cko_sdk_selector</frontend_class>
-                            <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\CkoSdkListener</frontend_model>
                             <comment><![CDATA[Move to the new “<a href="https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website" target="_blank">Flow”</a> SDK to manage your payment methods with a single integration]]></comment>
                         </field>
 
