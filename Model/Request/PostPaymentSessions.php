@@ -200,7 +200,7 @@ class PostPaymentSessions
             $this->apiHandler->getBaseMetadata()
         );
 
-        $enabledDisabledElement = $this->enabledDisabledElement->get($model);
+        $enabledDisabledElement = $this->enabledDisabledElement->get($model, $data);
 
         $model->enabled_payment_methods = $enabledDisabledElement['enabled_payment_methods'];
         $model->disabled_payment_methods = $enabledDisabledElement['disabled_payment_methods'];

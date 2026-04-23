@@ -19,10 +19,11 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Controller\Flow;
 
+use CheckoutCom\Magento2\Api\ApplePayInterface;
 use CheckoutCom\Magento2\Model\Service\FlowPrepareService;
 use Magento\Framework\App\ActionInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Checkout\Model\Session as CheckoutSession;
@@ -32,18 +33,18 @@ class Prepare implements ActionInterface, HttpGetActionInterface
     protected CheckoutSession $checkoutSession;
     protected FlowPrepareService $flowPrepareService;
     protected JsonFactory $resultJsonFactory;
-    protected ScopeConfigInterface $scopeConfig;
+    protected RequestInterface $request;
 
     public function __construct(
         CheckoutSession $checkoutSession,
         FlowPrepareService $flowPrepareService,
         JsonFactory $resultJsonFactory,
-        ScopeConfigInterface $scopeConfig
+        RequestInterface $request
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->flowPrepareService = $flowPrepareService;
         $this->resultJsonFactory = $resultJsonFactory;
-        $this->scopeConfig = $scopeConfig;
+        $this->request = $request;
     }
 
     public function execute(): Json
@@ -56,12 +57,19 @@ class Prepare implements ActionInterface, HttpGetActionInterface
             return $result->setStatusHeader(400);
         }
 
-        $data = $this->flowPrepareService->prepare($quote, array());
+        $data = $this->flowPrepareService->prepare($quote, [
+            ApplePayInterface::BROWSER_SUPPORTS_NATIVE_FLOW_APPLE_PAY => $this->browserSupportsNativeFlowApplePayRequest(),
+        ]);
 
         if (empty($data['environment']) || empty($data['paymentSession']) || empty($data['publicKey'])) {
             return $result->setStatusHeader(400);
         }
 
         return $result->setData($data);
+    }
+
+    private function browserSupportsNativeFlowApplePayRequest(): bool
+    {
+        return (bool)$this->request->getParam(ApplePayInterface::FLOW_APPLE_PAY_IS_NATIVE_PARAM_NAME);
     }
 }

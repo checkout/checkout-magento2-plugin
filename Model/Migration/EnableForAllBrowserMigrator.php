@@ -43,6 +43,16 @@ class EnableForAllBrowserMigrator
         $this->configWriter = $configWriter;
     }
 
+    /**
+     * @throws LocalizedException
+    */
+    public function disableIfFlow(int $website = 0): void
+    {
+        if ($this->flowGeneralSettings->useFlow((string) $website)) {
+            $this->updateEnabledOnAllBrowser($website, true);
+        };
+    }
+
     public function updateEnabledOnAllBrowser(int $website = 0, ?bool $isFlow = null): void
     {
         $scope = $website !== 0 ? ScopeInterface::SCOPE_WEBSITES : ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
