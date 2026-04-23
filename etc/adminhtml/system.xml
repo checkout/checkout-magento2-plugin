@@ -44,6 +44,7 @@
                             <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigSdk</source_model>
                             <config_path>settings/checkoutcom_configuration/sdk</config_path>
                             <frontend_class>cko_sdk_selector</frontend_class>
+                            <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field\CkoSdkListener</frontend_model>
                             <comment><![CDATA[Move to the new “<a href="https://www.checkout.com/docs/payments/accept-payments/accept-a-payment-on-your-website" target="_blank">Flow”</a> SDK to manage your payment methods with a single integration]]></comment>
                         </field>
 
@@ -599,7 +600,7 @@
                         <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                         <frontend_class>cko_apple_pay_enabled_on_all_browsers</frontend_class>
                         <config_path>payment/checkoutcom_apple_pay/enabled_on_all_browsers</config_path>
-                        <comment><![CDATA[Enable Apple Pay on non-Safari browsers (Chrome, Firefox, Edge, etc.) via Apple Pay JS. Can be displayed on Frames and Flow SDK.]]></comment>
+                        <comment>Enable Apple Pay on non Apple browsers (Chrome, Firefox, etc.)</comment>
                         <requires>
                             <field id="processing_certificate"/>
                             <field id="merchant_id_certificate"/>
@@ -607,6 +608,23 @@
                         </requires>
                         <depends>
                             <field id="active">1</field>
+                            <field id="*/checkoutcom/module/global_settings/sdk">0</field>
+                        </depends>
+                    </field>
+
+                    <field id="flow_enabled_on_all_browsers" type="select" showInDefault="1" showInWebsite="1" showInStore="0">
+                        <label>Enable Apple Pay on all browsers (Flow)</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <config_path>payment/checkoutcom_apple_pay/flow_enabled_on_all_browsers</config_path>
+                        <comment><![CDATA[Enable Apple Pay Flow payment method on non-Apple browsers (Chrome, Firefox, etc.). When disabled, Apple Pay is only available in the Flow checkout when the shopper browser supports native Apple Pay (e.g. Safari).]]></comment>
+                        <requires>
+                            <field id="processing_certificate"/>
+                            <field id="merchant_id_certificate"/>
+                            <field id="merchant_id"/>
+                        </requires>
+                        <depends>
+                            <field id="active">1</field>
+                            <field id="*/checkoutcom/module/global_settings/sdk">1</field>
                         </depends>
                     </field>
 

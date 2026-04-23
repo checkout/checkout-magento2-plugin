@@ -157,13 +157,37 @@ define(
                     }
                 },
 
+                getFlowPrepareUrl: function () {
+                    const baseUrl = Url.build('checkout_com/flow/prepare'),
+                        applePay = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apple_pay,
+                        merchantId = applePay?.merchant_id,
+                        applePaySession = window.ApplePaySession,
+                        separatorUrl = baseUrl.indexOf('?') >= 0 ? '&' : '?',
+                        isFlowApplePayOnAllBrowser = applePay && applePay.flow_enabled_on_all_browsers === '1';
+                    let isNative = '0';
+
+                    if (isFlowApplePayOnAllBrowser) {
+                        isNative = '1';
+                    } else if (applePaySession && applePay && merchantId) {
+                        try {
+                            if (applePaySession.canMakePayments(merchantId)) {
+                                isNative = '1';
+                            }
+                        } catch (e) {
+                            Utilities.log(e);
+                        }
+                    }
+
+                    return baseUrl + separatorUrl + 'flow_apple_pay_is_native=' + isNative;
+                },
+
                 /**
                  * Get context data from API
                  * @returns {Promise<void>}
                  */
                 getFlowContextData: async function () {
                     try {
-                        const response = await fetch(Url.build('checkout_com/flow/prepare'), {method: "GET"});
+                        const response = await fetch(this.getFlowPrepareUrl(), {method: "GET"});
                         const data = await response.json();
 
                         if (!response.ok) {
