@@ -136,7 +136,7 @@ class ItemsElement
         $product->quantity = $item->getQty();
         $product->reference = $item->getSku();
         $product->unit_price = $this->priceFormatter->getFormattedPrice($unitPrice, $currency);
-        $product->total_amount = $this->priceFormatter->getFormattedPrice($rowAmount, $currency);;
+        $product->total_amount = $this->priceFormatter->getFormattedPrice($rowAmount, $currency);
 
         return $product;
     }
