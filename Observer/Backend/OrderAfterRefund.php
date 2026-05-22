@@ -22,6 +22,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Magento\Store\Model\ScopeInterface;
 
 /**
  * Class OrderAfterRefund

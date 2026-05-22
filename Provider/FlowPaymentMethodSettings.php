@@ -86,7 +86,18 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
         return $activated && $this->getWebsiteLevelConfiguration(
             self::CONFIG_FLOW_APPLEPAY_ACTIVATED_ON_CHECKOUT,
             $website
-        ) === "1";;
+        ) === '1';
+    }
+
+    /**
+     * Whether Apple Pay should be listed for Flow on all browsers (Checkout.com payment session).
+     */
+    public function isFlowApplePayEnabledOnAllBrowsers(?string $website): bool
+    {
+        return $this->getWebsiteLevelConfiguration(
+            ApplePaymentSettings::CONFIG_FLOW_APPLEPAY_ENABLED_ON_ALL_BROWSERS,
+            $website
+        ) === '1';
     }
 
     public function isPaypalEnabled(?string $website): bool
@@ -131,7 +142,7 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
         return explode(',', $configuration);
     }
 
-    public function getEnabledPaymentMethods(string $websiteCode): array
+    public function getEnabledPaymentMethods(string $websiteCode, bool $browserSupportsNativeFlowApplePay): array
     {
         $enabledPaymentMethods = [];
 
@@ -144,7 +155,7 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
         if ($this->isGooglePayEnabled($websiteCode)) {
             $enabledPaymentMethods[] = self::METHOD_GOOGLEPAY_NAME;
         }
-        if ($this->isApplePayEnabled($websiteCode)) {
+        if ($this->isApplePayEnabled($websiteCode) && $this->shouldIncludeApplePayForFlowSession($websiteCode, $browserSupportsNativeFlowApplePay)) {
             $enabledPaymentMethods[] = self::METHOD_APPLEPAY_NAME;
         }
         if ($this->isPaypalEnabled($websiteCode)) {
@@ -152,6 +163,15 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
         }
 
         return array_merge($enabledPaymentMethods, $this->getSelectedApmMethods($websiteCode));
+    }
+
+    private function shouldIncludeApplePayForFlowSession(?string $websiteCode, bool $browserSupportsNativeFlowApplePay): bool
+    {
+        if ($this->isFlowApplePayEnabledOnAllBrowsers($websiteCode)) {
+            return true;
+        }
+
+        return $browserSupportsNativeFlowApplePay;
     }
 
     public function getAllPaymentMethods(): array

@@ -49,6 +49,7 @@ define(
                     isCoBadged: ko.observable(false),
                     tooltipVisible: ko.observable(false),
                     flowComponent: null,
+                    isLoading: false,
                     methodNameMap: {
                         'card' : 'card_payment',
                         'googlepay' : 'google_pay',
@@ -85,6 +86,7 @@ define(
                 },
 
                 initEvents: function () {
+                    this.isLoading = true;
                     this.getFlowContextData();
 
                     if (Utilities.getBillingAddress().country_id) {
@@ -108,9 +110,11 @@ define(
                     });
 
                     Quote.totals.subscribe(() => {
-                        if (Utilities.methodIsSelected(METHOD_ID)) {
+                        const newGrandTotal = Quote.totals().base_grand_total;
+                        
+                        if (Utilities.methodIsSelected(METHOD_ID) && newGrandTotal !== window.currentGrandTotal) {
                             this.reloadFlow();
-                            window.currentGrandTotal = Quote.totals().base_grand_total;
+                            window.currentGrandTotal = newGrandTotal;
                         }
                     }, null, 'change');
                 },
@@ -126,12 +130,18 @@ define(
                  * Reload Flow component if country changed
                  */
                 reloadFlow: function () {
-                    this.setCountryCode();
-                    this.sendSaveCardEvent();
+                    if (!this.isLoading) {
+                        this.isLoading = true;
 
-                    this.flowComponent.unmount();
+                        this.setCountryCode();
+                        this.sendSaveCardEvent();
 
-                    this.getFlowContextData();
+                        if (this.flowComponent) {
+                            this.flowComponent.unmount();
+                        }
+
+                        this.getFlowContextData();
+                    }
                 },
 
                 /**
@@ -147,13 +157,37 @@ define(
                     }
                 },
 
+                getFlowPrepareUrl: function () {
+                    const baseUrl = Url.build('checkout_com/flow/prepare'),
+                        applePay = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apple_pay,
+                        merchantId = applePay?.merchant_id,
+                        applePaySession = window.ApplePaySession,
+                        separatorUrl = baseUrl.indexOf('?') >= 0 ? '&' : '?',
+                        isFlowApplePayOnAllBrowser = applePay && applePay.flow_enabled_on_all_browsers === '1';
+                    let isNative = '0';
+
+                    if (isFlowApplePayOnAllBrowser) {
+                        isNative = '1';
+                    } else if (applePaySession && applePay && merchantId) {
+                        try {
+                            if (applePaySession.canMakePayments(merchantId)) {
+                                isNative = '1';
+                            }
+                        } catch (e) {
+                            Utilities.log(e);
+                        }
+                    }
+
+                    return baseUrl + separatorUrl + 'flow_apple_pay_is_native=' + isNative;
+                },
+
                 /**
                  * Get context data from API
                  * @returns {Promise<void>}
                  */
                 getFlowContextData: async function () {
                     try {
-                        const response = await fetch(Url.build('checkout_com/flow/prepare'), {method: "GET"});
+                        const response = await fetch(this.getFlowPrepareUrl(), {method: "GET"});
                         const data = await response.json();
 
                         if (!response.ok) {
@@ -163,6 +197,8 @@ define(
                         }
                     } catch (e) {
                         this.showErrorMessage(e);
+                    } finally {
+                        this.isLoading = false;
                     }
                 },
 

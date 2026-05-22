@@ -25,7 +25,6 @@ use Magento\Framework\Data\Form\Element\AbstractElement;
 
 class CkoSdkListener extends Field
 {
-
     protected function _getElementHtml(AbstractElement $element)
     {
         $html = parent::_getElementHtml($element);
@@ -43,7 +42,6 @@ require(['jquery'], function ($) {
         sdkSelector.on('change', sync);
 
         function sync() {
-
             var sdkVal = sdkSelector.val();
             if (sdkVal === '0') {
                 appleField.val('1').trigger('change');
