@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Setup\Patch\Data;
 
 use CheckoutCom\Magento2\Model\Migration\EnableForAllBrowserMigrator;
+use Exception;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -46,6 +47,9 @@ class DisableApplePayForAllBrowserIfFlow implements DataPatchInterface
         return [];
     }
 
+    /**
+     * @throws Exception
+     */
     public function apply()
     {
         $this->enableForAllBrowserMigrator->disableIfFlow();

@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\Request\PaymentMethodAvailability;
 
 use Checkout\Payments\Sessions\PaymentSessionsRequest;
+use CheckoutCom\Magento2\Api\ApplePayInterface;
 use CheckoutCom\Magento2\Model\Request\Additionnals\PaymentLinkRequest;
 use CheckoutCom\Magento2\Provider\FlowPaymentMethodSettings;
 use Exception;
@@ -44,10 +45,11 @@ class EnabledDisabledElement
 
     /**
      * @param PaymentSessionsRequest|PaymentLinkRequest $payload
+     * @param array $context
      *
      * @return array
      */
-    public function get($payload): array
+    public function get($payload, array $context = []): array
     {
         try {
             $websiteCode = $this->storeManager->getWebsite()->getCode();
@@ -61,7 +63,15 @@ class EnabledDisabledElement
 
         $allPaymentMethods = $this->flowPaymentMethodSettings->getAllPaymentMethods();
 
-        $availablePaymentMethods = $this->getEnabled($websiteCode);
+        /**
+         * Indicates whether the browser supports native Apple Pay for Flow.
+         */
+        $browserSupportsNativeFlowApplePay = false;
+        if (isset($context[ApplePayInterface::BROWSER_SUPPORTS_NATIVE_FLOW_APPLE_PAY])) {
+            $browserSupportsNativeFlowApplePay = (bool)$context[ApplePayInterface::BROWSER_SUPPORTS_NATIVE_FLOW_APPLE_PAY];
+        }
+
+        $availablePaymentMethods = $this->getEnabled($websiteCode, $browserSupportsNativeFlowApplePay);
 
         $availablePaymentMethods = $this->doCheck(
             $payload->billing->address->country ?? '',
@@ -86,17 +96,18 @@ class EnabledDisabledElement
 
         $availablePaymentMethods = $this->checkMandatoriesFields($availablePaymentMethods, $allPaymentMethods, $payload);
 
-        $result = [
+        return [
             'enabled_payment_methods' => array_values($availablePaymentMethods),
             'disabled_payment_methods' => array_values($this->getDisabledMethods($allPaymentMethods, $availablePaymentMethods))
         ];
-
-        return $result;
     }
 
-    protected function getEnabled(?string $websiteCode): array
+    protected function getEnabled(?string $websiteCode, bool $browserSupportsNativeFlowApplePay): array
     {
-        return $this->flowPaymentMethodSettings->getEnabledPaymentMethods($websiteCode);
+        return $this->flowPaymentMethodSettings->getEnabledPaymentMethods(
+            $websiteCode,
+            $browserSupportsNativeFlowApplePay
+        );
     }
 
     /**
