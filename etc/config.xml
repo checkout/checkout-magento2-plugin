@@ -98,6 +98,30 @@
                 <can_use_internal>0</can_use_internal>
                 <is_gateway>1</is_gateway>
             </checkoutcom_flow>
+            <checkoutcom_flow_google_pay>
+                <model>CheckoutCom\Magento2\Model\Methods\GooglePayFlowMethod</model>
+                <title>Google Pay</title>
+                <active>1</active>
+                <sort_order>1</sort_order>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
+                <is_gateway>1</is_gateway>
+            </checkoutcom_flow_google_pay>
+            <checkoutcom_flow_apple_pay>
+                <model>CheckoutCom\Magento2\Model\Methods\ApplePayFlowMethod</model>
+                <title>Apple Pay</title>
+                <active>1</active>
+                <sort_order>2</sort_order>
+                <can_use_checkout>1</can_use_checkout>
+                <can_authorize>1</can_authorize>
+                <can_capture>1</can_capture>
+                <can_void>1</can_void>
+                <can_use_internal>0</can_use_internal>
+                <is_gateway>1</is_gateway>
+            </checkoutcom_flow_apple_pay>
             <checkoutcom_card_payment>
                 <model>CheckoutCom\Magento2\Model\Methods\CardPaymentMethod</model>
                 <title>Pay by Card with Checkout.com</title>

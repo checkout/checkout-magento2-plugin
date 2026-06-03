@@ -432,7 +432,10 @@ define(
              */
             placeOrder: function (payload, methodId, startLoader = true, has3DS = null) {
                 let self = this;
-                const isFlow = methodId === 'checkoutcom_flow';
+                // Treat the Flow card method AND the standalone Flow wallet methods
+                // (checkoutcom_flow_google_pay / _apple_pay) as Flow, so they use the order-first
+                // placefloworder endpoint and the Flow 3DS handling rather than the Frames charge path.
+                const isFlow = typeof methodId === 'string' && methodId.indexOf('checkoutcom_flow') === 0;
                 const orderUrl = isFlow ? 'payment/placefloworder' : 'payment/placeorder';
 
                 if (startLoader) {

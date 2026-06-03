@@ -20,14 +20,14 @@ define(
         'Magento_Checkout/js/view/payment/default',
         'Magento_Customer/js/model/customer',
         'mage/url',
-        'flowjs',
+        'CheckoutCom_Magento2/js/flow/model/flow-loader',
         "CheckoutCom_Magento2/js/common/view/payment/utilities",
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/step-navigator',
         'Magento_Checkout/js/model/quote',
     ],
-    function ($, ko, Component, Customer, Url, CheckoutWebComponents, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator, Quote) {
+    function ($, ko, Component, Customer, Url, FlowLoader, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator, Quote) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
@@ -57,6 +57,13 @@ define(
                     },
                     currentMethod: null,
                     currentCountryCode: null,
+                    // Custom radio selector state: which Flow method is selected, and per-method availability
+                    selectedFlowMethod: ko.observable(null),
+                    cardAvailable: ko.observable(false),
+                    googlePayAvailable: ko.observable(false),
+                    applePayAvailable: ko.observable(false),
+                    // One entry per available APM: {type, label} — renders a radio row each.
+                    availableApms: ko.observableArray([]),
                 },
                 reference: null,
 
@@ -67,6 +74,13 @@ define(
                     window.currentGrandTotal = Quote.totals().base_grand_total;
 
                     this._super();
+
+                    // When the shopper switches radio, show that method's container, lazily mount it,
+                    // and update the save-card region for the selected method.
+                    this.selectedFlowMethod.subscribe((method) => {
+                        this.mountSelected(method);
+                        this.sendSaveCardEvent(method);
+                    });
 
                     return this;
                 },
@@ -87,7 +101,8 @@ define(
 
                 initEvents: function () {
                     this.isLoading = true;
-                    this.getFlowContextData();
+                    this.bindRadioAlignment();
+                    this.loadFlow();
 
                     if (Utilities.getBillingAddress().country_id) {
                         this.setCountryCode();
@@ -120,6 +135,57 @@ define(
                 },
 
                 /**
+                 * Theme-independent radio alignment: read the active theme's actual computed
+                 * left padding on .payment-method-content and expose it as the --cko-pm-content-pad
+                 * CSS variable, which the template uses to offset the child radios so they line up
+                 * with the native payment-method radios on ANY theme (and at any breakpoint).
+                 */
+                syncRadioAlignment: function () {
+                    try {
+                        const container = document.getElementById(this.getCode() + '_container');
+
+                        if (!container) {
+                            return;
+                        }
+
+                        const content = container.querySelector('.payment-method-content');
+
+                        if (!content) {
+                            return;
+                        }
+
+                        const paddingLeft = window.getComputedStyle(content).paddingLeft || '0px';
+                        container.style.setProperty('--cko-pm-content-pad', paddingLeft);
+                    } catch (e) {
+                        Utilities.log(e);
+                    }
+                },
+
+                /**
+                 * Measure alignment once on render (deferred so theme CSS is applied) and keep it in
+                 * sync on viewport resize, since the content padding can change between breakpoints.
+                 */
+                bindRadioAlignment: function () {
+                    const self = this;
+
+                    setTimeout(function () {
+                        self.syncRadioAlignment();
+                    }, 0);
+
+                    if (!this._radioAlignBound) {
+                        this._radioAlignBound = true;
+
+                        let resizeTimer = null;
+                        window.addEventListener('resize', function () {
+                            clearTimeout(resizeTimer);
+                            resizeTimer = setTimeout(function () {
+                                self.syncRadioAlignment();
+                            }, 150);
+                        });
+                    }
+                },
+
+                /**
                  * Set current country code
                  */
                 setCountryCode: function () {
@@ -136,11 +202,11 @@ define(
                         this.setCountryCode();
                         this.sendSaveCardEvent();
 
-                        if (this.flowComponent) {
-                            this.flowComponent.unmount();
-                        }
-
-                        this.getFlowContextData();
+                        // Recreate the shared session; the onReload subscriber re-builds this method's
+                        // components (and any other Flow methods on the page).
+                        FlowLoader.reload().finally(() => {
+                            this.isLoading = false;
+                        });
                     }
                 },
 
@@ -152,54 +218,39 @@ define(
                 },
 
                 placeOrder: function () {
-                    if (Utilities.methodIsSelected(METHOD_ID)) {
-                        this.flowComponent.submit();
+                    // The "Place Order" button only drives the card component.
+                    // Google Pay / Apple Pay render their own native buttons and submit themselves.
+                    if (Utilities.methodIsSelected(METHOD_ID) && this.flowComponents && this.flowComponents.card) {
+                        this.flowComponents.card.submit();
                     }
-                },
-
-                getFlowPrepareUrl: function () {
-                    const baseUrl = Url.build('checkout_com/flow/prepare'),
-                        applePay = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apple_pay,
-                        merchantId = applePay?.merchant_id,
-                        applePaySession = window.ApplePaySession,
-                        separatorUrl = baseUrl.indexOf('?') >= 0 ? '&' : '?',
-                        isFlowApplePayOnAllBrowser = applePay && applePay.flow_enabled_on_all_browsers === '1';
-                    let isNative = '0';
-
-                    if (isFlowApplePayOnAllBrowser) {
-                        isNative = '1';
-                    } else if (applePaySession && applePay && merchantId) {
-                        try {
-                            if (applePaySession.canMakePayments(merchantId)) {
-                                isNative = '1';
-                            }
-                        } catch (e) {
-                            Utilities.log(e);
-                        }
-                    }
-
-                    return baseUrl + separatorUrl + 'flow_apple_pay_is_native=' + isNative;
                 },
 
                 /**
-                 * Get context data from API
+                 * Build this method's components from the SHARED Flow session (single prepare +
+                 * single CheckoutWebComponents for the whole page). Also registers a reload
+                 * subscriber so the components are rebuilt if the session is recreated.
                  * @returns {Promise<void>}
                  */
-                getFlowContextData: async function () {
-                    try {
-                        const response = await fetch(this.getFlowPrepareUrl(), {method: "GET"});
-                        const data = await response.json();
+                loadFlow: function () {
+                    const self = this;
 
-                        if (!response.ok) {
-                            this.showErrorMessage();
-                        } else {
-                            await this.initComponent(data);
-                        }
-                    } catch (e) {
-                        this.showErrorMessage(e);
-                    } finally {
-                        this.isLoading = false;
+                    if (!this._flowReloadBound) {
+                        this._flowReloadBound = true;
+                        FlowLoader.onReload(function (checkout, data) {
+                            self.buildComponents(checkout, data);
+                        });
                     }
+
+                    return FlowLoader.load()
+                        .then(function (result) {
+                            return self.buildComponents(result.checkout, result.data);
+                        })
+                        .catch(function (e) {
+                            self.showErrorMessage(e);
+                        })
+                        .finally(function () {
+                            self.isLoading = false;
+                        });
                 },
 
                 showErrorMessage: function (message = null) {
@@ -213,104 +264,254 @@ define(
                 },
 
                 /**
-                 * Init Flow Component with API response
-                 * @param data
+                 * Build the Card + APM components from the shared Flow session.
+                 * @param {Object} checkout - shared CheckoutWebComponents instance
+                 * @param {Object} data - shared prepare response (paymentSession, ...)
                  * @returns {Promise<void>}
                  */
-                initComponent: async function (data) {
-                    let self = this;
-
+                buildComponents: async function (checkout, data) {
                     this.allowPlaceOrder(false);
 
-                    const paymentSession = data.paymentSession;
-                    const publicKey = data.publicKey;
-                    let appearance  = data.appearance;
-                    this.paymentSessionId = paymentSession?.id || (paymentSession && paymentSession.id) || null;
+                    // Clear anything from a previous build (e.g. after a session reload).
+                    this.unmountAllComponents();
 
-                    if (appearance !== "") {
-                        try {
-                            appearance = JSON.parse(appearance);
-                        } catch (e) {
-                            Utilities.log(e);
-                            appearance = "";
-                        }
-                    }
+                    this.paymentSessionId = data && data.paymentSession ? data.paymentSession.id : null;
+                    this.checkout = checkout;
+                    this.flowComponentInstances = {};
+                    this.mountedComponents = {};
+                    this.flowComponents = {};
 
-                    const checkout = await CheckoutWebComponents({
-                        paymentSession,
-                        publicKey,
-                        environment: data.environment,
-                        appearance,
-                        componentOptions: {
-                            flow: {
-                                showPayButton: false
-                            },
-                            card: {
-                                displayCardholderName: this.shouldDisplayCardholderName()
-                            }
-                        },
-                        onReady: (_self) => {
-                            if (!this.currentMethod) {
-                                this.sendSaveCardEvent(_self.selectedType);
-                            }
-                        },
+                    // Main container = the CARD component + every available APM (iDEAL, Klarna,
+                    // PayPal, SEPA, ...), each mounted as its own component. We deliberately do NOT
+                    // use the bundled 'flow' component, because it always instantiates Google Pay /
+                    // Apple Pay and would conflict with the standalone wallet components below.
+                    await this.prepareComponent('card', 'card', 'flow-card-container', this.cardAvailable, {
+                        showPayButton: false,
                         onChange: (component) => {
-                            if (component.isValid()) {
-                                this.allowPlaceOrder(true);
-                            } else {
-                                this.allowPlaceOrder(false);
-                            }
-
-                            if (this.currentMethod && this.currentMethod !== component.selectedType) {
-                                this.sendSaveCardEvent(component.selectedType);
-                            }
-                        },
-                        onError: (component, error) => {
-                            const payment_id = error.details?.paymentSessionId;
-
-                            Utilities.showMessage('error', 'Could not finalize the payment.', METHOD_ID);
-                            Utilities.log("Error with payment method " + component.type, error);
-                            FullScreenLoader.stopLoader();
-
-                            if (payment_id) {
-                                Utilities.redirectFailedPayment(payment_id, this.reference);
-                            }
+                            // Place Order stays disabled until the card form is valid.
+                            this.allowPlaceOrder(!!component.isValid());
                         }
                     });
+                    await this.probeApms();
 
-                    let flowContainer = this.getContainer();
+                    // Google Pay / Apple Pay are NOT handled here — they are their own standalone
+                    // Magento payment methods (checkoutcom_flow_google_pay / _apple_pay).
 
-                    this.flowComponent = checkout.create('flow',{
+                    // Default the radio selection to Card (or the first available APM), then mount it.
+                    // Subsequent switches are handled by the observable subscription.
+                    const firstApm = (this.availableApms() && this.availableApms().length)
+                        ? this.availableApms()[0].type
+                        : null;
+                    const defaultMethod = this.cardAvailable() ? 'card' : firstApm;
+
+                    if (defaultMethod) {
+                        this.selectedFlowMethod(defaultMethod);
+                        this.mountSelected(defaultMethod);
+                    }
+                },
+
+                /**
+                 * Create a Flow payment component (NOT yet mounted) and gate it on isAvailable().
+                 * Each component shares the same handleSubmit / onPaymentCompleted logic as the
+                 * original bundled Flow component, so order placement + reference linking + 3DS are
+                 * unchanged. The component is stored under `methodKey` for lazy mounting when its
+                 * radio is selected (wallet buttons must be mounted while visible to render).
+                 *
+                 * @param {string} methodKey - radio/selection key ('card' = main bundle, 'googlepay', 'applepay')
+                 * @param {string} createType - SDK component type to create ('flow' | 'googlepay' | 'applepay')
+                 * @param {string} containerId - DOM id of the target container
+                 * @param {Function} availableObservable - ko.observable toggled with availability
+                 * @param {Object} extraOptions - Per-component options (e.g. showPayButton, onChange)
+                 * @returns {Promise<void>}
+                 */
+                prepareComponent: async function (methodKey, createType, containerId, availableObservable, extraOptions) {
+                    if (!this.checkout) {
+                        availableObservable(false);
+                        return;
+                    }
+
+                    const component = this.checkout.create(createType, this.sharedComponentOptions(extraOptions));
+
+                    let isAvailable = true;
+
+                    try {
+                        if (typeof component.isAvailable === 'function') {
+                            isAvailable = await component.isAvailable();
+                        }
+                    } catch (e) {
+                        isAvailable = false;
+                        Utilities.log(e);
+                    }
+
+                    availableObservable(!!isAvailable);
+
+                    if (isAvailable) {
+                        this.flowComponentInstances[methodKey] = { component: component, containerId: containerId };
+                    }
+                },
+
+                /**
+                 * Shared create() options for every component: the handleSubmit (place order ->
+                 * get reference -> POST flow/submit) and onPaymentCompleted (redirect on approval)
+                 * logic, identical to the original bundled Flow component.
+                 *
+                 * @param {Object} extraOptions - per-component extras (showPayButton, onChange, ...)
+                 * @returns {Object}
+                 */
+                sharedComponentOptions: function (extraOptions) {
+                    const self = this;
+
+                    return Object.assign({
                         handleSubmit: async (_self, submitData) => {
                             return self.submitPaymentWithReference(_self, submitData);
                         },
                         onPaymentCompleted: async (_self, paymentResponse) => {
-                            if  (paymentResponse.status === "Approved") {
-                                Utilities.redirectCompletedPayment(paymentResponse.id, this.reference);
+                            if (paymentResponse.status === "Approved") {
+                                Utilities.redirectCompletedPayment(paymentResponse.id, self.reference);
                             }
                             FullScreenLoader.stopLoader();
-                        },
-                    });
-
-                    this.flowComponent.mount(flowContainer);
+                        }
+                    }, extraOptions || {});
                 },
 
                 /**
-                 * Get container from DOM
-                 * @returns {HTMLElement}
+                 * Probe every APM type the Flow SDK supports and keep the ones available for this
+                 * session/cart. Each available APM is registered as its own component+container
+                 * (key = APM type, container 'flow-apm-<type>') and added to the availableApms
+                 * observableArray so the template renders a radio row per APM. Wallets
+                 * (googlepay/applepay) are handled separately as their own radios.
+                 *
+                 * @returns {Promise<void>}
                  */
-                getContainer: function() {
-                    let flowContainer = document.getElementById('flow-container');
+                probeApms: async function () {
+                    const self = this;
+                    const APM_TYPES = [
+                        'ideal', 'sepa', 'eps', 'knet', 'multibanco', 'p24', 'paypal', 'klarna',
+                        'alipay_cn', 'alipay_hk', 'dana', 'gcash', 'tng', 'truemoney', 'kakaopay',
+                        'stcpay', 'benefit', 'qpay', 'mbway', 'alma', 'tamara', 'tabby', 'twint',
+                        'plaid', 'vipps', 'mobilepay', 'bizum', 'wechatpay', 'paynow', 'octopus',
+                        'swish', 'blik'
+                    ];
 
-                    if (!flowContainer) {
-                        const actions = Utilities.getMethodContainer(METHOD_ID).find('.payment-method-content .action-toolbar');
+                    this.availableApms([]);
 
-                        flowContainer = document.createElement('div');
-                        flowContainer.id = 'flow-container-dynamic';
-                        actions.prepend(flowContainer);
+                    if (!this.checkout) {
+                        return;
                     }
 
-                    return flowContainer;
+                    const probes = APM_TYPES.map(async (type) => {
+                        try {
+                            const component = self.checkout.create(type, self.sharedComponentOptions({ showPayButton: true }));
+                            const available = typeof component.isAvailable === 'function'
+                                ? await component.isAvailable()
+                                : true;
+
+                            return available ? { type: type, component: component } : null;
+                        } catch (e) {
+                            // Type not configured/supported for this account — skip silently.
+                            return null;
+                        }
+                    });
+
+                    const results = (await Promise.all(probes)).filter(Boolean);
+                    const list = [];
+
+                    results.forEach((apm) => {
+                        self.flowComponentInstances[apm.type] = {
+                            component: apm.component,
+                            containerId: 'flow-apm-' + apm.type
+                        };
+                        list.push({ type: apm.type, label: self.apmLabel(apm.type) });
+                    });
+
+                    this.availableApms(list);
+                },
+
+                /**
+                 * Friendly label for an APM type (falls back to a title-cased type).
+                 *
+                 * @param {string} type
+                 * @returns {string}
+                 */
+                apmLabel: function (type) {
+                    const labels = {
+                        ideal: 'iDEAL',
+                        sepa: 'SEPA Direct Debit',
+                        eps: 'EPS',
+                        knet: 'KNET',
+                        multibanco: 'Multibanco',
+                        p24: 'Przelewy24',
+                        paypal: 'PayPal',
+                        klarna: 'Klarna',
+                        alipay_cn: 'Alipay CN',
+                        alipay_hk: 'Alipay HK',
+                        dana: 'DANA',
+                        gcash: 'GCash',
+                        tng: "Touch 'n Go",
+                        truemoney: 'TrueMoney',
+                        kakaopay: 'Kakao Pay',
+                        stcpay: 'STC Pay',
+                        benefit: 'Benefit',
+                        qpay: 'Qpay',
+                        mbway: 'MB WAY',
+                        alma: 'Alma',
+                        tamara: 'Tamara',
+                        tabby: 'Tabby',
+                        twint: 'TWINT',
+                        plaid: 'Pay by Bank',
+                        vipps: 'Vipps',
+                        mobilepay: 'MobilePay',
+                        bizum: 'Bizum',
+                        wechatpay: 'WeChat Pay',
+                        paynow: 'PayNow',
+                        octopus: 'Octopus',
+                        swish: 'Swish',
+                        blik: 'BLIK'
+                    };
+
+                    return labels[type] || (type.charAt(0).toUpperCase() + type.slice(1));
+                },
+
+                /**
+                 * Mount the selected method's component into its container (once). Containers are
+                 * shown/hidden by the KO `visible` binding tied to selectedFlowMethod.
+                 *
+                 * @param {string} method - 'card' | 'googlepay' | 'applepay'
+                 */
+                mountSelected: function (method) {
+                    if (!method || !this.flowComponentInstances) {
+                        return;
+                    }
+
+                    const inst = this.flowComponentInstances[method];
+
+                    if (inst && !this.mountedComponents[method]) {
+                        const container = document.getElementById(inst.containerId);
+
+                        if (container) {
+                            inst.component.mount(container);
+                            this.mountedComponents[method] = inst.component;
+                            this.flowComponents[method] = inst.component;
+                        }
+                    }
+                },
+
+                /**
+                 * Unmount every mounted Flow component (used on reload / country change).
+                 */
+                unmountAllComponents: function () {
+                    if (this.mountedComponents) {
+                        Object.keys(this.mountedComponents).forEach((type) => {
+                            try {
+                                this.mountedComponents[type].unmount();
+                            } catch (e) {
+                                Utilities.log(e);
+                            }
+                        });
+                    }
+
+                    this.mountedComponents = {};
+                    this.flowComponents = {};
                 },
 
                 /**
