@@ -525,21 +525,25 @@ define(
                  * @returns {string} inline SVG markup
                  */
                 methodIcon: function (type) {
+                    // Wallets use the official brand logo images shipped in the module
+                    // (view/frontend/web/images/flow). Card / APMs keep a simple generic glyph.
+                    const logos = {
+                        googlepay: 'icon-googlepay.png',
+                        applepay: 'icon-applepay.png',
+                        paypal: 'icon-paypal.png'
+                    };
+                    const imagesPath = globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_data?.images_path;
+
+                    if (logos[type] && imagesPath) {
+                        return '<img class="cko-method-logo" alt="" src="' + imagesPath + '/' + logos[type] + '" />';
+                    }
+
                     const card = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6">'
                         + '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>';
-                    const wallet = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6">'
-                        + '<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M16 12.5h3"/><path d="M2 9h14"/></svg>';
                     const bank = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6">'
                         + '<path d="M3 9l9-5 9 5"/><path d="M4 9v9M9 9v9M15 9v9M20 9v9"/><path d="M2 20h20"/></svg>';
 
-                    const icons = {
-                        card: card,
-                        googlepay: wallet,
-                        applepay: wallet,
-                        paypal: wallet
-                    };
-
-                    return icons[type] || bank;
+                    return type === 'card' ? card : bank;
                 },
 
                 /**
