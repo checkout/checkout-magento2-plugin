@@ -329,11 +329,18 @@ define(
                         return;
                     }
 
-                    // Backend-enabled Flow APMs (comma-separated list from admin config).
+                    // Wallets are NOT APMs — they have their own standalone methods / inside-Flow
+                    // handling (see probeInsideWallets). Exclude them from the APM path so a wallet
+                    // can never be rendered both as an APM and as a wallet, even if the admin's
+                    // apm_flow_enabled list happens to contain one.
+                    const walletTypes = ['googlepay', 'applepay', 'paypal'];
+
+                    // Backend-enabled Flow APMs (comma-separated list from admin config), minus wallets.
                     const enabledApms = (globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apm?.apm_flow_enabled || '')
                         .split(',')
                         .map((type) => type.trim())
-                        .filter(Boolean);
+                        .filter(Boolean)
+                        .filter((type) => !walletTypes.includes(type));
 
                     if (!enabledApms.length) {
                         return;
@@ -497,7 +504,6 @@ define(
                         knet: 'KNET',
                         multibanco: 'Multibanco',
                         p24: 'Przelewy24',
-                        paypal: 'PayPal',
                         klarna: 'Klarna',
                         alipay_cn: 'Alipay CN',
                         alipay_hk: 'Alipay HK',
