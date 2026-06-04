@@ -26,11 +26,12 @@ define(
     function (ko, Component, Url, FlowLoader, Utilities, AdditionalValidators, FullScreenLoader) {
         'use strict';
 
-        // Maps each standalone wallet payment method to its Flow SDK component type and
-        // to the config key used for 3DS lookup.
+        // Maps each standalone Flow payment method (rendered with its own pay button) to its
+        // Flow SDK component type and to the config key used for 3DS lookup.
         const WALLET_MAP = {
             'checkoutcom_flow_google_pay': { sdkType: 'googlepay', configKey: 'checkoutcom_google_pay' },
-            'checkoutcom_flow_apple_pay':  { sdkType: 'applepay',  configKey: 'checkoutcom_apple_pay' }
+            'checkoutcom_flow_apple_pay':  { sdkType: 'applepay',  configKey: 'checkoutcom_apple_pay' },
+            'checkoutcom_flow_paypal':     { sdkType: 'paypal',    configKey: 'checkoutcom_paypal' }
         };
 
         return Component.extend(

@@ -38,6 +38,10 @@ define(
                 component: 'CheckoutCom_Magento2/js/flow/view/payment/checkoutcom_flow_wallet'
             },
             {
+                type: 'checkoutcom_flow_paypal',
+                component: 'CheckoutCom_Magento2/js/flow/view/payment/checkoutcom_flow_wallet'
+            },
+            {
                 type: 'checkoutcom_vault',
                 component: 'CheckoutCom_Magento2/js/frames/view/payment/method-renderer/checkoutcom_vault'
             }
