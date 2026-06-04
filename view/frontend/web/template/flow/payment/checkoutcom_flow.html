@@ -75,12 +75,14 @@
         <div class="cko-flow-methods cko-nested-list">
             <!-- Card -->
             <div class="cko-flow-method" data-bind="visible: cardAvailable">
-                <label class="cko-flow-method-radio">
+                <label for="cko-flow-card" class="cko-flow-method-radio">
                     <input type="radio"
+                           id="cko-flow-card"
                            name="cko-flow-method"
                            value="card"
+                           aria-label="Credit / Debit Card"
                            data-bind="checked: selectedFlowMethod" />
-                    <span data-bind="i18n: 'Credit / Debit Card'"></span>
+                    <span data-bind="i18n: 'Credit / Debit Card'">Credit / Debit Card</span>
                 </label>
                 <div id="flow-card-container"
                      class="cko-method-container cko-card"
@@ -90,10 +92,10 @@
             <!-- One radio per available APM (iDEAL, Klarna, PayPal, SEPA, ...) -->
             <!-- ko foreach: availableApms -->
             <div class="cko-flow-method">
-                <label class="cko-flow-method-radio">
+                <label class="cko-flow-method-radio" data-bind="attr: {for: 'cko-flow-' + type}">
                     <input type="radio"
                            name="cko-flow-method"
-                           data-bind="checked: $parent.selectedFlowMethod, value: type, attr: {id: 'cko-flow-' + type}" />
+                           data-bind="checked: $parent.selectedFlowMethod, value: type, attr: {id: 'cko-flow-' + type, 'aria-label': label}" />
                     <span data-bind="text: label"></span>
                 </label>
                 <div class="cko-method-container"

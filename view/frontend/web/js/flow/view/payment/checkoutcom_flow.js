@@ -57,11 +57,9 @@ define(
                     },
                     currentMethod: null,
                     currentCountryCode: null,
-                    // Custom radio selector state: which Flow method is selected, and per-method availability
+                    // Custom radio selector state: which Flow method is selected, and card availability.
                     selectedFlowMethod: ko.observable(null),
                     cardAvailable: ko.observable(false),
-                    googlePayAvailable: ko.observable(false),
-                    applePayAvailable: ko.observable(false),
                     // One entry per available APM: {type, label} — renders a radio row each.
                     availableApms: ko.observableArray([]),
                 },
@@ -101,7 +99,6 @@ define(
 
                 initEvents: function () {
                     this.isLoading = true;
-                    this.bindRadioAlignment();
                     this.loadFlow();
 
                     if (Utilities.getBillingAddress().country_id) {
@@ -132,57 +129,6 @@ define(
                             window.currentGrandTotal = newGrandTotal;
                         }
                     }, null, 'change');
-                },
-
-                /**
-                 * Theme-independent radio alignment: read the active theme's actual computed
-                 * left padding on .payment-method-content and expose it as the --cko-pm-content-pad
-                 * CSS variable, which the template uses to offset the child radios so they line up
-                 * with the native payment-method radios on ANY theme (and at any breakpoint).
-                 */
-                syncRadioAlignment: function () {
-                    try {
-                        const container = document.getElementById(this.getCode() + '_container');
-
-                        if (!container) {
-                            return;
-                        }
-
-                        const content = container.querySelector('.payment-method-content');
-
-                        if (!content) {
-                            return;
-                        }
-
-                        const paddingLeft = window.getComputedStyle(content).paddingLeft || '0px';
-                        container.style.setProperty('--cko-pm-content-pad', paddingLeft);
-                    } catch (e) {
-                        Utilities.log(e);
-                    }
-                },
-
-                /**
-                 * Measure alignment once on render (deferred so theme CSS is applied) and keep it in
-                 * sync on viewport resize, since the content padding can change between breakpoints.
-                 */
-                bindRadioAlignment: function () {
-                    const self = this;
-
-                    setTimeout(function () {
-                        self.syncRadioAlignment();
-                    }, 0);
-
-                    if (!this._radioAlignBound) {
-                        this._radioAlignBound = true;
-
-                        let resizeTimer = null;
-                        window.addEventListener('resize', function () {
-                            clearTimeout(resizeTimer);
-                            resizeTimer = setTimeout(function () {
-                                self.syncRadioAlignment();
-                            }, 150);
-                        });
-                    }
                 },
 
                 /**
@@ -220,7 +166,7 @@ define(
                 placeOrder: function () {
                     // The "Place Order" button only drives the card component.
                     // Google Pay / Apple Pay render their own native buttons and submit themselves.
-                    if (Utilities.methodIsSelected(METHOD_ID) && this.flowComponents && this.flowComponents.card) {
+                    if (Utilities.methodIsSelected(METHOD_ID) && this.flowComponents?.card) {
                         this.flowComponents.card.submit();
                     }
                 },
@@ -232,24 +178,16 @@ define(
                  * @returns {Promise<void>}
                  */
                 loadFlow: function () {
-                    const self = this;
-
                     if (!this._flowReloadBound) {
                         this._flowReloadBound = true;
-                        FlowLoader.onReload(function (checkout, data) {
-                            self.buildComponents(checkout, data);
-                        });
+                        FlowLoader.onReload((checkout, data) => this.buildComponents(checkout, data));
                     }
 
                     return FlowLoader.load()
-                        .then(function (result) {
-                            return self.buildComponents(result.checkout, result.data);
-                        })
-                        .catch(function (e) {
-                            self.showErrorMessage(e);
-                        })
-                        .finally(function () {
-                            self.isLoading = false;
+                        .then((result) => this.buildComponents(result.checkout, result.data))
+                        .catch((e) => this.showErrorMessage(e))
+                        .finally(() => {
+                            this.isLoading = false;
                         });
                 },
 
@@ -275,7 +213,7 @@ define(
                     // Clear anything from a previous build (e.g. after a session reload).
                     this.unmountAllComponents();
 
-                    this.paymentSessionId = data && data.paymentSession ? data.paymentSession.id : null;
+                    this.paymentSessionId = data?.paymentSession?.id ?? null;
                     this.checkout = checkout;
                     this.flowComponentInstances = {};
                     this.mountedComponents = {};
@@ -359,19 +297,16 @@ define(
                  * @returns {Object}
                  */
                 sharedComponentOptions: function (extraOptions) {
-                    const self = this;
-
-                    return Object.assign({
-                        handleSubmit: async (_self, submitData) => {
-                            return self.submitPaymentWithReference(_self, submitData);
-                        },
-                        onPaymentCompleted: async (_self, paymentResponse) => {
+                    return {
+                        handleSubmit: (_self, submitData) => this.submitPaymentWithReference(_self, submitData),
+                        onPaymentCompleted: (_self, paymentResponse) => {
                             if (paymentResponse.status === "Approved") {
-                                Utilities.redirectCompletedPayment(paymentResponse.id, self.reference);
+                                Utilities.redirectCompletedPayment(paymentResponse.id, this.reference);
                             }
                             FullScreenLoader.stopLoader();
-                        }
-                    }, extraOptions || {});
+                        },
+                        ...(extraOptions || {})
+                    };
                 },
 
                 /**
@@ -384,7 +319,6 @@ define(
                  * @returns {Promise<void>}
                  */
                 probeApms: async function () {
-                    const self = this;
                     const APM_TYPES = [
                         'ideal', 'sepa', 'eps', 'knet', 'multibanco', 'p24', 'paypal', 'klarna',
                         'alipay_cn', 'alipay_hk', 'dana', 'gcash', 'tng', 'truemoney', 'kakaopay',
@@ -401,14 +335,16 @@ define(
 
                     const probes = APM_TYPES.map(async (type) => {
                         try {
-                            const component = self.checkout.create(type, self.sharedComponentOptions({ showPayButton: true }));
+                            const component = this.checkout.create(type, this.sharedComponentOptions({ showPayButton: true }));
                             const available = typeof component.isAvailable === 'function'
                                 ? await component.isAvailable()
                                 : true;
 
                             return available ? { type: type, component: component } : null;
                         } catch (e) {
-                            // Type not configured/supported for this account — skip silently.
+                            // Type not configured/supported for this account — skip.
+                            Utilities.log(e);
+
                             return null;
                         }
                     });
@@ -417,11 +353,11 @@ define(
                     const list = [];
 
                     results.forEach((apm) => {
-                        self.flowComponentInstances[apm.type] = {
+                        this.flowComponentInstances[apm.type] = {
                             component: apm.component,
                             containerId: 'flow-apm-' + apm.type
                         };
-                        list.push({ type: apm.type, label: self.apmLabel(apm.type) });
+                        list.push({ type: apm.type, label: this.apmLabel(apm.type) });
                     });
 
                     this.availableApms(list);
@@ -616,12 +552,6 @@ define(
                     });
 
                     document.querySelector('body').dispatchEvent(cardEvent);
-                },
-
-                shouldDisplayCardholderName: function() {
-                    let displayCardholderName = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_card_payment?.display_cardholder_name;
-
-                    return Number(displayCardholderName) === 0 ? 'hidden' : 'top';
                 }
             }
         );

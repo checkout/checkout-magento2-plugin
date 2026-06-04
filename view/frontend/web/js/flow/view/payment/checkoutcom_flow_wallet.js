@@ -15,7 +15,6 @@
 
 define(
     [
-        'jquery',
         'ko',
         'Magento_Checkout/js/view/payment/default',
         'mage/url',
@@ -24,7 +23,7 @@ define(
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/full-screen-loader'
     ],
-    function ($, ko, Component, Url, FlowLoader, Utilities, AdditionalValidators, FullScreenLoader) {
+    function (ko, Component, Url, FlowLoader, Utilities, AdditionalValidators, FullScreenLoader) {
         'use strict';
 
         // Maps each standalone wallet payment method to its Flow SDK component type and
@@ -40,7 +39,7 @@ define(
                     template: 'CheckoutCom_Magento2/flow/payment/checkoutcom_flow_wallet',
                     // The whole method row is hidden until the wallet is confirmed available
                     // (e.g. Apple Pay only on Safari/Apple devices).
-                    walletAvailable: ko.observable(false),
+                    walletAvailable: ko.observable(false)
                 },
                 reference: null,
                 paymentSessionId: null,
@@ -76,24 +75,16 @@ define(
                  * @returns {Promise<void>}
                  */
                 loadFlow: function () {
-                    const self = this;
-
                     if (!this._flowReloadBound) {
                         this._flowReloadBound = true;
-                        FlowLoader.onReload(function (checkout, data) {
-                            self.buildComponent(checkout, data);
-                        });
+                        FlowLoader.onReload((checkout, data) => this.buildComponent(checkout, data));
                     }
 
                     return FlowLoader.load()
-                        .then(function (result) {
-                            return self.buildComponent(result.checkout, result.data);
-                        })
-                        .catch(function (e) {
-                            Utilities.log(e);
-                        })
-                        .finally(function () {
-                            self.isLoading = false;
+                        .then((result) => this.buildComponent(result.checkout, result.data))
+                        .catch((e) => Utilities.log(e))
+                        .finally(() => {
+                            this.isLoading = false;
                         });
                 },
 
@@ -105,23 +96,20 @@ define(
                  * @returns {Promise<void>}
                  */
                 buildComponent: async function (checkout, data) {
-                    const self = this;
                     const walletType = this.getWalletType();
 
                     if (!walletType || !checkout) {
                         return;
                     }
 
-                    this.paymentSessionId = data && data.paymentSession ? data.paymentSession.id : null;
+                    this.paymentSessionId = data?.paymentSession?.id ?? null;
 
                     const component = checkout.create(walletType, {
                         showPayButton: true,
-                        handleSubmit: async (_self, submitData) => {
-                            return self.submitPaymentWithReference(_self, submitData);
-                        },
-                        onPaymentCompleted: async (_self, paymentResponse) => {
+                        handleSubmit: (_self, submitData) => this.submitPaymentWithReference(_self, submitData),
+                        onPaymentCompleted: (_self, paymentResponse) => {
                             if (paymentResponse.status === 'Approved') {
-                                Utilities.redirectCompletedPayment(paymentResponse.id, self.reference);
+                                Utilities.redirectCompletedPayment(paymentResponse.id, this.reference);
                             }
                             FullScreenLoader.stopLoader();
                         }
@@ -138,27 +126,28 @@ define(
                         Utilities.log(e);
                     }
 
-                    if (isAvailable) {
-                        // Unmount a previous instance (e.g. after a session reload) before remounting.
-                        if (this.walletComponent && typeof this.walletComponent.unmount === 'function') {
-                            try {
-                                this.walletComponent.unmount();
-                            } catch (e) {
-                                Utilities.log(e);
-                            }
-                        }
-
-                        this.walletComponent = component;
-                        this.walletAvailable(true);
-
-                        const container = document.getElementById(this.getCode() + '_wallet_container');
-
-                        if (container) {
-                            container.innerHTML = '';
-                            component.mount(container);
-                        }
-                    } else {
+                    if (!isAvailable) {
                         this.walletAvailable(false);
+                        return;
+                    }
+
+                    // Unmount a previous instance (e.g. after a session reload) before remounting.
+                    if (typeof this.walletComponent?.unmount === 'function') {
+                        try {
+                            this.walletComponent.unmount();
+                        } catch (e) {
+                            Utilities.log(e);
+                        }
+                    }
+
+                    this.walletComponent = component;
+                    this.walletAvailable(true);
+
+                    const container = document.getElementById(this.getCode() + '_wallet_container');
+
+                    if (container) {
+                        container.innerHTML = '';
+                        component.mount(container);
                     }
                 },
 
@@ -170,8 +159,7 @@ define(
                  * @param {Object} submitData - contains session_data
                  * @returns {Promise<Object>}
                  */
-                submitPaymentWithReference: function (walletSelf, submitData) {
-                    const self = this;
+                submitPaymentWithReference: async function (walletSelf, submitData) {
                     const methodId = this.getCode();
                     const payload = {
                         methodId: methodId,
@@ -181,57 +169,56 @@ define(
                     if (!AdditionalValidators.validate()) {
                         FullScreenLoader.stopLoader();
 
-                        return Promise.reject(new Error('Validation failed'));
+                        throw new Error('Validation failed');
                     }
 
                     FullScreenLoader.startLoader();
 
-                    const has3DS = this.get3DSInfos();
+                    const orderResponse = await Utilities.placeOrder(payload, methodId, false, this.get3DSInfos());
 
-                    return Utilities.placeOrder(payload, methodId, false, has3DS)
-                        .then(function (orderResponse) {
-                            if (!orderResponse || !orderResponse.success) {
-                                FullScreenLoader.stopLoader();
-                                if (orderResponse && orderResponse.message) {
-                                    self.showMessage('error', orderResponse.message, methodId);
-                                }
-                                return Promise.reject(orderResponse || new Error('Place order failed'));
-                            }
+                    if (!orderResponse?.success) {
+                        FullScreenLoader.stopLoader();
 
-                            self.reference = orderResponse.reference || null;
-                            Utilities.cleanCustomerShippingAddress();
+                        if (orderResponse?.message) {
+                            this.showMessage('error', orderResponse.message);
+                        }
 
-                            if (!self.paymentSessionId || !submitData?.session_data || !self.reference) {
-                                FullScreenLoader.stopLoader();
+                        throw orderResponse ?? new Error('Place order failed');
+                    }
 
-                                return Promise.reject(new Error('Missing session or reference'));
-                            }
+                    this.reference = orderResponse.reference || null;
+                    Utilities.cleanCustomerShippingAddress();
 
-                            const formKey = (document.querySelector('input[name="form_key"]') || {}).value;
-                            const submitUrl = Url.build('checkout_com/flow/submit')
-                                + (formKey ? '?form_key=' + encodeURIComponent(formKey) : '');
+                    if (!this.paymentSessionId || !submitData?.session_data || !this.reference) {
+                        FullScreenLoader.stopLoader();
 
-                            return fetch(submitUrl, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    session_id: self.paymentSessionId,
-                                    session_data: submitData.session_data,
-                                    reference: self.reference
-                                })
-                            });
+                        throw new Error('Missing session or reference');
+                    }
+
+                    const formKey = (document.querySelector('input[name="form_key"]') || {}).value;
+                    const submitUrl = Url.build('checkout_com/flow/submit')
+                        + (formKey ? '?form_key=' + encodeURIComponent(formKey) : '');
+
+                    const submitResponse = await fetch(submitUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            session_id: this.paymentSessionId,
+                            session_data: submitData.session_data,
+                            reference: this.reference
                         })
-                        .then(function (submitResponse) {
-                            return submitResponse.json().then(function (responseData) {
-                                if (!submitResponse.ok || responseData.error) {
-                                    FullScreenLoader.stopLoader();
-                                    self.showMessage('error', responseData.message || 'Payment submit failed', methodId);
+                    });
 
-                                    return Promise.reject(responseData);
-                                }
-                                return responseData;
-                            });
-                        });
+                    const responseData = await submitResponse.json();
+
+                    if (!submitResponse.ok || responseData.error) {
+                        FullScreenLoader.stopLoader();
+                        this.showMessage('error', responseData.message || 'Payment submit failed');
+
+                        throw responseData;
+                    }
+
+                    return responseData;
                 },
 
                 /**
@@ -240,17 +227,13 @@ define(
                  */
                 get3DSInfos: function () {
                     const map = WALLET_MAP[this.getCode()];
-                    const info = map && window.checkoutConfig.payment.checkoutcom_magento2[map.configKey];
+                    const info = map ? globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.[map.configKey] : null;
 
-                    if (!info) {
-                        return false;
-                    }
-
-                    return !!(info.three_ds && info.three_ds === '1');
+                    return !!(info && info.three_ds === '1');
                 },
 
                 /**
-                 * Show a message in this method's message area (falls back to global).
+                 * Show a message in this method's message area.
                  */
                 showMessage: function (type, message) {
                     Utilities.showMessage(type, message, this.getCode());

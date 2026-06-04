@@ -43,11 +43,11 @@ define(
          */
         function buildPrepareUrl() {
             const baseUrl = Url.build('checkout_com/flow/prepare'),
-                applePay = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apple_pay,
+                applePay = globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apple_pay,
                 merchantId = applePay?.merchant_id,
-                applePaySession = window.ApplePaySession,
-                separatorUrl = baseUrl.indexOf('?') >= 0 ? '&' : '?',
-                isFlowApplePayOnAllBrowser = applePay && applePay.flow_enabled_on_all_browsers === '1';
+                applePaySession = globalThis.ApplePaySession,
+                separatorUrl = baseUrl.includes('?') ? '&' : '?',
+                isFlowApplePayOnAllBrowser = applePay?.flow_enabled_on_all_browsers === '1';
             let isNative = '0';
 
             if (isFlowApplePayOnAllBrowser) {
@@ -63,12 +63,6 @@ define(
             }
 
             return baseUrl + separatorUrl + 'flow_apple_pay_is_native=' + isNative;
-        }
-
-        function shouldDisplayCardholderName() {
-            const value = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_card_payment?.display_cardholder_name;
-
-            return Number(value) === 0 ? 'hidden' : 'top';
         }
 
         /**
@@ -104,12 +98,16 @@ define(
                     appearance: appearance,
                     componentOptions: {
                         flow: { showPayButton: false },
-                        card: { displayCardholderName: shouldDisplayCardholderName() }
+                        card: {
+                            displayCardholderName: Number(
+                                globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_card_payment?.display_cardholder_name
+                            ) === 0 ? 'hidden' : 'top'
+                        }
                     },
-                    onError: function (component, error) {
+                    onError: (component, error) => {
                         const paymentId = error.details?.paymentSessionId;
 
-                        Utilities.log('Flow error with payment method ' + (component && component.type), error);
+                        Utilities.log('Flow error with payment method ' + component?.type, error);
                         FullScreenLoader.stopLoader();
 
                         if (paymentId) {
@@ -181,7 +179,7 @@ define(
              * @returns {string|null} the shared payment session id
              */
             getSessionId: function () {
-                return sharedData && sharedData.paymentSession ? sharedData.paymentSession.id : null;
+                return sharedData?.paymentSession?.id ?? null;
             }
         };
     }
