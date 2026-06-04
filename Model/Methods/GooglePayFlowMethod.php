@@ -44,9 +44,10 @@ class GooglePayFlowMethod extends FlowMethod
     protected $code = self::CODE;
 
     /**
-     * Available only when Google Pay is enabled in the plugin configuration
-     * (payment/checkoutcom_google_pay/active), in addition to the Flow availability checks.
-     * This keeps the Flow Google Pay method tied to the merchant's existing Google Pay toggle.
+     * Available only when Google Pay is enabled (payment/checkoutcom_google_pay/active) AND configured
+     * to display outside the Flow (payment/checkoutcom_google_pay/flow_standalone), in addition to the
+     * Flow availability checks. When flow_standalone is off, Google Pay is rendered inside the
+     * "Pay with Checkout.com" method instead, so this standalone method must not appear.
      *
      * @param CartInterface|null $quote
      * @return bool
@@ -57,9 +58,7 @@ class GooglePayFlowMethod extends FlowMethod
             return false;
         }
 
-        return $this->scopeConfig->isSetFlag(
-            'payment/checkoutcom_google_pay/active',
-            ScopeInterface::SCOPE_STORE
-        );
+        return $this->scopeConfig->isSetFlag('payment/checkoutcom_google_pay/active', ScopeInterface::SCOPE_STORE)
+            && $this->scopeConfig->isSetFlag('payment/checkoutcom_google_pay/flow_standalone', ScopeInterface::SCOPE_STORE);
     }
 }

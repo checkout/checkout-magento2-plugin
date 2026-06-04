@@ -44,9 +44,10 @@ class PaypalFlowMethod extends FlowMethod
     protected $code = self::CODE;
 
     /**
-     * Available only when PayPal is enabled in the plugin configuration
-     * (payment/checkoutcom_paypal/active), in addition to the Flow availability checks.
-     * This keeps the Flow PayPal method tied to the merchant's existing PayPal toggle.
+     * Available only when PayPal is enabled (payment/checkoutcom_paypal/active) AND configured to
+     * display outside the Flow (payment/checkoutcom_paypal/flow_standalone), in addition to the Flow
+     * availability checks. When flow_standalone is off, PayPal is rendered inside the
+     * "Pay with Checkout.com" method instead, so this standalone method must not appear.
      *
      * @param CartInterface|null $quote
      * @return bool
@@ -57,9 +58,7 @@ class PaypalFlowMethod extends FlowMethod
             return false;
         }
 
-        return $this->scopeConfig->isSetFlag(
-            'payment/checkoutcom_paypal/active',
-            ScopeInterface::SCOPE_STORE
-        );
+        return $this->scopeConfig->isSetFlag('payment/checkoutcom_paypal/active', ScopeInterface::SCOPE_STORE)
+            && $this->scopeConfig->isSetFlag('payment/checkoutcom_paypal/flow_standalone', ScopeInterface::SCOPE_STORE);
     }
 }

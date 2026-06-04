@@ -232,8 +232,10 @@ define(
                     });
                     await this.probeApms();
 
-                    // Google Pay / Apple Pay are NOT handled here — they are their own standalone
-                    // Magento payment methods (checkoutcom_flow_google_pay / _apple_pay).
+                    // Wallets configured to display INSIDE the Flow (flow_standalone = No) are added
+                    // to the same nested list. Wallets configured "outside" are handled by their own
+                    // standalone Magento methods (checkoutcom_flow_google_pay / _apple_pay / _paypal).
+                    await this.probeInsideWallets();
 
                     // Default the radio selection to Card (or the first available APM), then mount it.
                     // Subsequent switches are handled by the observable subscription.
@@ -371,6 +373,61 @@ define(
 
                     this.availableApms(list);
                     this.logUnavailableApms(unavailable);
+                },
+
+                /**
+                 * Add wallets configured to display INSIDE the Flow (admin: Display as a separate
+                 * payment method = No) to the main nested list, rendered like any other method (own
+                 * radio + native pay button on selection). Wallets set to display outside are skipped
+                 * here — they are surfaced by their own standalone Magento methods.
+                 *
+                 * @returns {Promise<void>}
+                 */
+                probeInsideWallets: async function () {
+                    if (!this.checkout) {
+                        return;
+                    }
+
+                    const cfg = globalThis.checkoutConfig?.payment?.checkoutcom_magento2 || {};
+                    const wallets = [
+                        { type: 'googlepay', configKey: 'checkoutcom_google_pay', label: 'Google Pay' },
+                        { type: 'applepay', configKey: 'checkoutcom_apple_pay', label: 'Apple Pay' },
+                        { type: 'paypal', configKey: 'checkoutcom_paypal', label: 'PayPal' }
+                    ];
+
+                    // Enabled (active === '1') AND set to display inside the Flow (flow_standalone !== '1').
+                    const inside = wallets.filter((wallet) => {
+                        const walletConfig = cfg[wallet.configKey];
+
+                        return walletConfig && walletConfig.active === '1' && walletConfig.flow_standalone !== '1';
+                    });
+
+                    if (!inside.length) {
+                        return;
+                    }
+
+                    const probes = inside.map(async (wallet) => {
+                        try {
+                            const component = this.checkout.create(wallet.type, this.sharedComponentOptions({ showPayButton: true }));
+                            const available = typeof component.isAvailable === 'function'
+                                ? await component.isAvailable()
+                                : true;
+
+                            return available ? { type: wallet.type, component: component, label: wallet.label } : null;
+                        } catch (e) {
+                            Utilities.log(e);
+
+                            return null;
+                        }
+                    });
+
+                    (await Promise.all(probes)).filter(Boolean).forEach((wallet) => {
+                        this.flowComponentInstances[wallet.type] = {
+                            component: wallet.component,
+                            containerId: 'flow-apm-' + wallet.type
+                        };
+                        this.availableApms.push({ type: wallet.type, label: wallet.label });
+                    });
                 },
 
                 /**

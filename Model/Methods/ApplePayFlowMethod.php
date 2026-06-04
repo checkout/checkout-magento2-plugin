@@ -44,9 +44,10 @@ class ApplePayFlowMethod extends FlowMethod
     protected $code = self::CODE;
 
     /**
-     * Available only when Apple Pay is enabled in the plugin configuration
-     * (payment/checkoutcom_apple_pay/active), in addition to the Flow availability checks.
-     * This keeps the Flow Apple Pay method tied to the merchant's existing Apple Pay toggle.
+     * Available only when Apple Pay is enabled (payment/checkoutcom_apple_pay/active) AND configured
+     * to display outside the Flow (payment/checkoutcom_apple_pay/flow_standalone), in addition to the
+     * Flow availability checks. When flow_standalone is off, Apple Pay is rendered inside the
+     * "Pay with Checkout.com" method instead, so this standalone method must not appear.
      *
      * @param CartInterface|null $quote
      * @return bool
@@ -57,9 +58,7 @@ class ApplePayFlowMethod extends FlowMethod
             return false;
         }
 
-        return $this->scopeConfig->isSetFlag(
-            'payment/checkoutcom_apple_pay/active',
-            ScopeInterface::SCOPE_STORE
-        );
+        return $this->scopeConfig->isSetFlag('payment/checkoutcom_apple_pay/active', ScopeInterface::SCOPE_STORE)
+            && $this->scopeConfig->isSetFlag('payment/checkoutcom_apple_pay/flow_standalone', ScopeInterface::SCOPE_STORE);
     }
 }
