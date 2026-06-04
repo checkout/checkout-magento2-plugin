@@ -26,9 +26,8 @@ define(
         'Magento_Checkout/js/model/full-screen-loader',
         'Magento_Checkout/js/model/step-navigator',
         'Magento_Checkout/js/model/quote',
-        'Magento_Checkout/js/model/payment/method-list',
     ],
-    function ($, ko, Component, Customer, Url, FlowLoader, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator, Quote, paymentMethodList) {
+    function ($, ko, Component, Customer, Url, FlowLoader, Utilities, AdditionalValidators, FullScreenLoader, StepNavigator, Quote) {
         'use strict';
         window.checkoutConfig.reloadOnBillingAddress = true;
         const METHOD_ID = 'checkoutcom_flow';
@@ -396,32 +395,24 @@ define(
                         return;
                     }
 
-                    const cfg = globalThis.checkoutConfig?.payment?.checkoutcom_magento2 || {};
-                    const wallets = [
-                        { type: 'googlepay', configKey: 'checkoutcom_google_pay', standaloneCode: 'checkoutcom_flow_google_pay', label: 'Google Pay' },
-                        { type: 'applepay', configKey: 'checkoutcom_apple_pay', standaloneCode: 'checkoutcom_flow_apple_pay', label: 'Apple Pay' },
-                        { type: 'paypal', configKey: 'checkoutcom_paypal', standaloneCode: 'checkoutcom_flow_paypal', label: 'PayPal' }
-                    ];
+                    const labels = {
+                        googlepay: 'Google Pay',
+                        applepay: 'Apple Pay',
+                        paypal: 'PayPal'
+                    };
 
-                    // SINGLE SOURCE OF TRUTH for inside-vs-outside: a wallet renders INSIDE the Flow
-                    // only when its standalone Magento method (checkoutcom_flow_<wallet>) is NOT in the
-                    // list of available payment methods — i.e. Magento decided not to show it outside.
-                    // That decision is made server-side by the standalone method's isAvailable()
-                    // (enabled + flow_standalone). Deriving "inside" from it (instead of re-reading
-                    // flow_standalone here) makes the two placements mutually exclusive by construction,
-                    // regardless of config caching/exposure — a wallet can never appear in both.
-                    const standaloneShownOutside = {};
-                    (paymentMethodList() || []).forEach((paymentMethod) => {
-                        standaloneShownOutside[paymentMethod.method] = true;
-                    });
+                    // SINGLE SOURCE OF TRUTH for inside-vs-outside: the BACKEND computes which wallets
+                    // belong inside (enabled AND flow_standalone = No) and exposes them in
+                    // checkoutConfig as checkoutcom_data.flow_inside_wallets. The standalone wallet
+                    // methods (outside) are the exact complement (enabled AND flow_standalone = Yes),
+                    // computed from the same scopeConfig. The frontend renders exactly this list — it
+                    // does not re-derive the decision — so a wallet can never appear both inside and
+                    // outside, with no dependency on config caching, exposure, or method-list timing.
+                    const insideTypes = (globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_data?.flow_inside_wallets) || [];
 
-                    const inside = wallets.filter((wallet) => {
-                        const walletConfig = cfg[wallet.configKey];
-
-                        return walletConfig
-                            && walletConfig.active === '1'
-                            && !standaloneShownOutside[wallet.standaloneCode];
-                    });
+                    const inside = insideTypes
+                        .filter((type) => labels[type])
+                        .map((type) => ({ type: type, label: labels[type] }));
 
                     if (!inside.length) {
                         return;

@@ -286,6 +286,38 @@ class Config
     }
 
     /**
+     * Flow SDK component types of the wallets that should render INSIDE the Flow method
+     * ("Pay with Checkout.com"), i.e. enabled AND NOT set to display as a separate method
+     * (payment/checkoutcom_<wallet>/flow_standalone = No). This is the authoritative,
+     * server-side counterpart to the standalone wallet methods' isAvailable() (enabled AND
+     * flow_standalone = Yes): a wallet is in exactly one of the two sets, so it can never
+     * render both inside and outside the Flow.
+     *
+     * @return string[]
+     */
+    public function getFlowInsideWallets(): array
+    {
+        $wallets = [
+            'checkoutcom_google_pay' => 'googlepay',
+            'checkoutcom_apple_pay' => 'applepay',
+            'checkoutcom_paypal' => 'paypal',
+        ];
+
+        $inside = [];
+
+        foreach ($wallets as $code => $sdkType) {
+            $active = $this->scopeConfig->isSetFlag('payment/' . $code . '/active', ScopeInterface::SCOPE_STORE);
+            $standalone = $this->scopeConfig->isSetFlag('payment/' . $code . '/flow_standalone', ScopeInterface::SCOPE_STORE);
+
+            if ($active && !$standalone) {
+                $inside[] = $sdkType;
+            }
+        }
+
+        return $inside;
+    }
+
+    /**
      * Check if payment processing is with order creation first.
      *
      * @return bool
