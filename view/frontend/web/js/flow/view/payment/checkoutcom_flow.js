@@ -395,11 +395,16 @@ define(
                         { type: 'paypal', configKey: 'checkoutcom_paypal', label: 'PayPal' }
                     ];
 
-                    // Enabled (active === '1') AND set to display inside the Flow (flow_standalone !== '1').
+                    // Enabled (active === '1') AND EXPLICITLY set to display inside the Flow
+                    // (flow_standalone === '0'). A missing/unset value falls back to OUTSIDE to match
+                    // the backend default (config.xml flow_standalone = 1) and the standalone method's
+                    // isAvailable() — otherwise a wallet left at its default would render both inside
+                    // (here) and outside (standalone method), since the default isn't always present
+                    // in checkoutConfig until saved in admin.
                     const inside = wallets.filter((wallet) => {
                         const walletConfig = cfg[wallet.configKey];
 
-                        return walletConfig && walletConfig.active === '1' && walletConfig.flow_standalone !== '1';
+                        return walletConfig && walletConfig.active === '1' && walletConfig.flow_standalone === '0';
                     });
 
                     if (!inside.length) {
