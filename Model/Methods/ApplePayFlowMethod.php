@@ -19,10 +19,13 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\ScopeInterface;
+
 /**
  * Flow-based Apple Pay as a standalone Magento payment method (its own radio in the
- * payment list). Reuses all of FlowMethod's capture/void/refund/availability logic; only
- * the payment method code differs so Magento treats it as a separate method.
+ * payment list). Reuses all of FlowMethod's capture/void/refund logic; only the payment
+ * method code differs so Magento treats it as a separate method.
  */
 class ApplePayFlowMethod extends FlowMethod
 {
@@ -39,4 +42,24 @@ class ApplePayFlowMethod extends FlowMethod
      * @var string $code
      */
     protected $code = self::CODE;
+
+    /**
+     * Available only when Apple Pay is enabled in the plugin configuration
+     * (payment/checkoutcom_apple_pay/active), in addition to the Flow availability checks.
+     * This keeps the Flow Apple Pay method tied to the merchant's existing Apple Pay toggle.
+     *
+     * @param CartInterface|null $quote
+     * @return bool
+     */
+    public function isAvailable(?CartInterface $quote = null): bool
+    {
+        if (!parent::isAvailable($quote)) {
+            return false;
+        }
+
+        return $this->scopeConfig->isSetFlag(
+            'payment/checkoutcom_apple_pay/active',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
 }
