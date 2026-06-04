@@ -310,30 +310,33 @@ define(
                 },
 
                 /**
-                 * Probe every APM type the Flow SDK supports and keep the ones available for this
-                 * session/cart. Each available APM is registered as its own component+container
-                 * (key = APM type, container 'flow-apm-<type>') and added to the availableApms
-                 * observableArray so the template renders a radio row per APM. Wallets
-                 * (googlepay/applepay) are handled separately as their own radios.
+                 * Probe the APMs the merchant has enabled for Flow in the BACKEND
+                 * (payment/checkoutcom_apm/apm_flow_enabled) and keep the ones the CKO session also
+                 * reports as available. We only call CKO's isAvailable() server check for the
+                 * backend-enabled list — not for every SDK type. Each kept APM is registered as its
+                 * own component+container ('flow-apm-<type>') and added to availableApms so the
+                 * template renders a radio row per APM. Wallets are handled separately.
                  *
                  * @returns {Promise<void>}
                  */
                 probeApms: async function () {
-                    const APM_TYPES = [
-                        'ideal', 'sepa', 'eps', 'knet', 'multibanco', 'p24', 'paypal', 'klarna',
-                        'alipay_cn', 'alipay_hk', 'dana', 'gcash', 'tng', 'truemoney', 'kakaopay',
-                        'stcpay', 'benefit', 'qpay', 'mbway', 'alma', 'tamara', 'tabby', 'twint',
-                        'plaid', 'vipps', 'mobilepay', 'bizum', 'wechatpay', 'paynow', 'octopus',
-                        'swish', 'blik'
-                    ];
-
                     this.availableApms([]);
 
                     if (!this.checkout) {
                         return;
                     }
 
-                    const probes = APM_TYPES.map(async (type) => {
+                    // Backend-enabled Flow APMs (comma-separated list from admin config).
+                    const enabledApms = (globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apm?.apm_flow_enabled || '')
+                        .split(',')
+                        .map((type) => type.trim())
+                        .filter(Boolean);
+
+                    if (!enabledApms.length) {
+                        return;
+                    }
+
+                    const probes = enabledApms.map(async (type) => {
                         try {
                             const component = this.checkout.create(type, this.sharedComponentOptions({ showPayButton: true }));
                             const available = typeof component.isAvailable === 'function'
@@ -342,7 +345,7 @@ define(
 
                             return available ? { type: type, component: component } : null;
                         } catch (e) {
-                            // Type not configured/supported for this account — skip.
+                            // Enabled in admin but not supported by the SDK/session — skip.
                             Utilities.log(e);
 
                             return null;
@@ -374,6 +377,7 @@ define(
                         ideal: 'iDEAL',
                         sepa: 'SEPA Direct Debit',
                         eps: 'EPS',
+                        bancontact: 'Bancontact',
                         knet: 'KNET',
                         multibanco: 'Multibanco',
                         p24: 'Przelewy24',
