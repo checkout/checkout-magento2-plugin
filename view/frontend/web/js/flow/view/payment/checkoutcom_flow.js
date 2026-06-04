@@ -515,6 +515,34 @@ define(
                 },
 
                 /**
+                 * Returns an inline SVG glyph for a method row (shown in the icon chip next to the
+                 * label), matching the native Flow list layout. These are simple generic glyphs
+                 * (card / wallet / bank); to use official brand artwork, drop SVG/PNG assets in the
+                 * module and return an <img> here instead. The official branded button still renders
+                 * below the row when the method is selected.
+                 *
+                 * @param {string} type
+                 * @returns {string} inline SVG markup
+                 */
+                methodIcon: function (type) {
+                    const card = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6">'
+                        + '<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>';
+                    const wallet = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6">'
+                        + '<rect x="2" y="6" width="20" height="13" rx="2"/><path d="M16 12.5h3"/><path d="M2 9h14"/></svg>';
+                    const bank = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6">'
+                        + '<path d="M3 9l9-5 9 5"/><path d="M4 9v9M9 9v9M15 9v9M20 9v9"/><path d="M2 20h20"/></svg>';
+
+                    const icons = {
+                        card: card,
+                        googlepay: wallet,
+                        applepay: wallet,
+                        paypal: wallet
+                    };
+
+                    return icons[type] || bank;
+                },
+
+                /**
                  * Mount the selected method's component into its container (once). Containers are
                  * shown/hidden by the KO `visible` binding tied to selectedFlowMethod.
                  *
