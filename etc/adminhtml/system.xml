@@ -601,7 +601,6 @@
                         <config_path>payment/checkoutcom_apple_pay/flow_standalone</config_path>
                         <comment>Yes: show Apple Pay as its own payment method, outside the Flow checkout. No: show it inside "Pay with Checkout.com".</comment>
                         <depends>
-                            <field id="active">1</field>
                             <field id="*/checkoutcom/module/global_settings/sdk">1</field>
                         </depends>
                     </field>
@@ -759,7 +758,6 @@
                         <config_path>payment/checkoutcom_google_pay/flow_standalone</config_path>
                         <comment>Yes: show Google Pay as its own payment method, outside the Flow checkout. No: show it inside "Pay with Checkout.com".</comment>
                         <depends>
-                            <field id="active">1</field>
                             <field id="*/checkoutcom/module/global_settings/sdk">1</field>
                         </depends>
                     </field>
@@ -853,7 +851,6 @@
                         <config_path>payment/checkoutcom_paypal/flow_standalone</config_path>
                         <comment>Yes: show PayPal as its own payment method, outside the Flow checkout. No: show it inside "Pay with Checkout.com".</comment>
                         <depends>
-                            <field id="active">1</field>
                             <field id="*/checkoutcom/module/global_settings/sdk">1</field>
                         </depends>
                     </field>

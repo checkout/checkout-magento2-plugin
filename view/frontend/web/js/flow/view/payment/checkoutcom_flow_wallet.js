@@ -55,12 +55,34 @@ define(
                 },
 
                 /**
-                 * @return {string} the Flow SDK component type ('googlepay' | 'applepay')
+                 * @return {string} the Flow SDK component type ('googlepay' | 'applepay' | 'paypal')
                  */
                 getWalletType: function () {
                     const map = WALLET_MAP[this.getCode()];
 
                     return map ? map.sdkType : null;
+                },
+
+                /**
+                 * Inline <img> of the wallet's brand logo (shipped in view/frontend/web/images/flow),
+                 * shown in the standalone method's title row. Empty string if unavailable.
+                 *
+                 * @return {string}
+                 */
+                getMethodLogo: function () {
+                    const logos = {
+                        googlepay: 'icon-googlepay.png',
+                        applepay: 'icon-applepay.png',
+                        paypal: 'icon-paypal.png'
+                    };
+                    const type = this.getWalletType();
+                    const imagesPath = globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_data?.images_path;
+
+                    if (type && logos[type] && imagesPath) {
+                        return '<img class="cko-method-logo" alt="" src="' + imagesPath + '/' + logos[type] + '" />';
+                    }
+
+                    return '';
                 },
 
                 initEvents: function () {
