@@ -343,27 +343,72 @@ define(
                                 ? await component.isAvailable()
                                 : true;
 
-                            return available ? { type: type, component: component } : null;
+                            return { type: type, component: component, available: available };
                         } catch (e) {
-                            // Enabled in admin but not supported by the SDK/session — skip.
+                            // Enabled in admin but the SDK could not create it (not supported).
                             Utilities.log(e);
 
-                            return null;
+                            return { type: type, component: null, available: false, error: e?.message || String(e) };
                         }
                     });
 
-                    const results = (await Promise.all(probes)).filter(Boolean);
+                    const results = await Promise.all(probes);
                     const list = [];
+                    const unavailable = [];
 
                     results.forEach((apm) => {
-                        this.flowComponentInstances[apm.type] = {
-                            component: apm.component,
-                            containerId: 'flow-apm-' + apm.type
-                        };
-                        list.push({ type: apm.type, label: this.apmLabel(apm.type) });
+                        if (apm.available && apm.component) {
+                            this.flowComponentInstances[apm.type] = {
+                                component: apm.component,
+                                containerId: 'flow-apm-' + apm.type
+                            };
+                            list.push({ type: apm.type, label: this.apmLabel(apm.type) });
+                        } else {
+                            // Enabled in admin (apm_flow_enabled) but Checkout.com reports it unavailable.
+                            unavailable.push(apm.error ? (apm.type + ' (' + apm.error + ')') : apm.type);
+                        }
                     });
 
                     this.availableApms(list);
+                    this.logUnavailableApms(unavailable);
+                },
+
+                /**
+                 * Surface, in the Checkout.com server log, any APM enabled in admin (Alternative
+                 * Payments for Flow) that Checkout.com reports as unavailable — so engineers can see
+                 * the config vs. availability mismatch in their logging tools.
+                 *
+                 * @param {string[]} unavailable - APM types enabled in admin but not available
+                 */
+                logUnavailableApms: function (unavailable) {
+                    if (!unavailable || !unavailable.length) {
+                        return;
+                    }
+
+                    const message = 'APMs enabled in admin (Alternative Payments for Flow) but reported '
+                        + 'unavailable by Checkout.com (isAvailable=false): ' + unavailable.join(', ');
+
+                    // Browser console (when console_logging is enabled).
+                    Utilities.log(message);
+
+                    // Server-side Checkout.com log channel, so it appears in engineers' logging tools.
+                    try {
+                        const formKey = (document.querySelector('input[name="form_key"]') || {}).value;
+                        const url = Url.build('checkout_com/flow/log')
+                            + (formKey ? '?form_key=' + encodeURIComponent(formKey) : '');
+
+                        fetch(url, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                level: 'warning',
+                                message: message,
+                                context: { unavailable: unavailable }
+                            })
+                        }).catch((e) => Utilities.log(e));
+                    } catch (e) {
+                        Utilities.log(e);
+                    }
                 },
 
                 /**
