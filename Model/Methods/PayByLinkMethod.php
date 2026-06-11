@@ -177,6 +177,8 @@ class PayByLinkMethod extends AbstractMethod
 
         // Set the transaction id from response
         $payment->setTransactionId($response['action_id']);
+
+        return $this;
     }
 
     /**
