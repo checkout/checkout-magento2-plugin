@@ -39,7 +39,7 @@ $details = json_decode($card->getTokenDetails() ?: '{}', true);
         </span>
     </div>
     <?php
-    if ($block->config->getValue('require_cvv', 'checkoutcom_vault')): ?>
+    if ($block->getConfig()->getValue('require_cvv', 'checkoutcom_vault')): ?>
         <div class="vault-cvv">
             <input type="text" name="cvv" maxlength="4" placeholder="<?= $escaper->escapeHtmlAttr(__('CVV')) ?>">
         </div>
