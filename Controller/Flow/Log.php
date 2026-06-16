@@ -64,9 +64,9 @@ class Log extends Action implements HttpPostActionInterface
             $content = $this->getRequest()->getContent();
             $data = $content ? $this->serializer->unserialize($content) : [];
 
-            $message = isset($data['message']) ? (string)$data['message'] : '';
-            $context = (isset($data['context']) && is_array($data['context'])) ? $data['context'] : [];
-            $level = isset($data['level']) ? (string)$data['level'] : 'warning';
+            $message = trim((string)($data['message'] ?? ''));
+            $context = is_array($data['context'] ?? null) ? $data['context'] : [];
+            $level   = (string)($data['level'] ?? 'warning');
 
             if ($message === '') {
                 return $result->setData(['success' => false, 'message' => __('Empty log message.')]);

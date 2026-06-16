@@ -76,7 +76,7 @@ define(
                         paypal: 'icon-paypal.png'
                     };
                     const type = this.getWalletType();
-                    const imagesPath = globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_data?.images_path;
+                    const imagesPath = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_data?.images_path;
 
                     if (type && logos[type] && imagesPath) {
                         return '<img class="cko-method-logo" alt="" src="' + imagesPath + '/' + logos[type] + '" />';
@@ -250,7 +250,7 @@ define(
                  */
                 get3DSInfos: function () {
                     const map = WALLET_MAP[this.getCode()];
-                    const info = map ? globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.[map.configKey] : null;
+                    const info = map ? window.checkoutConfig?.payment?.checkoutcom_magento2?.[map.configKey] : null;
 
                     return !!(info && info.three_ds === '1');
                 },

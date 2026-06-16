@@ -48,7 +48,6 @@ define(
                     allowPlaceOrder: ko.observable(false),
                     isCoBadged: ko.observable(false),
                     tooltipVisible: ko.observable(false),
-                    flowComponent: null,
                     isLoading: false,
                     methodNameMap: {
                         'card' : 'card_payment',
@@ -335,7 +334,7 @@ define(
                     const walletTypes = ['googlepay', 'applepay', 'paypal'];
 
                     // Backend-enabled Flow APMs (comma-separated list from admin config), minus wallets.
-                    const enabledApms = (globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apm?.apm_flow_enabled || '')
+                    const enabledApms = (window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apm?.apm_flow_enabled || '')
                         .split(',')
                         .map((type) => type.trim())
                         .filter(Boolean)
@@ -408,7 +407,7 @@ define(
                     // computed from the same scopeConfig. The frontend renders exactly this list — it
                     // does not re-derive the decision — so a wallet can never appear both inside and
                     // outside, with no dependency on config caching, exposure, or method-list timing.
-                    const insideTypes = (globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_data?.flow_inside_wallets) || [];
+                    const insideTypes = (window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_data?.flow_inside_wallets) || [];
 
                     const inside = insideTypes
                         .filter((type) => labels[type])
@@ -543,7 +542,7 @@ define(
                         applepay: 'icon-applepay.png',
                         paypal: 'icon-paypal.png'
                     };
-                    const imagesPath = globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_data?.images_path;
+                    const imagesPath = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_data?.images_path;
 
                     if (logos[type] && imagesPath) {
                         return '<img class="cko-method-logo" alt="" src="' + imagesPath + '/' + logos[type] + '" />';
