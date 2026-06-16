@@ -13,32 +13,6 @@
  */
 -->
 
-<style>
-    .cko-flow-wallet .payment-method-title .label {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .cko-flow-wallet .cko-method-icon {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 26px;
-        flex: 0 0 auto;
-        border: 1px solid #e0e0e0;
-        border-radius: 5px;
-        background: #fff;
-        padding: 2px;
-    }
-    .cko-flow-wallet .cko-method-icon .cko-method-logo {
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-        display: block;
-    }
-</style>
-
 <div class="payment-method cko-flow-wallet"
      data-bind="visible: walletAvailable, css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container', afterRender: initEvents()}">
     <div class="payment-method-title field choice">

@@ -43,9 +43,9 @@ define(
          */
         function buildPrepareUrl() {
             const baseUrl = Url.build('checkout_com/flow/prepare'),
-                applePay = globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apple_pay,
+                applePay = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apple_pay,
                 merchantId = applePay?.merchant_id,
-                applePaySession = globalThis.ApplePaySession,
+                applePaySession = window.ApplePaySession,
                 separatorUrl = baseUrl.includes('?') ? '&' : '?',
                 isFlowApplePayOnAllBrowser = applePay?.flow_enabled_on_all_browsers === '1';
             let isNative = '0';
@@ -100,7 +100,7 @@ define(
                         flow: { showPayButton: false },
                         card: {
                             displayCardholderName: Number(
-                                globalThis.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_card_payment?.display_cardholder_name
+                                window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_card_payment?.display_cardholder_name
                             ) === 0 ? 'hidden' : 'top'
                         }
                     },

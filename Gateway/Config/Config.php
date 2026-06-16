@@ -25,6 +25,7 @@ use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing;
 use CheckoutCom\Magento2\Model\Methods\FlowMethod;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
+use CheckoutCom\Magento2\Provider\FlowPaymentMethodSettings;
 use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
@@ -46,6 +47,7 @@ class Config
     private Loader $loader;
     private Utilities $utilities;
     private FlowGeneralSettings $flowSettings;
+    private FlowPaymentMethodSettings $flowPaymentMethodSettings;
     private Logger $logger;
     private LoggerInterface $nativeLogger;
 
@@ -58,6 +60,7 @@ class Config
         Utilities $utilities,
         Logger $logger,
         FlowGeneralSettings $flowSettings,
+        FlowPaymentMethodSettings $flowPaymentMethodSettings,
         LoggerInterface $nativeLogger
     ) {
         $this->assetRepository = $assetRepository;
@@ -69,6 +72,7 @@ class Config
         $this->logger = $logger;
         $this->nativeLogger = $nativeLogger;
         $this->flowSettings = $flowSettings;
+        $this->flowPaymentMethodSettings = $flowPaymentMethodSettings;
     }
 
     /**
@@ -297,21 +301,21 @@ class Config
      */
     public function getFlowInsideWallets(): array
     {
-        $wallets = [
-            'checkoutcom_google_pay' => 'googlepay',
-            'checkoutcom_apple_pay' => 'applepay',
-            'checkoutcom_paypal' => 'paypal',
-        ];
-
         $inside = [];
 
-        foreach ($wallets as $code => $sdkType) {
-            $active = $this->scopeConfig->isSetFlag('payment/' . $code . '/active', ScopeInterface::SCOPE_STORE);
-            $standalone = $this->scopeConfig->isSetFlag('payment/' . $code . '/flow_standalone', ScopeInterface::SCOPE_STORE);
+        if ($this->flowPaymentMethodSettings->isGooglePayEnabled(null)
+            && !$this->flowPaymentMethodSettings->isGooglePayFlowStandalone(null)) {
+            $inside[] = 'googlepay';
+        }
 
-            if ($active && !$standalone) {
-                $inside[] = $sdkType;
-            }
+        if ($this->flowPaymentMethodSettings->isApplePayEnabled(null, true)
+            && !$this->flowPaymentMethodSettings->isApplePayFlowStandalone(null)) {
+            $inside[] = 'applepay';
+        }
+
+        if ($this->flowPaymentMethodSettings->isPaypalEnabled(null)
+            && !$this->flowPaymentMethodSettings->isPaypalFlowStandalone(null)) {
+            $inside[] = 'paypal';
         }
 
         return $inside;

@@ -17,6 +17,7 @@
     <head>
         <css src="CheckoutCom_Magento2::css/frames/main.css" />
         <css src="CheckoutCom_Magento2::css/frames/sepa/sepa.css"/>
+        <css src="CheckoutCom_Magento2::css/flow/flow.css"/>
     </head>
     <body>
         <!-- Add Paypal payment script and remove express one-->

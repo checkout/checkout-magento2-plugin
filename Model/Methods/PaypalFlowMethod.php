@@ -20,7 +20,6 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Flow-based PayPal as a standalone Magento payment method (its own radio in the payment
@@ -58,7 +57,7 @@ class PaypalFlowMethod extends FlowMethod
             return false;
         }
 
-        return $this->scopeConfig->isSetFlag('payment/checkoutcom_paypal/active', ScopeInterface::SCOPE_STORE)
-            && $this->scopeConfig->isSetFlag('payment/checkoutcom_paypal/flow_standalone', ScopeInterface::SCOPE_STORE);
+        return $this->flowPaymentMethodSettings->isPaypalEnabled(null)
+            && $this->flowPaymentMethodSettings->isPaypalFlowStandalone(null);
     }
 }

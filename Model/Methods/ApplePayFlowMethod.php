@@ -20,7 +20,6 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\Methods;
 
 use Magento\Quote\Api\Data\CartInterface;
-use Magento\Store\Model\ScopeInterface;
 
 /**
  * Flow-based Apple Pay as a standalone Magento payment method (its own radio in the
@@ -58,7 +57,7 @@ class ApplePayFlowMethod extends FlowMethod
             return false;
         }
 
-        return $this->scopeConfig->isSetFlag('payment/checkoutcom_apple_pay/active', ScopeInterface::SCOPE_STORE)
-            && $this->scopeConfig->isSetFlag('payment/checkoutcom_apple_pay/flow_standalone', ScopeInterface::SCOPE_STORE);
+        return $this->flowPaymentMethodSettings->isApplePayEnabled(null, true)
+            && $this->flowPaymentMethodSettings->isApplePayFlowStandalone(null);
     }
 }
