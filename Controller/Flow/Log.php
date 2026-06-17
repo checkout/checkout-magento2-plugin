@@ -61,12 +61,12 @@ class Log extends Action implements HttpPostActionInterface
         $result = $this->jsonFactory->create();
 
         try {
-            $content = $this->getRequest()->getContent();
+            $content = (string)$this->getRequest()->getContent();
             $data = $content ? $this->serializer->unserialize($content) : [];
 
             $message = trim((string)($data['message'] ?? ''));
             $context = is_array($data['context'] ?? null) ? $data['context'] : [];
-            $level   = (string)($data['level'] ?? 'warning');
+            $level = (string)($data['level'] ?? 'warning');
 
             if ($message === '') {
                 return $result->setData(['success' => false, 'message' => __('Empty log message.')]);
