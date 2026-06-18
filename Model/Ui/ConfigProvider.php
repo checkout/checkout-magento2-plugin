@@ -102,6 +102,7 @@ class ConfigProvider implements ConfigProviderInterface
                     'previous_source' => $this->methodHandler->getPreviousSource()
                 ],
                 'cards' => $this->cardHandler->getCardIcons(),
+                'flow_inside_wallets' => $this->config->getFlowInsideWallets(),
                 'images_path' => $this->config->getImagesPath(),
                 'css_path' => $this->config->getCssPath(),
                 'css_common_path' => $this->config->getCommonCssPath(),

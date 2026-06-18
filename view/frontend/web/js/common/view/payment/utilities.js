@@ -216,7 +216,7 @@ define(
             checkStoredCard: function () {
                 var userData = this.getValue('checkoutcom_data', 'user');
                 if (userData['previous_method'] == 'checkoutcom_vault'
-                && $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').length) {
+                    && $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').length) {
                     $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').trigger('click');
                 }
             },
@@ -283,8 +283,8 @@ define(
             getCustomerNameByBillingAddress: function (billingAddress) {
                 var customerName = '';
                 if (billingAddress && billingAddress.firstname && billingAddress.lastname) {
-                        customerName += billingAddress.firstname;
-                        customerName += ' ' + billingAddress.lastname;
+                    customerName += billingAddress.firstname;
+                    customerName += ' ' + billingAddress.lastname;
                 }
 
                 return customerName;
@@ -305,9 +305,9 @@ define(
             getEmail: function () {
                 var emailCookieName = this.getValue(null, 'email_cookie_name');
                 return window.checkoutConfig.customerData.email
-                || Quote.guestEmail
-                || CheckoutData.getValidatedEmailValue()
-                || $.cookie(emailCookieName);
+                    || Quote.guestEmail
+                    || CheckoutData.getValidatedEmailValue()
+                    || $.cookie(emailCookieName);
             },
 
             /**
@@ -432,7 +432,10 @@ define(
              */
             placeOrder: function (payload, methodId, startLoader = true, has3DS = null) {
                 let self = this;
-                const isFlow = methodId === 'checkoutcom_flow';
+                // Treat the Flow card method AND the standalone Flow wallet methods
+                // (checkoutcom_flow_google_pay / _apple_pay) as Flow, so they use the order-first
+                // placefloworder endpoint and the Flow 3DS handling rather than the Frames charge path.
+                const isFlow = typeof methodId === 'string' && methodId.startsWith('checkoutcom_flow');
                 const orderUrl = isFlow ? 'payment/placefloworder' : 'payment/placeorder';
 
                 if (startLoader) {
@@ -481,7 +484,7 @@ define(
 
             redirectFailedPayment: function (token, reference = null) {
                 let url = token && reference ? Url.build(
-                    `checkout_com/payment/failfloworder?cko-session-id=${token}&reference=${reference}`
+                        `checkout_com/payment/failfloworder?cko-session-id=${token}&reference=${reference}`
                     ) :
                     Url.build('checkout_com/payment/failfloworder');
 
@@ -490,7 +493,7 @@ define(
 
             redirectCompletedPayment: function (token, reference = null) {
                 let url = token && reference ? Url.build(
-                    `checkout_com/payment/verifyfloworder?cko-session-id=${token}&reference=${reference}`
+                        `checkout_com/payment/verifyfloworder?cko-session-id=${token}&reference=${reference}`
                     ) :
                     Url.build('checkout_com/payment/verifyfloworder');
 

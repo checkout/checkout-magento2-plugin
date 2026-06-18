@@ -25,6 +25,7 @@ use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing;
 use CheckoutCom\Magento2\Model\Methods\FlowMethod;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
+use CheckoutCom\Magento2\Provider\FlowPaymentMethodSettings;
 use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
@@ -46,6 +47,7 @@ class Config
     private Loader $loader;
     private Utilities $utilities;
     private FlowGeneralSettings $flowSettings;
+    private FlowPaymentMethodSettings $flowPaymentMethodSettings;
     private Logger $logger;
     private LoggerInterface $nativeLogger;
 
@@ -58,6 +60,7 @@ class Config
         Utilities $utilities,
         Logger $logger,
         FlowGeneralSettings $flowSettings,
+        FlowPaymentMethodSettings $flowPaymentMethodSettings,
         LoggerInterface $nativeLogger
     ) {
         $this->assetRepository = $assetRepository;
@@ -69,6 +72,7 @@ class Config
         $this->logger = $logger;
         $this->nativeLogger = $nativeLogger;
         $this->flowSettings = $flowSettings;
+        $this->flowPaymentMethodSettings = $flowPaymentMethodSettings;
     }
 
     /**
@@ -283,6 +287,38 @@ class Config
         }
 
         return $output;
+    }
+
+    /**
+     * Flow SDK component types of the wallets that should render INSIDE the Flow method
+     * ("Pay with Checkout.com"), i.e. enabled AND NOT set to display as a separate method
+     * (payment/checkoutcom_<wallet>/flow_standalone = No). This is the authoritative,
+     * server-side counterpart to the standalone wallet methods' isAvailable() (enabled AND
+     * flow_standalone = Yes): a wallet is in exactly one of the two sets, so it can never
+     * render both inside and outside the Flow.
+     *
+     * @return string[]
+     */
+    public function getFlowInsideWallets(): array
+    {
+        $inside = [];
+
+        if ($this->flowPaymentMethodSettings->isGooglePayEnabled(null)
+            && !$this->flowPaymentMethodSettings->isGooglePayFlowStandalone(null)) {
+            $inside[] = 'googlepay';
+        }
+
+        if ($this->flowPaymentMethodSettings->isApplePayEnabled(null, true)
+            && !$this->flowPaymentMethodSettings->isApplePayFlowStandalone(null)) {
+            $inside[] = 'applepay';
+        }
+
+        if ($this->flowPaymentMethodSettings->isPaypalEnabled(null)
+            && !$this->flowPaymentMethodSettings->isPaypalFlowStandalone(null)) {
+            $inside[] = 'paypal';
+        }
+
+        return $inside;
     }
 
     /**
