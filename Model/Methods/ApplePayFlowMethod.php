@@ -47,6 +47,9 @@ class ApplePayFlowMethod extends FlowMethod
      * to display outside the Flow (payment/checkoutcom_apple_pay/flow_standalone), in addition to the
      * Flow availability checks. When flow_standalone is off, Apple Pay is rendered inside the
      * "Pay with Checkout.com" method instead, so this standalone method must not appear.
+     *  Available only when: Apple Pay is active, flow_standalone is enabled, flow_enabled_on_all_browsers
+     *  is enabled, and all three page-level placement flags (checkout, cart, minicart) are enabled.
+     *  When flow_standalone is off, Apple Pay renders inside "Pay with Checkout.com" instead.
      *
      * @param CartInterface|null $quote
      * @return bool
@@ -57,7 +60,13 @@ class ApplePayFlowMethod extends FlowMethod
             return false;
         }
 
-        return $this->flowPaymentMethodSettings->isApplePayEnabled(null, true)
-            && $this->flowPaymentMethodSettings->isApplePayFlowStandalone(null);
+        $websiteCode = $this->storeManager->getWebsite()->getCode();
+
+        return $this->flowPaymentMethodSettings->isApplePayEnabled($websiteCode, true)
+            && $this->flowPaymentMethodSettings->isApplePayFlowStandalone($websiteCode)
+            && $this->flowPaymentMethodSettings->isFlowApplePayEnabledOnAllBrowsers($websiteCode)
+            && $this->flowPaymentMethodSettings->isApplePayEnabledOnCheckout($websiteCode)
+            && $this->flowPaymentMethodSettings->isApplePayEnabledOnCart($websiteCode)
+            && $this->flowPaymentMethodSettings->isApplePayEnabledOnMiniCart($websiteCode);
     }
 }
