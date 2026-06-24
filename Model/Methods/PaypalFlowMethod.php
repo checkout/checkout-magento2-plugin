@@ -57,7 +57,9 @@ class PaypalFlowMethod extends FlowMethod
             return false;
         }
 
-        return $this->flowPaymentMethodSettings->isPaypalEnabled(null)
-            && $this->flowPaymentMethodSettings->isPaypalFlowStandalone(null);
+        $websiteCode = $this->storeManager->getWebsite()->getCode();
+
+        return $this->flowPaymentMethodSettings->isPaypalEnabled($websiteCode)
+            && $this->flowPaymentMethodSettings->isPaypalFlowStandalone($websiteCode);
     }
 }

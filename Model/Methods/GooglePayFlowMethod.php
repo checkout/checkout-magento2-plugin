@@ -57,7 +57,9 @@ class GooglePayFlowMethod extends FlowMethod
             return false;
         }
 
-        return $this->flowPaymentMethodSettings->isGooglePayEnabled(null)
-            && $this->flowPaymentMethodSettings->isGooglePayFlowStandalone(null);
+        $websiteCode = $this->storeManager->getWebsite()->getCode();
+
+        return $this->flowPaymentMethodSettings->isGooglePayEnabled($websiteCode)
+            && $this->flowPaymentMethodSettings->isGooglePayFlowStandalone($websiteCode);
     }
 }
