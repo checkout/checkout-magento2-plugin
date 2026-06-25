@@ -67,7 +67,7 @@ class ApplePayFlowMethod extends FlowMethod
             $websiteCode = null;
 
             $this->logger->error(
-                sprintf('Unable to fetch store code or website code: %s', $error->getMessage())
+                sprintf('%s: Unable to fetch store code or website code: %s', __METHOD__, $error->getMessage())
             );
         }
 
