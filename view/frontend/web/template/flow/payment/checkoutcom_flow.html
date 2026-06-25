@@ -14,6 +14,8 @@
 -->
 
 <div class="payment-method" data-bind="css: {'_active': (getCode() == isChecked())}, attr: {'id': getCode() + '_container', afterRender: initEvents()}">
+    <!-- Parent "Pay with Checkout.com" radio. Selecting it reveals the nested Card + APM radios
+         and (aligned with this radio) the Google Pay / Apple Pay radios. -->
     <div class="payment-method-title field choice">
         <input type="radio"
                name="payment[method]"
@@ -33,8 +35,41 @@
         <div class="message message-cko" data-bind="attr: {'id': (getCode()+'_message')}"></div>
         <div class="message message-response-code" data-bind="attr: {'id': (getCode()+'_message')}"></div>
         <div class="message debug-message" data-bind="attr: {'id': (getCode()+'_message')}"></div>
-        <!-- Container -->
-        <div id="flow-container"></div>
+        <!-- Nested list under the parent: Card + one radio per available APM. -->
+        <div class="cko-flow-methods cko-nested-list">
+            <!-- Card -->
+            <div class="cko-flow-method" data-bind="visible: cardAvailable">
+                <label for="cko-flow-card" class="cko-flow-method-radio">
+                    <input type="radio"
+                           id="cko-flow-card"
+                           name="cko-flow-method"
+                           value="card"
+                           aria-label="Credit / Debit Card"
+                           data-bind="checked: selectedFlowMethod" />
+                    <span class="cko-method-icon" data-bind="html: methodIcon('card')"></span>
+                    <span data-bind="i18n: 'Credit / Debit Card'">Credit / Debit Card</span>
+                </label>
+                <div id="flow-card-container"
+                     class="cko-method-container cko-card"
+                     data-bind="visible: selectedFlowMethod() === 'card'"></div>
+            </div>
+
+            <!-- One radio per available APM (iDEAL, Klarna, PayPal, SEPA, ...) -->
+            <!-- ko foreach: availableApms -->
+            <div class="cko-flow-method">
+                <label class="cko-flow-method-radio" data-bind="attr: {for: 'cko-flow-' + type}">
+                    <input type="radio"
+                           name="cko-flow-method"
+                           data-bind="checked: $parent.selectedFlowMethod, value: type, attr: {id: 'cko-flow-' + type, 'aria-label': label}" />
+                    <span class="cko-method-icon" data-bind="html: $parent.methodIcon(type)"></span>
+                    <span data-bind="text: label"></span>
+                </label>
+                <div class="cko-method-container"
+                     data-bind="attr: {id: 'flow-apm-' + type}, visible: $parent.selectedFlowMethod() === type"></div>
+            </div>
+            <!-- /ko -->
+        </div>
+
 
         <!-- ko foreach: $parent.getRegion('flow-saved-card') -->
         <!-- ko template: getTemplate() --><!-- /ko -->
@@ -54,7 +89,7 @@
             <!--/ko-->
         </div>
 
-        <div class="actions-toolbar">
+        <div class="actions-toolbar" data-bind="visible: selectedFlowMethod() === 'card'">
             <div class="primary">
                 <button class="action primary checkout"
                         type="submit"

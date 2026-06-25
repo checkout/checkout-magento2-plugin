@@ -34,6 +34,12 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
     public const CONFIG_FLOW_PAYMENT_CARD_METHODS = 'payment/checkoutcom_card_payment/active';
 
     public const CONFIG_FLOW_APPLEPAY_ACTIVATED_ON_CHECKOUT = 'payment/checkoutcom_apple_pay/enabled_on_checkout';
+    public const CONFIG_FLOW_APPLEPAY_ACTIVATED_ON_CART = 'payment/checkoutcom_apple_pay/enabled_on_cart';
+    public const CONFIG_FLOW_APPLEPAY_ACTIVATED_ON_MINICART = 'payment/checkoutcom_apple_pay/enabled_on_minicart';
+
+    public const CONFIG_FLOW_GPAY_STANDALONE = 'payment/checkoutcom_google_pay/flow_standalone';
+    public const CONFIG_FLOW_APPLEPAY_STANDALONE = 'payment/checkoutcom_apple_pay/flow_standalone';
+    public const CONFIG_FLOW_PAYPAL_STANDALONE = 'payment/checkoutcom_paypal/flow_standalone';
 
     private const METHOD_CARD_NAME = 'card';
     private const METHOD_KLARNA_NAME = 'klarna';
@@ -100,10 +106,70 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
         ) === '1';
     }
 
+    public function isApplePayEnabledOnCheckout(?string $website): bool
+    {
+        return $this->getWebsiteLevelConfiguration(
+            self::CONFIG_FLOW_APPLEPAY_ACTIVATED_ON_CHECKOUT,
+            $website
+        ) === '1';
+    }
+
+    public function isApplePayEnabledOnCart(?string $website): bool
+    {
+        return $this->getWebsiteLevelConfiguration(
+            self::CONFIG_FLOW_APPLEPAY_ACTIVATED_ON_CART,
+            $website
+        ) === '1';
+    }
+
+    public function isApplePayEnabledOnMiniCart(?string $website): bool
+    {
+        return $this->getWebsiteLevelConfiguration(
+            self::CONFIG_FLOW_APPLEPAY_ACTIVATED_ON_MINICART,
+            $website
+        ) === '1';
+    }
+
     public function isPaypalEnabled(?string $website): bool
     {
         return $this->getWebsiteLevelConfiguration(
             self::CONFIG_FLOW_PAYMENT_PAYPAL_METHODS,
+            $website
+        ) === "1";
+    }
+
+    /**
+     * Whether Google Pay should render as its own standalone Flow payment method (outside the
+     * "Pay with Checkout.com" method). When false, it is rendered inside the Flow method instead.
+     */
+    public function isGooglePayFlowStandalone(?string $website): bool
+    {
+        return $this->getWebsiteLevelConfiguration(
+            self::CONFIG_FLOW_GPAY_STANDALONE,
+            $website
+        ) === "1";
+    }
+
+    /**
+     * Whether Apple Pay should render as its own standalone Flow payment method (outside the
+     * "Pay with Checkout.com" method). When false, it is rendered inside the Flow method instead.
+     */
+    public function isApplePayFlowStandalone(?string $website): bool
+    {
+        return $this->getWebsiteLevelConfiguration(
+            self::CONFIG_FLOW_APPLEPAY_STANDALONE,
+            $website
+        ) === "1";
+    }
+
+    /**
+     * Whether PayPal should render as its own standalone Flow payment method (outside the
+     * "Pay with Checkout.com" method). When false, it is rendered inside the Flow method instead.
+     */
+    public function isPaypalFlowStandalone(?string $website): bool
+    {
+        return $this->getWebsiteLevelConfiguration(
+            self::CONFIG_FLOW_PAYPAL_STANDALONE,
             $website
         ) === "1";
     }

@@ -24,6 +24,7 @@ use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Provider\FlowMethodSettings;
+use CheckoutCom\Magento2\Provider\FlowPaymentMethodSettings;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Directory\Helper\Data as DirectoryHelper;
 use Magento\Framework\Api\AttributeValueFactory;
@@ -67,8 +68,9 @@ class FlowMethod extends AbstractMethod
     private Session $backendAuthSession;
     private Config $config;
     private ApiHandlerService $apiHandler;
-    private StoreManagerInterface $storeManager;
+    protected StoreManagerInterface $storeManager;
     private FlowMethodSettings $flowMethodSettings;
+    protected FlowPaymentMethodSettings $flowPaymentMethodSettings;
 
     public function __construct(
         Config $config,
@@ -85,6 +87,7 @@ class FlowMethod extends AbstractMethod
         ApiHandlerService $apiHandler,
         StoreManagerInterface $storeManager,
         FlowMethodSettings $flowMethodSettings,
+        FlowPaymentMethodSettings $flowPaymentMethodSettings,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
@@ -110,6 +113,7 @@ class FlowMethod extends AbstractMethod
         $this->apiHandler = $apiHandler;
         $this->storeManager = $storeManager;
         $this->flowMethodSettings = $flowMethodSettings;
+        $this->flowPaymentMethodSettings = $flowPaymentMethodSettings;
     }
 
     /**

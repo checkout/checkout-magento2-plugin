@@ -25,6 +25,7 @@ use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigPaymentProcesing;
 use CheckoutCom\Magento2\Model\Methods\FlowMethod;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
+use CheckoutCom\Magento2\Provider\FlowPaymentMethodSettings;
 use Exception;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\RequestInterface;
@@ -39,6 +40,8 @@ use Psr\Log\LoggerInterface;
  */
 class Config
 {
+    private const ERR_WEBSITE_CODE = 'Unable to get website code: %s';
+
     private Repository $assetRepository;
     private StoreManagerInterface $storeManager;
     private ScopeConfigInterface $scopeConfig;
@@ -46,6 +49,7 @@ class Config
     private Loader $loader;
     private Utilities $utilities;
     private FlowGeneralSettings $flowSettings;
+    private FlowPaymentMethodSettings $flowPaymentMethodSettings;
     private Logger $logger;
     private LoggerInterface $nativeLogger;
 
@@ -58,6 +62,7 @@ class Config
         Utilities $utilities,
         Logger $logger,
         FlowGeneralSettings $flowSettings,
+        FlowPaymentMethodSettings $flowPaymentMethodSettings,
         LoggerInterface $nativeLogger
     ) {
         $this->assetRepository = $assetRepository;
@@ -69,6 +74,7 @@ class Config
         $this->logger = $logger;
         $this->nativeLogger = $nativeLogger;
         $this->flowSettings = $flowSettings;
+        $this->flowPaymentMethodSettings = $flowPaymentMethodSettings;
     }
 
     /**
@@ -283,6 +289,47 @@ class Config
         }
 
         return $output;
+    }
+
+    /**
+     * Flow SDK component types of the wallets that should render INSIDE the Flow method
+     * ("Pay with Checkout.com"), i.e. enabled AND NOT set to display as a separate method
+     * (payment/checkoutcom_<wallet>/flow_standalone = No). This is the authoritative,
+     * server-side counterpart to the standalone wallet methods' isAvailable() (enabled AND
+     * flow_standalone = Yes): a wallet is in exactly one of the two sets, so it can never
+     * render both inside and outside the Flow.
+     *
+     * @return string[]
+     */
+    public function getFlowInsideWallets(): array
+    {
+        $inside = [];
+
+        $websiteCode = null;
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $this->nativeLogger->error(
+                sprintf(self::ERR_WEBSITE_CODE, $error->getMessage()),
+            );
+        }
+
+        if ($this->flowPaymentMethodSettings->isGooglePayEnabled($websiteCode)
+            && !$this->flowPaymentMethodSettings->isGooglePayFlowStandalone($websiteCode)) {
+            $inside[] = 'googlepay';
+        }
+
+        if ($this->flowPaymentMethodSettings->isApplePayEnabled($websiteCode, true)
+            && !$this->flowPaymentMethodSettings->isApplePayFlowStandalone($websiteCode)) {
+            $inside[] = 'applepay';
+        }
+
+        if ($this->flowPaymentMethodSettings->isPaypalEnabled($websiteCode)
+            && !$this->flowPaymentMethodSettings->isPaypalFlowStandalone($websiteCode)) {
+            $inside[] = 'paypal';
+        }
+
+        return $inside;
     }
 
     /**
@@ -513,7 +560,7 @@ class Config
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
             $this->nativeLogger->error(
-                sprintf('Unable to get website code: %s', $error->getMessage()),
+                sprintf(self::ERR_WEBSITE_CODE, $error->getMessage()),
             );
         }
 
@@ -535,7 +582,7 @@ class Config
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
             $this->nativeLogger->error(
-                sprintf('Unable to get website code: %s', $error->getMessage()),
+                sprintf(self::ERR_WEBSITE_CODE, $error->getMessage()),
             );
         }
 
