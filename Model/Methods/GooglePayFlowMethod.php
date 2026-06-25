@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use Exception;
 use Magento\Quote\Api\Data\CartInterface;
 
 /**
@@ -57,7 +58,15 @@ class GooglePayFlowMethod extends FlowMethod
             return false;
         }
 
-        $websiteCode = $this->storeManager->getWebsite()->getCode();
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $websiteCode = null;
+
+            $this->logger->error(
+                sprintf('Unable to fetch store code or website code: %s', $error->getMessage())
+            );
+        }
 
         return $this->flowPaymentMethodSettings->isGooglePayEnabled($websiteCode)
             && $this->flowPaymentMethodSettings->isGooglePayFlowStandalone($websiteCode);
