@@ -68,7 +68,7 @@ class FlowMethod extends AbstractMethod
     private Session $backendAuthSession;
     private Config $config;
     private ApiHandlerService $apiHandler;
-    private StoreManagerInterface $storeManager;
+    protected StoreManagerInterface $storeManager;
     private FlowMethodSettings $flowMethodSettings;
     protected FlowPaymentMethodSettings $flowPaymentMethodSettings;
 

@@ -303,18 +303,27 @@ class Config
     {
         $inside = [];
 
-        if ($this->flowPaymentMethodSettings->isGooglePayEnabled(null)
-            && !$this->flowPaymentMethodSettings->isGooglePayFlowStandalone(null)) {
+        $websiteCode = null;
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $this->nativeLogger->error(
+                sprintf('Unable to get website code: %s', $error->getMessage()),
+            );
+        }
+
+        if ($this->flowPaymentMethodSettings->isGooglePayEnabled($websiteCode)
+            && !$this->flowPaymentMethodSettings->isGooglePayFlowStandalone($websiteCode)) {
             $inside[] = 'googlepay';
         }
 
-        if ($this->flowPaymentMethodSettings->isApplePayEnabled(null, true)
-            && !$this->flowPaymentMethodSettings->isApplePayFlowStandalone(null)) {
+        if ($this->flowPaymentMethodSettings->isApplePayEnabled($websiteCode, true)
+            && !$this->flowPaymentMethodSettings->isApplePayFlowStandalone($websiteCode)) {
             $inside[] = 'applepay';
         }
 
-        if ($this->flowPaymentMethodSettings->isPaypalEnabled(null)
-            && !$this->flowPaymentMethodSettings->isPaypalFlowStandalone(null)) {
+        if ($this->flowPaymentMethodSettings->isPaypalEnabled($websiteCode)
+            && !$this->flowPaymentMethodSettings->isPaypalFlowStandalone($websiteCode)) {
             $inside[] = 'paypal';
         }
 
