@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use Exception;
 use Magento\Quote\Api\Data\CartInterface;
 
 /**
@@ -47,6 +48,9 @@ class ApplePayFlowMethod extends FlowMethod
      * to display outside the Flow (payment/checkoutcom_apple_pay/flow_standalone), in addition to the
      * Flow availability checks. When flow_standalone is off, Apple Pay is rendered inside the
      * "Pay with Checkout.com" method instead, so this standalone method must not appear.
+     *  Available only when: Apple Pay is active, flow_standalone is enabled, flow_enabled_on_all_browsers
+     *  is enabled, and the checkout placement flag is enabled.
+     *  When flow_standalone is off, Apple Pay renders inside "Pay with Checkout.com" instead.
      *
      * @param CartInterface|null $quote
      * @return bool
@@ -57,7 +61,19 @@ class ApplePayFlowMethod extends FlowMethod
             return false;
         }
 
-        return $this->flowPaymentMethodSettings->isApplePayEnabled(null, true)
-            && $this->flowPaymentMethodSettings->isApplePayFlowStandalone(null);
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $websiteCode = null;
+
+            $this->logger->error(
+                sprintf('%s: Unable to fetch store code or website code: %s', __METHOD__, $error->getMessage())
+            );
+        }
+
+        return $this->flowPaymentMethodSettings->isApplePayEnabled($websiteCode, true)
+            && $this->flowPaymentMethodSettings->isApplePayFlowStandalone($websiteCode)
+            && $this->flowPaymentMethodSettings->isFlowApplePayEnabledOnAllBrowsers($websiteCode)
+            && $this->flowPaymentMethodSettings->isApplePayEnabledOnCheckout($websiteCode);
     }
 }

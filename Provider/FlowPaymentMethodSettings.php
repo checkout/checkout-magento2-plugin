@@ -104,6 +104,14 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
             ) === '1';
     }
 
+    public function isApplePayEnabledOnCheckout(?string $website): bool
+    {
+        return $this->getWebsiteLevelConfiguration(
+                self::CONFIG_FLOW_APPLEPAY_ACTIVATED_ON_CHECKOUT,
+                $website
+            ) === '1';
+    }
+
     public function isPaypalEnabled(?string $website): bool
     {
         return $this->getWebsiteLevelConfiguration(

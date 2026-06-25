@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use Exception;
 use Magento\Quote\Api\Data\CartInterface;
 
 /**
@@ -57,7 +58,17 @@ class PaypalFlowMethod extends FlowMethod
             return false;
         }
 
-        return $this->flowPaymentMethodSettings->isPaypalEnabled(null)
-            && $this->flowPaymentMethodSettings->isPaypalFlowStandalone(null);
+        try {
+            $websiteCode = $this->storeManager->getWebsite()->getCode();
+        } catch (Exception $error) {
+            $websiteCode = null;
+
+            $this->logger->error(
+                sprintf('%s: Unable to fetch store code or website code: %s', __METHOD__, $error->getMessage())
+            );
+        }
+
+        return $this->flowPaymentMethodSettings->isPaypalEnabled($websiteCode)
+            && $this->flowPaymentMethodSettings->isPaypalFlowStandalone($websiteCode);
     }
 }
