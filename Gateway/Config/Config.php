@@ -40,6 +40,8 @@ use Psr\Log\LoggerInterface;
  */
 class Config
 {
+    private const ERR_WEBSITE_CODE = 'Unable to get website code: %s';
+
     private Repository $assetRepository;
     private StoreManagerInterface $storeManager;
     private ScopeConfigInterface $scopeConfig;
@@ -308,7 +310,7 @@ class Config
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
             $this->nativeLogger->error(
-                sprintf('Unable to get website code: %s', $error->getMessage()),
+                sprintf(self::ERR_WEBSITE_CODE, $error->getMessage()),
             );
         }
 
@@ -558,7 +560,7 @@ class Config
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
             $this->nativeLogger->error(
-                sprintf('Unable to get website code: %s', $error->getMessage()),
+                sprintf(self::ERR_WEBSITE_CODE, $error->getMessage()),
             );
         }
 
@@ -580,7 +582,7 @@ class Config
             $websiteCode = $this->storeManager->getWebsite()->getCode();
         } catch (Exception $error) {
             $this->nativeLogger->error(
-                sprintf('Unable to get website code: %s', $error->getMessage()),
+                sprintf(self::ERR_WEBSITE_CODE, $error->getMessage()),
             );
         }
 
