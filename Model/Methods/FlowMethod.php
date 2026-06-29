@@ -63,6 +63,7 @@ class FlowMethod extends AbstractMethod
      */
     protected $canUseInternal = false;
     protected $canRefund = true;
+    protected $canRefundInvoicePartial = true;
 
     private Session $backendAuthSession;
     private Config $config;
