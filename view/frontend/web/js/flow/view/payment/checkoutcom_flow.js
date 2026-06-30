@@ -55,6 +55,7 @@ define(
                         'applepay' : 'apple_pay'
                     },
                     currentMethod: null,
+                    currentBillingSignature: null,
                     currentCountryCode: null,
                     // Custom radio selector state: which Flow method is selected, and card availability.
                     selectedFlowMethod: ko.observable(null),
@@ -100,9 +101,7 @@ define(
                     this.isLoading = true;
                     this.loadFlow();
 
-                    if (Utilities.getBillingAddress().country_id) {
-                        this.setCountryCode();
-                    }
+                    this.captureBillingSignature();
 
                     // Listen for saveCard event
                     document.querySelector('body').addEventListener(
@@ -112,10 +111,17 @@ define(
                         },
                     );
 
+                    Quote.billingAddress.subscribe(() => {
+                        if (Utilities.methodIsSelected(METHOD_ID) &&
+                            this.getBillingSignature() !== this.currentBillingSignature) {
+                            this.reloadFlow();
+                        }
+                    });
+
                     // Listen for Step change
                     StepNavigator.steps.subscribe((steps) => {
                         if (steps[StepNavigator.getActiveItemIndex()]['code'] === 'payment' &&
-                            Utilities.getBillingAddress().country_id !== this.currentCountryCode) {
+                            this.getBillingSignature() !== this.currentBillingSignature) {
                             this.reloadFlow();
                         }
                     });
@@ -131,10 +137,27 @@ define(
                 },
 
                 /**
-                 * Set current country code
+                 * Build a signature of the server-side billing identity used to drive re-prepares.
                  */
-                setCountryCode: function () {
-                    this.currentCountryCode = Utilities.getBillingAddress().country_id;
+                getBillingSignature: function () {
+                    const billing = Utilities.getBillingAddress() || {};
+                    const street = Array.isArray(billing.street) ? billing.street.join('|') : (billing.street || '');
+
+                    return [
+                        billing.firstname || '',
+                        billing.lastname || '',
+                        billing.email || Utilities.getEmail() || '',
+                        billing.country_id || '',
+                        billing.postcode || '',
+                        street
+                    ].join('::');
+                },
+
+                /**
+                 * Store the billing signature reflected by the last prepared session.
+                 */
+                captureBillingSignature: function () {
+                    this.currentBillingSignature = this.getBillingSignature();
                 },
 
                 /**
@@ -144,7 +167,7 @@ define(
                     if (!this.isLoading) {
                         this.isLoading = true;
 
-                        this.setCountryCode();
+                        this.captureBillingSignature();
                         this.sendSaveCardEvent();
 
                         // Recreate the shared session; the onReload subscriber re-builds this method's
