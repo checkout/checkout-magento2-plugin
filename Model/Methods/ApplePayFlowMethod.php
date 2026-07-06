@@ -19,8 +19,27 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Methods;
 
+use CheckoutCom\Magento2\Api\ApplePayInterface;
+use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Provider\FlowMethodSettings;
+use CheckoutCom\Magento2\Provider\FlowPaymentMethodSettings;
 use Exception;
+use Magento\Backend\Model\Auth\Session;
+use Magento\Directory\Helper\Data;
+use Magento\Framework\Api\AttributeValueFactory;
+use Magento\Framework\Api\ExtensionAttributesFactory;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Data\Collection\AbstractDb;
+use Magento\Framework\DataObjectFactory;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Registry;
+use Magento\Payment\Helper\Data as PaymentData;
+use Magento\Payment\Model\Method\Logger;
 use Magento\Quote\Api\Data\CartInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
 /**
  * Flow-based Apple Pay as a standalone Magento payment method (its own radio in the
@@ -42,6 +61,53 @@ class ApplePayFlowMethod extends FlowMethod
      * @var string $code
      */
     protected $code = self::CODE;
+
+    private RequestInterface $request;
+
+    public function __construct(
+        Config $config,
+        Context $context,
+        Registry $registry,
+        ExtensionAttributesFactory $extensionFactory,
+        AttributeValueFactory $customAttributeFactory,
+        PaymentData $paymentData,
+        ScopeConfigInterface $scopeConfig,
+        Logger $logger,
+        Data $directoryHelper,
+        DataObjectFactory $dataObjectFactory,
+        Session $backendAuthSession,
+        ApiHandlerService $apiHandler,
+        StoreManagerInterface $storeManager,
+        FlowMethodSettings $flowMethodSettings,
+        FlowPaymentMethodSettings $flowPaymentMethodSettings,
+        RequestInterface $request,
+        ?AbstractResource $resource = null,
+        ?AbstractDb $resourceCollection = null,
+        array $data = []
+    ) {
+        parent::__construct(
+            $config,
+            $context,
+            $registry,
+            $extensionFactory,
+            $customAttributeFactory,
+            $paymentData,
+            $scopeConfig,
+            $logger,
+            $directoryHelper,
+            $dataObjectFactory,
+            $backendAuthSession,
+            $apiHandler,
+            $storeManager,
+            $flowMethodSettings,
+            $flowPaymentMethodSettings,
+            $resource,
+            $resourceCollection,
+            $data
+        );
+
+        $this->request = $request;
+    }
 
     /**
      * Available only when Apple Pay is enabled (payment/checkoutcom_apple_pay/active) AND configured
@@ -71,9 +137,13 @@ class ApplePayFlowMethod extends FlowMethod
             );
         }
 
+        $browserSupportsNativeFlowApplePay = (bool)$this->request->getParam(
+            ApplePayInterface::FLOW_APPLE_PAY_IS_NATIVE_PARAM_NAME
+        );
+
         return $this->flowPaymentMethodSettings->isApplePayEnabled($websiteCode, true)
             && $this->flowPaymentMethodSettings->isApplePayFlowStandalone($websiteCode)
-            && $this->flowPaymentMethodSettings->isFlowApplePayEnabledOnAllBrowsers($websiteCode)
+            && $this->flowPaymentMethodSettings->shouldIncludeApplePayForFlowSession($websiteCode, $browserSupportsNativeFlowApplePay)
             && $this->flowPaymentMethodSettings->isApplePayEnabledOnCheckout($websiteCode);
     }
 }
