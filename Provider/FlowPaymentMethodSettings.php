@@ -213,7 +213,7 @@ class FlowPaymentMethodSettings extends AbstractSettingsProvider
         return array_merge($enabledPaymentMethods, $this->getSelectedApmMethods($websiteCode));
     }
 
-    private function shouldIncludeApplePayForFlowSession(?string $websiteCode, bool $browserSupportsNativeFlowApplePay): bool
+    public function shouldIncludeApplePayForFlowSession(?string $websiteCode, bool $browserSupportsNativeFlowApplePay): bool
     {
         if ($this->isFlowApplePayEnabledOnAllBrowsers($websiteCode)) {
             return true;
