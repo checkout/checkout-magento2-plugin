@@ -35,6 +35,48 @@ define(
         return {
 
             /**
+             * Whether the current browser renders the NATIVE Apple Pay sheet (vs the cross-device
+             * QR flow). canMakePayments()/supportsVersion() cannot be used to decide this: on macOS
+             * they return true in Chrome and Firefox too (they expose window.ApplePaySession), yet
+             * only Safari renders the native sheet — the others fall back to the QR flow. The only
+             * reliable discriminant is the User-Agent.
+             *
+             * @return {boolean}
+             */
+            browserRendersNativeApplePay: function () {
+                const ua = navigator.userAgent || '';
+
+                const isNativeBrowser = /iPad|iPhone|iPod/.test(ua)
+                    || (/Safari\//.test(ua)
+                        && !/Chrome|Chromium|CriOS|Edg|EdgiOS|OPR|OPT|FxiOS|Firefox|Android/.test(ua));
+
+                if (!isNativeBrowser) {
+                    return false;
+                }
+
+                try {
+                    return !!(window.ApplePaySession && window.ApplePaySession.canMakePayments());
+                } catch (e) {
+                    return false;
+                }
+            },
+
+            /**
+             * Whether Apple Pay (Flow) may be offered in the current browser:
+             * "Enable Apple Pay on all browsers" is ON, OR the browser renders native Apple Pay.
+             * Single source of truth for both the /flow/prepare native flag and the client visibility
+             * gates (standalone wallet + inside Flow).
+             *
+             * @return {boolean}
+             */
+            isApplePayOfferable: function () {
+                const allBrowsers = window.checkoutConfig?.payment?.checkoutcom_magento2
+                    ?.checkoutcom_apple_pay?.flow_enabled_on_all_browsers === '1';
+
+                return allBrowsers || this.browserRendersNativeApplePay();
+            },
+
+            /**
              * Gets a field value.
              *
              * @param  {string}  methodId The method id

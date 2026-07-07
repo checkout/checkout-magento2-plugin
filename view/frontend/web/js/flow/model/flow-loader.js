@@ -43,24 +43,8 @@ define(
          */
         function buildPrepareUrl() {
             const baseUrl = Url.build('checkout_com/flow/prepare'),
-                applePay = window.checkoutConfig?.payment?.checkoutcom_magento2?.checkoutcom_apple_pay,
-                merchantId = applePay?.merchant_id,
-                applePaySession = window.ApplePaySession,
-                separatorUrl = baseUrl.includes('?') ? '&' : '?',
-                isFlowApplePayOnAllBrowser = applePay?.flow_enabled_on_all_browsers === '1';
-            let isNative = '0';
-
-            if (isFlowApplePayOnAllBrowser) {
-                isNative = '1';
-            } else if (applePaySession && applePay && merchantId) {
-                try {
-                    if (applePaySession.canMakePayments(merchantId)) {
-                        isNative = '1';
-                    }
-                } catch (e) {
-                    Utilities.log(e);
-                }
-            }
+                separatorUrl = baseUrl.includes('?') ? '&' : '?';
+            const isNative = Utilities.browserRendersNativeApplePay() ? '1' : '0';
 
             return baseUrl + separatorUrl + 'flow_apple_pay_is_native=' + isNative;
         }

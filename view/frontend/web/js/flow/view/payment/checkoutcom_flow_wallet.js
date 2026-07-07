@@ -64,6 +64,21 @@ define(
                 },
 
                 /**
+                 * Whether the standalone Apple Pay method may be offered in the current browser.
+                 *
+                 * Mirrors flow-loader.js buildPrepareUrl: offer Apple Pay when "Enable Apple Pay on all
+                 * browsers" is ON, OR when the browser natively supports it (window.ApplePaySession +
+                 * canMakePayments()). This is enforced here because the SDK's component.isAvailable()
+                 * still returns true for the cross-device (QR) flow on non-native browsers even when the
+                 * config is OFF — so it cannot be the sole gate.
+                 *
+                 * @return {boolean}
+                 */
+                isApplePayOfferable: function () {
+                    return Utilities.isApplePayOfferable();
+                },
+
+                /**
                  * Inline <img> of the wallet's brand logo (shipped in view/frontend/web/images/flow),
                  * shown in the standalone method's title row. Empty string if unavailable.
                  *
@@ -122,6 +137,11 @@ define(
                     const walletType = this.getWalletType();
 
                     if (!walletType || !checkout) {
+                        return;
+                    }
+
+                    if (walletType === 'applepay' && !this.isApplePayOfferable()) {
+                        this.walletAvailable(false);
                         return;
                     }
 
