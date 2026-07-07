@@ -441,6 +441,10 @@ define(
                     }
 
                     const probes = inside.map(async (wallet) => {
+                        if (wallet.type === 'applepay' && !Utilities.isApplePayOfferable()) {
+                            return null;
+                        }
+
                         try {
                             const component = this.checkout.create(wallet.type, this.sharedComponentOptions({ showPayButton: true }));
                             const available = typeof component.isAvailable === 'function'
