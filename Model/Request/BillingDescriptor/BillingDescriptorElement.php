@@ -61,8 +61,8 @@ class BillingDescriptorElement
             );
         }
 
-        $model->city = $this->settings->getDynamicDescriptorName($storeCode);
-        $model->name = $this->settings->getDynamicDescriptorCity($websiteCode);
+        $model->city = $this->settings->getDynamicDescriptorCity($websiteCode);
+        $model->name = $this->settings->getDynamicDescriptorName($storeCode);
 
         return $model;
     }

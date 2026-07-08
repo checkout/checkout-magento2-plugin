@@ -17,6 +17,7 @@
     <head>
         <css src="CheckoutCom_Magento2::css/frames/main.css" />
         <css src="CheckoutCom_Magento2::css/frames/sepa/sepa.css"/>
+        <css src="CheckoutCom_Magento2::css/flow/flow.css"/>
     </head>
     <body>
         <!-- Add Paypal payment script and remove express one-->
@@ -82,6 +83,15 @@
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                         <item name="checkoutcom_flow" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
+                                                                        <item name="checkoutcom_flow_google_pay" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
+                                                                        <item name="checkoutcom_flow_apple_pay" xsi:type="array">
+                                                                            <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
+                                                                        </item>
+                                                                        <item name="checkoutcom_flow_paypal" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>
                                                                         </item>
                                                                     </item>
