@@ -1,0 +1,96 @@
+/**
+ * Checkout.com Magento 2 Magento2 Payment.
+ *
+ * Flow checkout styles: nested Card + APM radio list ("Pay with Checkout.com")
+ * and the standalone wallet rows (Google Pay / Apple Pay / PayPal).
+ *
+ * @category  Checkout.com
+ * @package   Magento2
+ * @author    Checkout.com Development Team <integration@checkout.com>
+ * @copyright 2010-present Checkout.com all rights reserved
+ * @license   https://opensource.org/licenses/mit-license.html MIT License
+ * @link      https://www.checkout.com
+ */
+
+/* ---- "Pay with Checkout.com": nested Card + APM list ---- */
+#checkoutcom_flow_container .cko-flow-method-radio {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    color: #1a1a1a;
+}
+#checkoutcom_flow_container .cko-flow-method-radio input[type="radio"] {
+    margin: 0;
+    flex: 0 0 auto;
+}
+/* Method logo chip (mirrors the native Flow list row) */
+#checkoutcom_flow_container .cko-method-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 26px;
+    flex: 0 0 auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    color: #4a4a4a;
+    background: #fff;
+    padding: 2px;
+}
+#checkoutcom_flow_container .cko-method-icon .cko-method-logo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+#checkoutcom_flow_container .cko-method-container:empty {
+    display: none;
+}
+#checkoutcom_flow_container .cko-method-container {
+    margin-top: 12px;
+}
+
+/* Nested list (Card + each APM) shown under the "Pay with Checkout.com" parent radio:
+   a bordered box with one row per method, like the reference screenshot. */
+#checkoutcom_flow_container .cko-nested-list {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+#checkoutcom_flow_container .cko-nested-list .cko-flow-method {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e0e0e0;
+}
+#checkoutcom_flow_container .cko-nested-list .cko-flow-method:last-child {
+    border-bottom: 0;
+}
+
+/* ---- Standalone wallet rows (Google Pay / Apple Pay / PayPal) ---- */
+.cko-flow-wallet .payment-method-title .label {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+}
+.cko-flow-wallet .cko-method-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 26px;
+    flex: 0 0 auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    background: #fff;
+    padding: 2px;
+}
+.cko-flow-wallet .cko-method-icon .cko-method-logo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}

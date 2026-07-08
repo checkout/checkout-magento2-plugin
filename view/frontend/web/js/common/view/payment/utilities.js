@@ -35,6 +35,48 @@ define(
         return {
 
             /**
+             * Whether the current browser renders the NATIVE Apple Pay sheet (vs the cross-device
+             * QR flow). canMakePayments()/supportsVersion() cannot be used to decide this: on macOS
+             * they return true in Chrome and Firefox too (they expose window.ApplePaySession), yet
+             * only Safari renders the native sheet — the others fall back to the QR flow. The only
+             * reliable discriminant is the User-Agent.
+             *
+             * @return {boolean}
+             */
+            browserRendersNativeApplePay: function () {
+                const ua = navigator.userAgent || '';
+
+                const isNativeBrowser = /iPad|iPhone|iPod/.test(ua)
+                    || (/Safari\//.test(ua)
+                        && !/Chrome|Chromium|CriOS|Edg|EdgiOS|OPR|OPT|FxiOS|Firefox|Android/.test(ua));
+
+                if (!isNativeBrowser) {
+                    return false;
+                }
+
+                try {
+                    return !!(window.ApplePaySession && window.ApplePaySession.canMakePayments());
+                } catch (e) {
+                    return false;
+                }
+            },
+
+            /**
+             * Whether Apple Pay (Flow) may be offered in the current browser:
+             * "Enable Apple Pay on all browsers" is ON, OR the browser renders native Apple Pay.
+             * Single source of truth for both the /flow/prepare native flag and the client visibility
+             * gates (standalone wallet + inside Flow).
+             *
+             * @return {boolean}
+             */
+            isApplePayOfferable: function () {
+                const allBrowsers = window.checkoutConfig?.payment?.checkoutcom_magento2
+                    ?.checkoutcom_apple_pay?.flow_enabled_on_all_browsers === '1';
+
+                return allBrowsers || this.browserRendersNativeApplePay();
+            },
+
+            /**
              * Gets a field value.
              *
              * @param  {string}  methodId The method id
@@ -216,7 +258,7 @@ define(
             checkStoredCard: function () {
                 var userData = this.getValue('checkoutcom_data', 'user');
                 if (userData['previous_method'] == 'checkoutcom_vault'
-                && $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').length) {
+                    && $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').length) {
                     $('input[name=\'publicHash\'][value=\''+userData['previous_source']+'\']').trigger('click');
                 }
             },
@@ -283,8 +325,8 @@ define(
             getCustomerNameByBillingAddress: function (billingAddress) {
                 var customerName = '';
                 if (billingAddress && billingAddress.firstname && billingAddress.lastname) {
-                        customerName += billingAddress.firstname;
-                        customerName += ' ' + billingAddress.lastname;
+                    customerName += billingAddress.firstname;
+                    customerName += ' ' + billingAddress.lastname;
                 }
 
                 return customerName;
@@ -305,9 +347,9 @@ define(
             getEmail: function () {
                 var emailCookieName = this.getValue(null, 'email_cookie_name');
                 return window.checkoutConfig.customerData.email
-                || Quote.guestEmail
-                || CheckoutData.getValidatedEmailValue()
-                || $.cookie(emailCookieName);
+                    || Quote.guestEmail
+                    || CheckoutData.getValidatedEmailValue()
+                    || $.cookie(emailCookieName);
             },
 
             /**
@@ -432,7 +474,10 @@ define(
              */
             placeOrder: function (payload, methodId, startLoader = true, has3DS = null) {
                 let self = this;
-                const isFlow = methodId === 'checkoutcom_flow';
+                // Treat the Flow card method AND the standalone Flow wallet methods
+                // (checkoutcom_flow_google_pay / _apple_pay) as Flow, so they use the order-first
+                // placefloworder endpoint and the Flow 3DS handling rather than the Frames charge path.
+                const isFlow = typeof methodId === 'string' && methodId.startsWith('checkoutcom_flow');
                 const orderUrl = isFlow ? 'payment/placefloworder' : 'payment/placeorder';
 
                 if (startLoader) {
@@ -481,7 +526,7 @@ define(
 
             redirectFailedPayment: function (token, reference = null) {
                 let url = token && reference ? Url.build(
-                    `checkout_com/payment/failfloworder?cko-session-id=${token}&reference=${reference}`
+                        `checkout_com/payment/failfloworder?cko-session-id=${token}&reference=${reference}`
                     ) :
                     Url.build('checkout_com/payment/failfloworder');
 
@@ -490,7 +535,7 @@ define(
 
             redirectCompletedPayment: function (token, reference = null) {
                 let url = token && reference ? Url.build(
-                    `checkout_com/payment/verifyfloworder?cko-session-id=${token}&reference=${reference}`
+                        `checkout_com/payment/verifyfloworder?cko-session-id=${token}&reference=${reference}`
                     ) :
                     Url.build('checkout_com/payment/verifyfloworder');
 

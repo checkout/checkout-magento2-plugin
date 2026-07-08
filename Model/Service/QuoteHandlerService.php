@@ -224,7 +224,7 @@ class QuoteHandlerService
         $guestEmail = ($email) ? $email : $this->findEmail($quote);
 
         // Set the quote as guest
-        $quote->setCustomerId(0)->setCustomerEmail($guestEmail)->setCustomerIsGuest(true)->setCustomerGroupId(
+        $quote->setCustomerId(null)->setCustomerEmail($guestEmail)->setCustomerIsGuest(true)->setCustomerGroupId(
             GroupInterface::NOT_LOGGED_IN_ID
         );
 

@@ -148,6 +148,7 @@ class PostPaymentSessions
         }
 
         $customer = $this->customerResolver->resolve($quote);
+        $data['reference'] = $this->quoteHandlerService->getReference($quote);
 
         $billingAddress = $quote->getBillingAddress();
         $shippingAddress = $quote->getShippingAddress();
@@ -175,6 +176,7 @@ class PostPaymentSessions
         $model->three_ds = $this->threeDSElement->get();
         $model->sender = $this->senderElement->get($customer);
         $model->capture = $this->generalSettings->isAuthorizeAndCapture($websiteCode);
+        $model->reference = $data['reference'];
 
         if (in_array($currency, self::TAMARA_CURRENCIES)) {
             $this->customerElement->fillSummary($model->customer, $customer, $currency);
