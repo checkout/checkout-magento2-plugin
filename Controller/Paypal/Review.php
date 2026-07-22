@@ -22,7 +22,6 @@ namespace CheckoutCom\Magento2\Controller\Paypal;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Methods\PaypalMethod;
 use CheckoutCom\Magento2\Model\Service\PaymentContextRequestService;
-use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\HttpGetActionInterface;
 use Magento\Framework\App\RequestInterface;
@@ -35,6 +34,7 @@ use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Api\Data\PaymentInterface;
 use Magento\Quote\Api\Data\PaymentInterfaceFactory;
+use Throwable;
 
 /**
  * Class Review
@@ -147,7 +147,7 @@ class Review implements HttpGetActionInterface
                 return;
             }
 
-            $shippingAddress->collectShippingRates();
+            $shippingAddress->setCollectShippingRates(true)->collectShippingRates();
             $rates = $shippingAddress->getGroupedAllShippingRates();
             foreach ($rates as $carrier) {
                 foreach ($carrier as $carrierMethod) {
@@ -158,7 +158,7 @@ class Review implements HttpGetActionInterface
                     return;
                 }
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $this->logger->write('PayPal express auto shipping method selection failed: ' . $e->getMessage());
         }
     }
