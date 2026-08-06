@@ -26,6 +26,7 @@ use CheckoutCom\Magento2\Provider\AccountSettings;
 use CheckoutCom\Magento2\Provider\FlowMethodSettings;
 use CheckoutCom\Magento2\Provider\GeneralSettings;
 use Exception;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -33,6 +34,12 @@ use Psr\Log\LoggerInterface;
 
 class FlowPrepareService
 {
+    /**
+     * Only the most recent Flow sessions created during the current checkout need to be
+     * remembered; older entries are dropped to keep the checkout session payload small.
+     */
+    private const MAX_TRACKED_SESSIONS = 5;
+
     protected PostPaymentSessions $postPaymentSession;
     protected StoreManagerInterface $storeManager;
     protected ApiHandlerService $apiHandler;
@@ -42,6 +49,7 @@ class FlowPrepareService
     protected LoggerInterface $logger;
     protected Logger $ckoLogger;
     protected Utilities $utilities;
+    private CheckoutSession $checkoutSession;
 
     public function __construct(
         ApiHandlerService $apiHandler,
@@ -52,7 +60,8 @@ class FlowPrepareService
         GeneralSettings $generalConfiguration,
         LoggerInterface $logger,
         Logger $ckoLogger,
-        Utilities $utilities
+        Utilities $utilities,
+        CheckoutSession $checkoutSession
     ) {
         $this->postPaymentSession = $postPaymentSession;
         $this->storeManager = $storeManager;
@@ -63,6 +72,7 @@ class FlowPrepareService
         $this->logger = $logger;
         $this->ckoLogger = $ckoLogger;
         $this->utilities = $utilities;
+        $this->checkoutSession = $checkoutSession;
     }
 
     public function prepare(CartInterface $quote, array $data)
@@ -101,6 +111,10 @@ class FlowPrepareService
             ];
         }
 
+        if (!empty($responseAPI['id'])) {
+            $this->rememberSessionCurrency($responseAPI['id'], $payload->currency);
+        }
+
         $response = [
             'appearance' => $this->flowMethodConfiguration->getDesign($storeCode),
             'environment' => $this->generalConfiguration->isProductionModeEnabled(null) ? "production" : "sandbox",
@@ -109,5 +123,23 @@ class FlowPrepareService
         ];
 
         return $response;
+    }
+
+    /**
+     * Record which currency a Flow payment session was created with. Checkout.com fixes the
+     * currency at session creation time (the submit endpoint has no currency field), so
+     * FlowSubmitService needs this to detect a currency change (e.g. the shopper switched store
+     * currency, possibly from another browser tab) before forwarding the payment.
+     */
+    private function rememberSessionCurrency(string $sessionId, string $currency): void
+    {
+        $sessions = $this->checkoutSession->getFlowSessionCurrencies() ?? [];
+        $sessions[$sessionId] = $currency;
+
+        if (count($sessions) > self::MAX_TRACKED_SESSIONS) {
+            $sessions = array_slice($sessions, -self::MAX_TRACKED_SESSIONS, null, true);
+        }
+
+        $this->checkoutSession->setFlowSessionCurrencies($sessions);
     }
 }
