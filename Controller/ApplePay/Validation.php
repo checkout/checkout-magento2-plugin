@@ -61,8 +61,10 @@ class Validation extends Action
         $methodId = $this->getRequest()->getParam('method_id');
         $url = $this->getRequest()->getParam('u');
 
-        if (substr($url, 0, 5) === 'https' && substr($url, 0, 8) !== 'https://') {
-            $url = 'https://' . substr($url, 7);
+        // Only allow Apple-owned HTTPS hosts to prevent SSRF and certificate exfiltration
+        $host = parse_url((string)$url, PHP_URL_HOST);
+        if (!$host || !preg_match('/(?:^|\.)apple\.com$/', $host) || parse_url((string)$url, PHP_URL_SCHEME) !== 'https') {
+            return $this->rawFactory->create()->setContents('');
         }
 
         // Prepare the configuration parameters
