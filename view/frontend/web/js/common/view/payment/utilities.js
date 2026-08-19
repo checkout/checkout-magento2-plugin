@@ -524,22 +524,38 @@ define(
                 CheckoutData.setNewCustomerShippingAddress(null);
             },
 
-            redirectFailedPayment: function (token, reference = null) {
-                let url = token && reference ? Url.build(
-                        `checkout_com/payment/failfloworder?cko-session-id=${token}&reference=${reference}`
-                    ) :
-                    Url.build('checkout_com/payment/failfloworder');
+            /**
+             * Build payment redirect URL including only the identifiers actually available.
+             * the backend controller can still resolve the payment from the session id alone.
+             */
+            buildPaymentRedirectUrl: function (path, token, reference) {
+                const params = [];
 
-                window.location.href = url;
+                if (token) {
+                    params.push(`cko-session-id=${encodeURIComponent(token)}`);
+                }
+
+                if (reference) {
+                    params.push(`reference=${encodeURIComponent(reference)}`);
+                }
+
+                return Url.build(params.length ? `${path}?${params.join('&')}` : path);
+            },
+
+            redirectFailedPayment: function (token, reference = null) {
+                window.location.href = this.buildPaymentRedirectUrl(
+                    'checkout_com/payment/failfloworder',
+                    token,
+                    reference
+                );
             },
 
             redirectCompletedPayment: function (token, reference = null) {
-                let url = token && reference ? Url.build(
-                        `checkout_com/payment/verifyfloworder?cko-session-id=${token}&reference=${reference}`
-                    ) :
-                    Url.build('checkout_com/payment/verifyfloworder');
-
-                window.location.href = url;
+                window.location.href = this.buildPaymentRedirectUrl(
+                    'checkout_com/payment/verifyfloworder',
+                    token,
+                    reference
+                );
             }
         };
     }
