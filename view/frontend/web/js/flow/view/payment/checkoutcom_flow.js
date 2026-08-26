@@ -69,6 +69,7 @@ define(
                  */
                 initialize: function () {
                     window.currentGrandTotal = Quote.totals().base_grand_total;
+                    window.currentQuoteCurrency = Quote.totals().quote_currency_code;
 
                     this._super();
 
@@ -121,11 +122,18 @@ define(
                     });
 
                     Quote.totals.subscribe(() => {
-                        const newGrandTotal = Quote.totals().base_grand_total;
+                        const totals = Quote.totals();
+                        const newGrandTotal = totals.base_grand_total;
+                        const newCurrency = totals.quote_currency_code;
+                        // base_grand_total alone misses a pure currency switch (it stays the
+                        // same amount in base currency), so it would leave the Flow session
+                        // bound to the old currency at Checkout.com.
+                        const hasChanged = newGrandTotal !== window.currentGrandTotal || newCurrency !== window.currentQuoteCurrency;
 
-                        if (Utilities.methodIsSelected(METHOD_ID) && newGrandTotal !== window.currentGrandTotal) {
+                        if (Utilities.methodIsSelected(METHOD_ID) && hasChanged) {
                             this.reloadFlow();
                             window.currentGrandTotal = newGrandTotal;
+                            window.currentQuoteCurrency = newCurrency;
                         }
                     }, null, 'change');
                 },
