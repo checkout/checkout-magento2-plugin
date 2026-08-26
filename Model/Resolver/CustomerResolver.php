@@ -25,6 +25,16 @@ use Magento\Quote\Api\Data\CartInterface;
 
 class CustomerResolver
 {
+    /**
+     * Name of the request parameter carrying the guest email known client-side.
+     */
+    public const GUEST_EMAIL_PARAM_NAME = 'flow_guest_email';
+
+    /**
+     * Key under which the guest email is passed down to the payment session request.
+     */
+    public const GUEST_EMAIL_DATA_KEY = 'guest_email';
+
     protected $customerFactory;
 
     public function __construct(
@@ -33,7 +43,13 @@ class CustomerResolver
         $this->customerFactory = $customerFactory;
     }
 
-    public function resolve(CartInterface $quote): CustomerInterface
+    /**
+     * @param CartInterface $quote
+     * @param string|null   $guestEmail Email known client-side but not yet persisted on the quote.
+     *
+     * @return CustomerInterface
+     */
+    public function resolve(CartInterface $quote, ?string $guestEmail = null): CustomerInterface
     {
         $customer = $quote->getCustomer();
         if (!empty($customer->getEmail()) && !empty($customer->getFirstname()) && !empty($customer->getLastname())) {
@@ -44,7 +60,7 @@ class CustomerResolver
         $billingAddress = $quote->getBillingAddress();
         $newCustomer->setFirstname($billingAddress->getFirstname());
         $newCustomer->setLastname($billingAddress->getLastname());
-        $newCustomer->setEmail($billingAddress->getEmail());
+        $newCustomer->setEmail(!empty($billingAddress->getEmail()) ? $billingAddress->getEmail() : $guestEmail);
 
         return $newCustomer;
     }

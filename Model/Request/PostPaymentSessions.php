@@ -147,7 +147,7 @@ class PostPaymentSessions
             );
         }
 
-        $customer = $this->customerResolver->resolve($quote);
+        $customer = $this->customerResolver->resolve($quote, $data[CustomerResolver::GUEST_EMAIL_DATA_KEY] ?? null);
         $data['reference'] = $this->quoteHandlerService->getReference($quote);
 
         $billingAddress = $quote->getBillingAddress();
