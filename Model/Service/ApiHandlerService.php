@@ -37,7 +37,6 @@ use Checkout\Previous\CheckoutApi as PreviousCheckoutApi;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
-use CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigRegion;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\Exception\FileSystemException;
@@ -118,7 +117,7 @@ class ApiHandlerService
         ?string $secretKey = null,
         ?string $publicKey = null
     ): ApiHandlerService {
-        $region = $this->config->getValue('region', null, (string)$storeCode, $scope);
+        $partialClientId = $this->config->getValue('partial_client_id', null, (string)$storeCode, $scope);
 
         if (!$secretKey) {
             $secretKey = $this->config->getValue('secret_key', null, (string)$storeCode, $scope);
@@ -145,9 +144,9 @@ class ApiHandlerService
             ), 
             'api');
 
-        // Do not set subdomain when global region is used
-        if ($region !== ConfigRegion::REGION_GLOBAL) {
-            $sdkBuilder->environmentSubdomain($region);
+        // Set the merchant-specific subdomain from the partial Client ID.
+        if ($partialClientId) {
+            $sdkBuilder->environmentSubdomain(strtolower($partialClientId));
         }
 
         $this->checkoutApi = $sdkBuilder->build();
