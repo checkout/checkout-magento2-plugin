@@ -149,6 +149,7 @@ define(
 
                     const component = checkout.create(walletType, {
                         showPayButton: true,
+                        handleClick: () => ({ continue: AdditionalValidators.validate() }),
                         handleSubmit: (_self, submitData) => this.submitPaymentWithReference(_self, submitData),
                         onPaymentCompleted: (_self, paymentResponse) => {
                             if (paymentResponse.status === 'Approved') {

@@ -431,7 +431,10 @@ define(
                         }
 
                         try {
-                            const component = this.checkout.create(wallet.type, this.sharedComponentOptions({ showPayButton: true }));
+                            const component = this.checkout.create(wallet.type, this.sharedComponentOptions({
+                                showPayButton: true,
+                                handleClick: () => ({ continue: AdditionalValidators.validate() })
+                            }));
                             const available = typeof component.isAvailable === 'function'
                                 ? await component.isAvailable()
                                 : true;
