@@ -164,6 +164,11 @@ class Callback extends Action implements CsrfAwareActionInterface
                                             array_intersect_key($response, array_flip(['threeDs'])),
                                         );
 
+                                    $existingTransactionInfo = $this->utilities->getPaymentData($order);
+                                    if (!isset($existingTransactionInfo['id']) && isset($response['id'])) {
+                                        $this->utilities->setPaymentData($order, $response);
+                                    }
+
                                     // Save the order
                                     $this->orderRepository->save($order);
 

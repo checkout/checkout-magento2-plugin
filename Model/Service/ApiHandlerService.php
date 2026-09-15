@@ -176,6 +176,28 @@ class ApiHandlerService
     }
 
     /**
+     * @param $order
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    private function getPaymentId($order): string
+    {
+        $paymentInfo = $this->utilities->getPaymentData($order);
+
+        if (!isset($paymentInfo['id'])) {
+            throw new LocalizedException(
+                __(
+                    'The order #%1 has no gateway payment ID stored — the refund/capture/void request cannot be sent to Checkout.com.',
+                    $order->getIncrementId()
+                )
+            );
+        }
+
+        return $paymentInfo['id'];
+    }
+
+    /**
      * Captures a transaction
      *
      * @param $payment
@@ -191,27 +213,24 @@ class ApiHandlerService
         // Get the order
         $order = $payment->getOrder();
 
-        // Get the payment info
-        $paymentInfo = $this->utilities->getPaymentData($order);
+        // Get the payment ID (throws when missing)
+        $paymentId = $this->getPaymentId($order);
 
-        // Process the capture request
-        if (isset($paymentInfo['id'])) {
-            // Prepare the request
-            $request = new CaptureRequest();
+        // Prepare the request
+        $request = new CaptureRequest();
 
-            $request->amount = $this->orderHandler->amountToGateway(
-                $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
-                $order
-            );
+        $request->amount = $this->orderHandler->amountToGateway(
+            $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
+            $order
+        );
 
-            // Get the response
-            $response = $this->getCheckoutApi()->getPaymentsClient()->capturePayment($paymentInfo['id'], $request);
+        // Get the response
+        $response = $this->getCheckoutApi()->getPaymentsClient()->capturePayment($paymentId, $request);
 
-            // Logging
-            $this->logger->display($response);
+        // Logging
+        $this->logger->display($response);
 
-            return $response;
-        }
+        return $response;
     }
 
     /**
@@ -238,20 +257,18 @@ class ApiHandlerService
         // Get the order
         $order = $payment->getOrder();
 
-        // Get the payment info
-        $paymentInfo = $this->utilities->getPaymentData($order);
+        // Get the gateway payment ID (throws when missing)
+        $paymentId = $this->getPaymentId($order);
 
         // Process the void request
-        if (isset($paymentInfo['id'])) {
-            $request = new VoidRequest();
-            $request->reference = $paymentInfo['id'];
-            $response = $this->getCheckoutApi()->getPaymentsClient()->voidPayment($paymentInfo['id'], $request);
+        $request = new VoidRequest();
+        $request->reference = $paymentId;
+        $response = $this->getCheckoutApi()->getPaymentsClient()->voidPayment($paymentId, $request);
 
-            // Logging
-            $this->logger->display($response);
+        // Logging
+        $this->logger->display($response);
 
-            return $response;
-        }
+        return $response;
     }
 
     /**
@@ -270,26 +287,24 @@ class ApiHandlerService
         // Get the order
         $order = $payment->getOrder();
 
-        // Get the payment info
-        $paymentInfo = $this->utilities->getPaymentData($order);
+        // Get the gateway payment ID (throws when missing)
+        $paymentId = $this->getPaymentId($order);
 
         // Process the refund request
-        if (isset($paymentInfo['id'])) {
-            $request = new RefundRequest();
-            $request->amount = $this->orderHandler->amountToGateway(
-                $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
-                $order
-            );
+        $request = new RefundRequest();
+        $request->amount = $this->orderHandler->amountToGateway(
+            $this->utilities->formatDecimals($amount * $order->getBaseToOrderRate()),
+            $order
+        );
 
-            // Get the response
-            $response = $this->getCheckoutApi()->getPaymentsClient()->refundPayment($paymentInfo['id'], $request);
+        // Get the response
+        $response = $this->getCheckoutApi()->getPaymentsClient()->refundPayment($paymentId, $request);
 
-            // Logging
-            $this->logger->display($response);
+        // Logging
+        $this->logger->display($response);
 
-            // Return the response
-            return $response;
-        }
+        // Return the response
+        return $response;
     }
 
     /**
