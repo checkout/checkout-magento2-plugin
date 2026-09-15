@@ -5,7 +5,7 @@
  * Authorized and regulated as an electronic money institution
  * by the UK Financial Conduct Authority (FCA) under number 900816.
  *
- * PHP version 7
+ * PHP version 8
  *
  * @category  Magento2
  * @package   Checkout.com
@@ -177,6 +177,8 @@ class PayByLinkMethod extends AbstractMethod
 
         // Set the transaction id from response
         $payment->setTransactionId($response['action_id']);
+
+        return $this;
     }
 
     /**
