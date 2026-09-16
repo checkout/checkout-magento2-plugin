@@ -632,7 +632,7 @@ define(
                             if (!orderResponse || !orderResponse.success) {
                                 FullScreenLoader.stopLoader();
                                 if (orderResponse && orderResponse.message) {
-                                    self.showMessage('error', orderResponse.message, METHOD_ID);
+                                    Utilities.showMessage('error', orderResponse.message, METHOD_ID);
                                 }
                                 return Promise.reject(orderResponse || new Error('Place order failed'));
                             }
