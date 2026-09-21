@@ -165,8 +165,19 @@ class Callback extends Action implements CsrfAwareActionInterface
                                         );
 
                                     $existingTransactionInfo = $this->utilities->getPaymentData($order);
-                                    if (!isset($existingTransactionInfo['id']) && isset($response['id'])) {
-                                        $this->utilities->setPaymentData($order, $response);
+                                    if (!isset($existingTransactionInfo['id'])) {
+                                        if (!isset($response['id'])) {
+                                            $this->logger->additional(
+                                                sprintf(
+                                                    'Transaction id is empty. Order %s, Payment %s', 
+                                                    $response['reference'],
+                                                    $payload['data']['id']
+                                                ),
+                                                'webhook'
+                                            );
+                                        } else {
+                                            $this->utilities->setPaymentData($order, $response);
+                                        }
                                     }
 
                                     // Save the order
