@@ -622,7 +622,8 @@ define(
                     const selectedType = (flowSelf && (flowSelf.type || flowSelf.selectedType)) || 'card';
                     const payload = {
                         methodId: METHOD_ID,
-                        selectedMethod: selectedType
+                        selectedMethod: selectedType,
+                        session_id: self.paymentSessionId
                     };
 
                     if (!AdditionalValidators.validate()) {

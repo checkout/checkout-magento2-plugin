@@ -39,6 +39,7 @@ class FlowSubmitService
     private ApiHandlerService $apiHandler;
     private CheckoutSession $checkoutSession;
     private FlowGeneralSettings $flowGeneralSettings;
+    private FlowSessionCurrencyGuard $currencyGuard;
     private LoggerInterface $logger;
     private PriceFormatter $priceFormatter;
     private StoreManagerInterface $storeManager;
@@ -48,6 +49,7 @@ class FlowSubmitService
         AccountSettings $accountSettings,
         CheckoutSession $checkoutSession,
         FlowGeneralSettings $flowGeneralSettings,
+        FlowSessionCurrencyGuard $currencyGuard,
         LoggerInterface $logger,
         PriceFormatter $priceFormatter,
         StoreManagerInterface $storeManager
@@ -56,6 +58,7 @@ class FlowSubmitService
         $this->accountSettings = $accountSettings;
         $this->checkoutSession = $checkoutSession;
         $this->flowGeneralSettings = $flowGeneralSettings;
+        $this->currencyGuard = $currencyGuard;
         $this->logger = $logger;
         $this->priceFormatter = $priceFormatter;
         $this->storeManager = $storeManager;
@@ -121,9 +124,7 @@ class FlowSubmitService
      */
     private function assertSessionCurrencyMatches(string $sessionId, string $orderCurrency): void
     {
-        $sessions = $this->checkoutSession->getFlowSessionCurrencies() ?? [];
-
-        if (!isset($sessions[$sessionId]) || $sessions[$sessionId] === $orderCurrency) {
+        if (!$this->currencyGuard->hasCurrencyChanged($sessionId, $orderCurrency)) {
             return;
         }
 
@@ -131,7 +132,7 @@ class FlowSubmitService
             '%s: currency mismatch for Flow session %s (session: %s, order: %s)',
             __METHOD__,
             $sessionId,
-            $sessions[$sessionId],
+            (string)$this->currencyGuard->getSessionCurrency($sessionId),
             $orderCurrency
         ));
 

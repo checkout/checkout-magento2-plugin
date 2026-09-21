@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Model\Service\FlowSessionCurrencyGuard;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
@@ -39,6 +40,7 @@ class PlaceFlowOrder extends Action
     private const FLOW_ID = "checkoutcom_flow";
 
     private FlowGeneralSettings $flowGeneralConfig;
+    private FlowSessionCurrencyGuard $currencyGuard;
     private JsonFactory $jsonFactory;
     protected JsonSerializer $json;
     private Logger $logger;
@@ -50,6 +52,7 @@ class PlaceFlowOrder extends Action
     public function __construct(
         Context $context,
         FlowGeneralSettings $flowGeneralConfig,
+        FlowSessionCurrencyGuard $currencyGuard,
         JsonFactory $jsonFactory,
         Logger $logger,
         OrderHandlerService $orderHandler,
@@ -66,6 +69,7 @@ class PlaceFlowOrder extends Action
         $this->logger = $logger;
         $this->orderRepository = $orderRepository;
         $this->flowGeneralConfig = $flowGeneralConfig;
+        $this->currencyGuard = $currencyGuard;
     }
 
     public function execute(): Json
@@ -108,6 +112,20 @@ class PlaceFlowOrder extends Action
                 return $json->setData([
                     'success' => false,
                     'message' => __('No quote found'),
+                ]);
+            }
+
+            // Checkout.com fixes the Flow session currency at creation. If the shopper switched
+            // store currency (possibly from another tab) after the session was prepared, refuse
+            // here so we never create an order bound to a session in the wrong currency. Placing
+            // the order first and only catching this at submit time would leave an orphaned
+            // pending-payment order behind.
+            $sessionId = isset($data['session_id']) ? (string)$data['session_id'] : null;
+
+            if ($this->currencyGuard->hasCurrencyChanged($sessionId, (string)$quote->getQuoteCurrencyCode())) {
+                return $json->setData([
+                    'success' => false,
+                    'message' => __('The currency has changed since payment was initialized. Please refresh the page and try again.'),
                 ]);
             }
 
