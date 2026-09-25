@@ -112,11 +112,15 @@ class Utilities
         // Get the payment info instance
         $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
 
-        // Add the transaction info for order save after
-        $paymentInfo->setAdditionalInformation(
-            'transaction_info',
-            array_intersect_key($data, array_flip(['id']))
-        );
+        // Add the transaction info for order save after.
+        // Only overwrite when the incoming data actually carries an ID, otherwise an
+        // already-stored valid transaction ID would be wiped by an empty array.
+        $newTransactionInfo = array_intersect_key($data, array_flip(['id']));
+        if (!empty($newTransactionInfo['id'])
+            || !isset($paymentInfo->getAdditionalInformation()['transaction_info']['id'])
+        ) {
+            $paymentInfo->setAdditionalInformation('transaction_info', $newTransactionInfo);
+        }
 
         if (isset($source)) {
             if ($source['methodId'] === 'checkoutcom_apm') {
