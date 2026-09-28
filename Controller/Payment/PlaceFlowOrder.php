@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Model\Service\FlowSessionCurrencyGuard;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
@@ -28,7 +29,6 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
@@ -38,34 +38,18 @@ class PlaceFlowOrder extends Action
     private const METHOD_PREFIX = "checkoutcom_";
     private const FLOW_ID = "checkoutcom_flow";
 
-    private FlowGeneralSettings $flowGeneralConfig;
-    private JsonFactory $jsonFactory;
-    protected JsonSerializer $json;
-    private Logger $logger;
-    private OrderHandlerService $orderHandler;
-    private OrderRepositoryInterface $orderRepository;
-    private QuoteHandlerService $quoteHandler;
-    private StoreManagerInterface $storeManager;
-
     public function __construct(
         Context $context,
-        FlowGeneralSettings $flowGeneralConfig,
-        JsonFactory $jsonFactory,
-        Logger $logger,
-        OrderHandlerService $orderHandler,
-        OrderRepositoryInterface $orderRepository,
-        QuoteHandlerService $quoteHandler,
-        StoreManagerInterface $storeManager
+        private readonly FlowGeneralSettings $flowGeneralConfig,
+        private readonly FlowSessionCurrencyGuard $currencyGuard,
+        private readonly JsonFactory $jsonFactory,
+        private readonly Logger $logger,
+        private readonly OrderHandlerService $orderHandler,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly QuoteHandlerService $quoteHandler,
+        private readonly StoreManagerInterface $storeManager
     ) {
         parent::__construct($context);
-
-        $this->storeManager = $storeManager;
-        $this->jsonFactory = $jsonFactory;
-        $this->quoteHandler = $quoteHandler;
-        $this->orderHandler = $orderHandler;
-        $this->logger = $logger;
-        $this->orderRepository = $orderRepository;
-        $this->flowGeneralConfig = $flowGeneralConfig;
     }
 
     public function execute(): Json
@@ -108,6 +92,20 @@ class PlaceFlowOrder extends Action
                 return $json->setData([
                     'success' => false,
                     'message' => __('No quote found'),
+                ]);
+            }
+
+            // Checkout.com fixes the Flow session currency at creation. If the shopper switched
+            // store currency (possibly from another tab) after the session was prepared, refuse
+            // here so we never create an order bound to a session in the wrong currency. Placing
+            // the order first and only catching this at submit time would leave an orphaned
+            // pending-payment order behind.
+            $sessionId = isset($data['session_id']) ? (string)$data['session_id'] : null;
+
+            if ($this->currencyGuard->hasCurrencyChanged($sessionId, (string)$quote->getQuoteCurrencyCode())) {
+                return $json->setData([
+                    'success' => false,
+                    'message' => __('The currency has changed since payment was initialized. Please refresh the page and try again.'),
                 ]);
             }
 
