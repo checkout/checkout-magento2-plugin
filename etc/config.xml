@@ -18,7 +18,7 @@
         <settings>
             <checkoutcom_configuration>
                 <fields_encrypted></fields_encrypted>
-                <fields_hidden>secret_key,private_shared_key</fields_hidden>
+                <fields_hidden>secret_key,private_shared_key,mada_test_file,mada_live_file</fields_hidden>
                 <active>1</active>
                 <sdk>0</sdk>
                 <payment_processing>order_first</payment_processing>
