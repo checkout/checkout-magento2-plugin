@@ -35,33 +35,16 @@ class FlowSubmitService
     private const EURO_CURRENCY_CODE = 'EUR';
     private const PAYMENT_TYPE_REGULAR = 'Regular';
 
-    private AccountSettings $accountSettings;
-    private ApiHandlerService $apiHandler;
-    private CheckoutSession $checkoutSession;
-    private FlowGeneralSettings $flowGeneralSettings;
-    private FlowSessionCurrencyGuard $currencyGuard;
-    private LoggerInterface $logger;
-    private PriceFormatter $priceFormatter;
-    private StoreManagerInterface $storeManager;
-
     public function __construct(
-        ApiHandlerService $apiHandler,
-        AccountSettings $accountSettings,
-        CheckoutSession $checkoutSession,
-        FlowGeneralSettings $flowGeneralSettings,
-        FlowSessionCurrencyGuard $currencyGuard,
-        LoggerInterface $logger,
-        PriceFormatter $priceFormatter,
-        StoreManagerInterface $storeManager
+        private readonly ApiHandlerService $apiHandler,
+        private readonly AccountSettings $accountSettings,
+        private readonly CheckoutSession $checkoutSession,
+        private readonly FlowGeneralSettings $flowGeneralSettings,
+        private readonly FlowSessionCurrencyGuard $currencyGuard,
+        private readonly LoggerInterface $logger,
+        private readonly PriceFormatter $priceFormatter,
+        private readonly StoreManagerInterface $storeManager
     ) {
-        $this->apiHandler = $apiHandler;
-        $this->accountSettings = $accountSettings;
-        $this->checkoutSession = $checkoutSession;
-        $this->flowGeneralSettings = $flowGeneralSettings;
-        $this->currencyGuard = $currencyGuard;
-        $this->logger = $logger;
-        $this->priceFormatter = $priceFormatter;
-        $this->storeManager = $storeManager;
     }
 
     /**

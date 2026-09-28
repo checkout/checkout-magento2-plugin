@@ -29,7 +29,6 @@ use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\StoreManagerInterface;
@@ -39,37 +38,18 @@ class PlaceFlowOrder extends Action
     private const METHOD_PREFIX = "checkoutcom_";
     private const FLOW_ID = "checkoutcom_flow";
 
-    private FlowGeneralSettings $flowGeneralConfig;
-    private FlowSessionCurrencyGuard $currencyGuard;
-    private JsonFactory $jsonFactory;
-    protected JsonSerializer $json;
-    private Logger $logger;
-    private OrderHandlerService $orderHandler;
-    private OrderRepositoryInterface $orderRepository;
-    private QuoteHandlerService $quoteHandler;
-    private StoreManagerInterface $storeManager;
-
     public function __construct(
         Context $context,
-        FlowGeneralSettings $flowGeneralConfig,
-        FlowSessionCurrencyGuard $currencyGuard,
-        JsonFactory $jsonFactory,
-        Logger $logger,
-        OrderHandlerService $orderHandler,
-        OrderRepositoryInterface $orderRepository,
-        QuoteHandlerService $quoteHandler,
-        StoreManagerInterface $storeManager
+        private readonly FlowGeneralSettings $flowGeneralConfig,
+        private readonly FlowSessionCurrencyGuard $currencyGuard,
+        private readonly JsonFactory $jsonFactory,
+        private readonly Logger $logger,
+        private readonly OrderHandlerService $orderHandler,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly QuoteHandlerService $quoteHandler,
+        private readonly StoreManagerInterface $storeManager
     ) {
         parent::__construct($context);
-
-        $this->storeManager = $storeManager;
-        $this->jsonFactory = $jsonFactory;
-        $this->quoteHandler = $quoteHandler;
-        $this->orderHandler = $orderHandler;
-        $this->logger = $logger;
-        $this->orderRepository = $orderRepository;
-        $this->flowGeneralConfig = $flowGeneralConfig;
-        $this->currencyGuard = $currencyGuard;
     }
 
     public function execute(): Json

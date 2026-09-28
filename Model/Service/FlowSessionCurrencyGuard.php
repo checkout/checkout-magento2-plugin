@@ -23,11 +23,9 @@ use Magento\Checkout\Model\Session as CheckoutSession;
 
 class FlowSessionCurrencyGuard
 {
-    private CheckoutSession $checkoutSession;
-
-    public function __construct(CheckoutSession $checkoutSession)
-    {
-        $this->checkoutSession = $checkoutSession;
+    public function __construct(
+        private readonly CheckoutSession $checkoutSession
+    ) {
     }
 
     /**
