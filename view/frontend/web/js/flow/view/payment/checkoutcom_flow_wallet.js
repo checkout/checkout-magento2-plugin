@@ -206,7 +206,8 @@ define(
                     const methodId = this.getCode();
                     const payload = {
                         methodId: methodId,
-                        selectedMethod: this.getWalletType()
+                        selectedMethod: this.getWalletType(),
+                        session_id: this.paymentSessionId
                     };
 
                     if (!AdditionalValidators.validate()) {

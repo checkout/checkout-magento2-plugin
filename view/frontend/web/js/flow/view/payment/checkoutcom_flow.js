@@ -622,7 +622,8 @@ define(
                     const selectedType = (flowSelf && (flowSelf.type || flowSelf.selectedType)) || 'card';
                     const payload = {
                         methodId: METHOD_ID,
-                        selectedMethod: selectedType
+                        selectedMethod: selectedType,
+                        session_id: self.paymentSessionId
                     };
 
                     if (!AdditionalValidators.validate()) {
@@ -640,7 +641,7 @@ define(
                             if (!orderResponse || !orderResponse.success) {
                                 FullScreenLoader.stopLoader();
                                 if (orderResponse && orderResponse.message) {
-                                    self.showMessage('error', orderResponse.message, METHOD_ID);
+                                    Utilities.showMessage('error', orderResponse.message, METHOD_ID);
                                 }
                                 return Promise.reject(orderResponse || new Error('Place order failed'));
                             }
@@ -669,7 +670,7 @@ define(
                             return submitResponse.json().then(function (data) {
                                 if (!submitResponse.ok || data.error) {
                                     FullScreenLoader.stopLoader();
-                                    self.showMessage('error', data.message || 'Payment submit failed', METHOD_ID);
+                                    Utilities.showMessage('error', data.message || 'Payment submit failed', METHOD_ID);
 
                                     return Promise.reject(data);
                                 }
