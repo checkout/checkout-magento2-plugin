@@ -21,6 +21,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\FlowPaymentAttemptService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
@@ -29,6 +30,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
@@ -37,6 +39,8 @@ class FailFlowOrder extends AbstractPayment
     private OrderSettings $orderSettings;
     private OrderStatusHandlerService $orderStatusHandler;
     private PaymentErrorHandlerService $paymentErrorHandlerService;
+    private FlowPaymentAttemptService $paymentAttemptService;
+    private CartRepositoryInterface $cartRepository;
 
     public function __construct(
         ApiHandlerService $apiHandler,
@@ -48,7 +52,9 @@ class FailFlowOrder extends AbstractPayment
         OrderStatusHandlerService $orderStatusHandler,
         PaymentErrorHandlerService $paymentErrorHandlerService,
         Session $session,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        FlowPaymentAttemptService $paymentAttemptService,
+        CartRepositoryInterface $cartRepository
     ) {
         parent::__construct(
             $apiHandler,
@@ -63,6 +69,8 @@ class FailFlowOrder extends AbstractPayment
         $this->orderSettings = $orderSettings;
         $this->orderStatusHandler = $orderStatusHandler;
         $this->paymentErrorHandlerService = $paymentErrorHandlerService;
+        $this->paymentAttemptService = $paymentAttemptService;
+        $this->cartRepository = $cartRepository;
     }
 
     protected function paymentAction(array $apiCallResponse, OrderInterface $order): ResponseInterface
@@ -70,6 +78,22 @@ class FailFlowOrder extends AbstractPayment
         $response = $apiCallResponse['response'];
 
         $this->logger->display($response);
+
+        // The failed payment belongs to another attempt sharing the same reference:
+        // never cancel or delete the order of the current attempt
+        if ($this->paymentAttemptService->isFromAnotherAttempt($order, $response)) {
+            $this->logger->write(
+                sprintf(
+                    'Failed payment %s ignored: it belongs to another attempt than order %s',
+                    $response['id'] ?? '',
+                    $order->getIncrementId()
+                )
+            );
+
+            $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+
+            return $this->_redirect('checkout/cart', ['_secure' => true]);
+        }
 
         $websiteCode = $this->storeManager->getWebsite()->getCode();
         $action = $this->orderSettings->getActionOnFailedPayment($websiteCode);
@@ -82,6 +106,7 @@ class FailFlowOrder extends AbstractPayment
         );
 
         $this->session->restoreQuote();
+        $this->resetReservedOrderId();
         $this->orderStatusHandler->handleFailedPayment($order);
         $this->orderHandler->deleteOrder($order);
 
@@ -103,6 +128,21 @@ class FailFlowOrder extends AbstractPayment
         }
 
         return $this->_redirect('checkout/cart', ['_secure' => true]);
+    }
+
+    /**
+     * Force a new increment id on the next attempt so it never shares the reference of the failed one
+     */
+    private function resetReservedOrderId(): void
+    {
+        $quote = $this->session->getQuote();
+
+        if (!$quote->getId() || !$quote->getReservedOrderId()) {
+            return;
+        }
+
+        $quote->setReservedOrderId(null);
+        $this->cartRepository->save($quote);
     }
 
     protected function saveCardAction(array $apiCallResponse): ResponseInterface

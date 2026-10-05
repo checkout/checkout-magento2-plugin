@@ -25,6 +25,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\FlowPaymentAttemptService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
@@ -67,6 +68,7 @@ class Callback extends Action implements CsrfAwareActionInterface
     private Logger $logger;
     private Utilities $utilities;
     private JsonSerializer $json;
+    private FlowPaymentAttemptService $paymentAttemptService;
 
     public function __construct(
         Context $context,
@@ -82,7 +84,8 @@ class Callback extends Action implements CsrfAwareActionInterface
         OrderRepositoryInterface $orderRepository,
         Logger $logger,
         Utilities $utilities,
-        JsonSerializer $json
+        JsonSerializer $json,
+        FlowPaymentAttemptService $paymentAttemptService
     ) {
         parent::__construct($context);
 
@@ -99,6 +102,7 @@ class Callback extends Action implements CsrfAwareActionInterface
         $this->logger = $logger;
         $this->utilities = $utilities;
         $this->json = $json;
+        $this->paymentAttemptService = $paymentAttemptService;
     }
 
     /**
@@ -142,6 +146,28 @@ class Callback extends Action implements CsrfAwareActionInterface
                             $order = $this->orderHandler->getOrder([
                                 'increment_id' => $response['reference'],
                             ]);
+
+                            // Ignore events of another payment attempt sharing the same reference
+                            if ($this->orderHandler->isOrder($order)
+                                && $this->isFromAnotherAttempt($order, $response, $payload)
+                            ) {
+                                $this->logger->additional(
+                                    sprintf(
+                                        'Webhook %s ignored: payment %s belongs to another attempt than order %s',
+                                        $payload['type'],
+                                        $payload['data']['id'],
+                                        $response['reference']
+                                    ),
+                                    'webhook'
+                                );
+
+                                // Set a valid response to avoid gateway retry mechanism
+                                $resultFactory->setHttpResponseCode(Response::HTTP_OK);
+
+                                return $resultFactory->setData([
+                                    'result' => __('Webhook ignored, the payment belongs to another attempt.'),
+                                ]);
+                            }
 
                             // Process the order
                             if ($this->orderHandler->isOrder($order)) {
@@ -282,6 +308,22 @@ class Callback extends Action implements CsrfAwareActionInterface
         $this->logger->additional($this->getRequest()->getContent(), 'webhook');
 
         return $this->json->unserialize($this->getRequest()->getContent());
+    }
+
+    /**
+     * Check if the webhook payment belongs to another Flow attempt than the order
+     *
+     * @param OrderInterface $order
+     * @param array $response
+     * @param array $payload
+     *
+     * @return bool
+     */
+    protected function isFromAnotherAttempt(OrderInterface $order, array $response, array $payload): bool
+    {
+        $payment = isset($response['metadata']) ? $response : ($payload['data'] ?? []);
+
+        return $this->paymentAttemptService->isFromAnotherAttempt($order, $payment);
     }
 
     /**
