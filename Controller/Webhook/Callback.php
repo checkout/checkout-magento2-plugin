@@ -187,14 +187,14 @@ class Callback extends Action implements CsrfAwareActionInterface
                                     if ($this->cardNeedsSaving($payload,$order)) {
                                         try {
                                             $this->saveCard($response, $payload);
-                                        } catch (Exception $e) {
+                                        } catch (Exception $exception) {
                                             // A card saving failure must not block the order authorization
                                             $this->logger->error(
                                                 sprintf(
                                                     'Unable to save the card. Order %s, Payment %s: %s',
                                                     $order->getIncrementId(),
                                                     $payload['data']['id'] ?? '',
-                                                    $e->getMessage()
+                                                    $exception->getMessage()
                                                 )
                                             );
                                         }
