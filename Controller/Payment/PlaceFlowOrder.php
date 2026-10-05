@@ -20,11 +20,13 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Payment;
 
 use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Model\Service\FlowPaymentAttemptService;
 use CheckoutCom\Magento2\Model\Service\FlowSessionCurrencyGuard;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Exception;
+use Magento\Checkout\Model\Session as CheckoutSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
@@ -40,6 +42,7 @@ class PlaceFlowOrder extends Action
 
     public function __construct(
         Context $context,
+        private readonly CheckoutSession $checkoutSession,
         private readonly FlowGeneralSettings $flowGeneralConfig,
         private readonly FlowSessionCurrencyGuard $currencyGuard,
         private readonly JsonFactory $jsonFactory,
@@ -119,7 +122,7 @@ class PlaceFlowOrder extends Action
             }
 
             $order->setStatus(Order::STATE_PENDING_PAYMENT);
-            $this->attachPaymentInfos($order, $data['selectedMethod']);
+            $this->attachPaymentInfos($order, $data['selectedMethod'], $sessionId);
             $this->orderRepository->save($order);
 
             return $json->setData([
@@ -137,7 +140,7 @@ class PlaceFlowOrder extends Action
         }
     }
 
-    private function attachPaymentInfos($order, $paymentName) {
+    private function attachPaymentInfos($order, $paymentName, ?string $sessionId) {
         $paymentInfo = $order->getPayment()->getMethodInstance()->getInfoInstance();
 
         $methodId = self::METHOD_PREFIX . $paymentName;
@@ -147,6 +150,27 @@ class PlaceFlowOrder extends Action
             $methodId
         );
 
+        // Bind the order to this payment attempt so webhooks of another attempt sharing the same
+        // reference can be ignored instead of cancelling or deleting this order
+        $attemptId = $this->getSessionAttemptId($sessionId);
+        if ($attemptId) {
+            $paymentInfo->setAdditionalInformation(FlowPaymentAttemptService::ATTEMPT_ID_KEY, $attemptId);
+        }
+
         $order->setPayment($paymentInfo);
+    }
+
+    /**
+     * Attempt token recorded by FlowPrepareService for the given Flow session, or null when unknown.
+     */
+    private function getSessionAttemptId(?string $sessionId): ?string
+    {
+        if (!$sessionId) {
+            return null;
+        }
+
+        $sessions = $this->checkoutSession->getFlowSessionAttemptIds() ?? [];
+
+        return $sessions[$sessionId] ?? null;
     }
 }

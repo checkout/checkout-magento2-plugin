@@ -113,6 +113,10 @@ class FlowPrepareService
 
         if (!empty($responseAPI['id'])) {
             $this->rememberSessionCurrency($responseAPI['id'], $payload->currency);
+            $this->rememberSessionAttemptId(
+                $responseAPI['id'],
+                $payload->metadata[FlowPaymentAttemptService::ATTEMPT_ID_KEY] ?? null
+            );
         }
 
         $response = [
@@ -141,5 +145,25 @@ class FlowPrepareService
         }
 
         $this->checkoutSession->setFlowSessionCurrencies($sessions);
+    }
+
+    /**
+     * Record which attempt token a Flow payment session was created with, so PlaceFlowOrder can
+     * bind the order placed for this session to the same token.
+     */
+    private function rememberSessionAttemptId(string $sessionId, ?string $attemptId): void
+    {
+        if (!$attemptId) {
+            return;
+        }
+
+        $sessions = $this->checkoutSession->getFlowSessionAttemptIds() ?? [];
+        $sessions[$sessionId] = $attemptId;
+
+        if (count($sessions) > self::MAX_TRACKED_SESSIONS) {
+            $sessions = array_slice($sessions, -self::MAX_TRACKED_SESSIONS, null, true);
+        }
+
+        $this->checkoutSession->setFlowSessionAttemptIds($sessions);
     }
 }
