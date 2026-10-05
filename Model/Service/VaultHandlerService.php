@@ -205,6 +205,11 @@ class VaultHandlerService
 
                 // Check if card exists
                 if ($foundPaymentToken) {
+                    // Refresh the card details (e.g. renewed expiry date) and the public hash computed from them
+                    $foundPaymentToken->setTokenDetails($paymentToken->getTokenDetails());
+                    $foundPaymentToken->setExpiresAt($paymentToken->getExpiresAt());
+                    $foundPaymentToken->setPublicHash($paymentToken->getPublicHash());
+
                     // Activate or reactivate the card
                     $foundPaymentToken->setIsActive(true);
                     $foundPaymentToken->setIsVisible(true);
@@ -241,10 +246,22 @@ class VaultHandlerService
      */
     private function foundExistedPaymentToken(PaymentTokenInterface $paymentToken): ?PaymentTokenInterface
     {
-        return $this->paymentTokenManagement->getByPublicHash(
+        $foundPaymentToken = $this->paymentTokenManagement->getByPublicHash(
             $paymentToken->getPublicHash(),
             $paymentToken->getCustomerId()
         );
+
+        // The public hash depends on the card details, which can change for the same card (e.g. renewed expiry date).
+        // Fall back on the vault_payment_token unique key to avoid saving the same gateway token twice.
+        if ($foundPaymentToken === null && $paymentToken->getGatewayToken()) {
+            $foundPaymentToken = $this->paymentTokenManagement->getByGatewayToken(
+                $paymentToken->getGatewayToken(),
+                $paymentToken->getPaymentMethodCode(),
+                $paymentToken->getCustomerId()
+            );
+        }
+
+        return $foundPaymentToken;
     }
 
     /**
