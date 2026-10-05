@@ -164,7 +164,7 @@ class PostPaymentSessions
         if ($this->generalSettings->isDynamicDescriptorEnabled($websiteCode)) {
             $model->billing_descriptor = $this->billingDescriptorElement->get();
         }
-        $model->customer = $this->customerElement->get($customer, $billingAddress);
+        $model->customer = $this->customerElement->get($customer, $billingAddress, $shippingAddress);
         $model->shipping = $this->shippingElement->get($shippingAddress);
         $model->processing_channel_id = $this->accountSettings->getChannelId($websiteCode);
         $model->payment_method_configuration = $this->paymentMethodConfigurationElement->get($customer);
@@ -174,7 +174,11 @@ class PostPaymentSessions
         $model->locale = $this->localeFormatter->getFormattedLocale($this->externalSettings->getStoreLocale($storeCode));
         $model->description = __('Payment request')->render();
         $model->three_ds = $this->threeDSElement->get();
-        $model->sender = $this->senderElement->get($customer);
+        // A sender with no name is rejected (sender_invalid) and fails the whole session; the names
+        // are often still unknown for a guest when the payment step renders, so leave it out then.
+        if (!empty($customer->getFirstname()) && !empty($customer->getLastname())) {
+            $model->sender = $this->senderElement->get($customer);
+        }
         $model->capture = $this->generalSettings->isAuthorizeAndCapture($websiteCode);
         $model->reference = $data['reference'];
 
