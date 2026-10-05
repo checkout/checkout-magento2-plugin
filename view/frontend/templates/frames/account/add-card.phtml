@@ -62,6 +62,7 @@ use Magento\Framework\View\Helper\SecureHtmlRenderer;
 $publicKey = $block->escapeHtml($block->getConfig()->getValue('public_key'));
 $debugFlag = (int) ($block->getConfig()->getValue('debug') && $block->getConfig()->getValue('console_logging'));
 $saveCardUrl = $block->escapeHtml($block->getUrl('checkout_com/account/savecard'));
+$rightToLeftMode = $block->getConfig()->getValue('enable_right_to_left', 'checkoutcom_card_payment') ? 'Frames.modes.RIGHT_TO_LEFT' : '';
 
 $script = <<<script
     require([
@@ -81,7 +82,7 @@ $script = <<<script
         const tooltipContent = document.getElementById('cc-tooltip-content');
         var modes = [ 
             Frames.modes.FEATURE_FLAG_SCHEME_CHOICE,
-            <?= $block->getConfig()->getValue('enable_right_to_left', 'checkoutcom_card_payment') ? 'Frames.modes.RIGHT_TO_LEFT' : ""; ?>
+            {$rightToLeftMode}
         ];
         // Initialize the embedded form
         Frames.init(
