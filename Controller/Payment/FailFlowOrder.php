@@ -79,6 +79,22 @@ class FailFlowOrder extends AbstractPayment
 
         $this->logger->display($response);
 
+        // This URL can be called by anyone with any reference: only handle the order placed in
+        // the current checkout session, never another customer's order
+        if ($order->getIncrementId() !== $this->session->getLastRealOrderId()) {
+            $this->logger->write(
+                sprintf(
+                    'Failed payment %s ignored: order %s does not belong to the current checkout session',
+                    $response['id'] ?? '',
+                    $order->getIncrementId()
+                )
+            );
+
+            $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+
+            return $this->_redirect('checkout/cart', ['_secure' => true]);
+        }
+
         // The failed payment belongs to another attempt sharing the same reference:
         // never cancel or delete the order of the current attempt
         if ($this->paymentAttemptService->isFromAnotherAttempt($order, $response)) {
