@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
+use CheckoutCom\Magento2\Controller\Adminhtml\Logs\View as ViewLogs;
 use LimitIterator;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
@@ -64,6 +65,22 @@ class LogFiles extends Field
         array $data = []
     ) {
         parent::__construct($context, $data);
+    }
+
+    /**
+     * Hide the log preview from admin users who are not allowed to read log files
+     *
+     * @param AbstractElement $element
+     *
+     * @return string
+     */
+    public function render(AbstractElement $element): string
+    {
+        if (!$this->_authorization->isAllowed(ViewLogs::ADMIN_RESOURCE)) {
+            return '';
+        }
+
+        return parent::render($element);
     }
 
     /**
