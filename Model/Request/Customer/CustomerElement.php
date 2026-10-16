@@ -45,18 +45,28 @@ class CustomerElement
 
     /**
      * @param QuoteAddressInterface|OrderAddressInterface $billingAddress
+     * @param QuoteAddressInterface|OrderAddressInterface|null $shippingAddress Phone fallback when the
+     *        billing address is not filled in yet
      */
-    public function get(CustomerInterface $customer, $billingAddress): PaymentCustomerRequest
+    public function get(CustomerInterface $customer, $billingAddress, $shippingAddress = null): PaymentCustomerRequest
     {
         $model = $this->modelFactory->create();
 
         $model->email = $customer->getEmail();
         $model->name = $customer->getFirstname() . ' ' . $customer->getLastname();
 
+        // Country and number always come from the same address, so the dialling code matches the number.
         $phoneElement = $this->phoneElement->get(
-            $billingAddress->getCountryId(), 
+            $billingAddress->getCountryId(),
             $billingAddress->getTelephone()
         );
+
+        if (!$phoneElement && $shippingAddress) {
+            $phoneElement = $this->phoneElement->get(
+                $shippingAddress->getCountryId(),
+                $shippingAddress->getTelephone()
+            );
+        }
 
         if ($phoneElement) {
             $model->phone = $phoneElement;

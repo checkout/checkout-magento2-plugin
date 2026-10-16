@@ -35,6 +35,7 @@ use CheckoutCom\Magento2\Model\Request\Shipping\ShippingElement;
 use CheckoutCom\Magento2\Model\Request\ThreeDS\ThreeDSElement;
 use CheckoutCom\Magento2\Model\Resolver\CustomerResolver;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\FlowPaymentAttemptService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Provider\AccountSettings;
 use CheckoutCom\Magento2\Provider\ExternalSettings;
@@ -76,6 +77,7 @@ class PostPaymentSessions
     private SerializerInterface $serializer;
     private QuoteHandlerService $quoteHandler;
     private Url $urlBuilder;
+    private FlowPaymentAttemptService $paymentAttemptService;
 
     public function __construct(
         PaymentSessionsRequestFactory $modelFactory,
@@ -102,7 +104,8 @@ class PostPaymentSessions
         SerializerInterface $serializer,
         QuoteHandlerService $quoteHandler,
         Url $urlBuilder,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        FlowPaymentAttemptService $paymentAttemptService
     ) {
         $this->modelFactory = $modelFactory;
         $this->billingDescriptorElement = $billingDescriptorElement;
@@ -129,6 +132,7 @@ class PostPaymentSessions
         $this->serializer = $serializer;
         $this->quoteHandler = $quoteHandler;
         $this->urlBuilder = $urlBuilder;
+        $this->paymentAttemptService = $paymentAttemptService;
     }
 
     public function get(CartInterface $quote, array $data): PaymentSessionsRequest
@@ -164,7 +168,7 @@ class PostPaymentSessions
         if ($this->generalSettings->isDynamicDescriptorEnabled($websiteCode)) {
             $model->billing_descriptor = $this->billingDescriptorElement->get();
         }
-        $model->customer = $this->customerElement->get($customer, $billingAddress);
+        $model->customer = $this->customerElement->get($customer, $billingAddress, $shippingAddress);
         $model->shipping = $this->shippingElement->get($shippingAddress);
         $model->processing_channel_id = $this->accountSettings->getChannelId($websiteCode);
         $model->payment_method_configuration = $this->paymentMethodConfigurationElement->get($customer);
@@ -174,7 +178,11 @@ class PostPaymentSessions
         $model->locale = $this->localeFormatter->getFormattedLocale($this->externalSettings->getStoreLocale($storeCode));
         $model->description = __('Payment request')->render();
         $model->three_ds = $this->threeDSElement->get();
-        $model->sender = $this->senderElement->get($customer);
+        // A sender with no name is rejected (sender_invalid) and fails the whole session; the names
+        // are often still unknown for a guest when the payment step renders, so leave it out then.
+        if (!empty($customer->getFirstname()) && !empty($customer->getLastname())) {
+            $model->sender = $this->senderElement->get($customer);
+        }
         $model->capture = $this->generalSettings->isAuthorizeAndCapture($websiteCode);
         $model->reference = $data['reference'];
 
@@ -197,6 +205,8 @@ class PostPaymentSessions
             $model->metadata['customerId'] = $customerId;
         }
         $model->metadata['quoteData'] = $this->serializer->serialize($this->quoteHandler->getQuoteRequestData($quote));
+        // Unique per attempt: lets webhooks of a previous attempt sharing the same reference be told apart
+        $model->metadata[FlowPaymentAttemptService::ATTEMPT_ID_KEY] = $this->paymentAttemptService->generateAttemptId();
         $model->metadata = array_merge(
             $model->metadata,
             $this->apiHandler->getBaseMetadata()

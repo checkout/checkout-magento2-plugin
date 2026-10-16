@@ -56,12 +56,46 @@ class CustomerResolver
             return $customer;
         }
 
+        // Magento persists the billing address last, so for a guest it is often still blank when the
+        // Flow session is created. The session customer cannot be changed afterwards
+        // (PaymentSessionSubmitRequest has no customer field), so try every place already known.
         $newCustomer = $this->customerFactory->create();
         $billingAddress = $quote->getBillingAddress();
-        $newCustomer->setFirstname($billingAddress->getFirstname());
-        $newCustomer->setLastname($billingAddress->getLastname());
-        $newCustomer->setEmail(!empty($billingAddress->getEmail()) ? $billingAddress->getEmail() : $guestEmail);
+        $shippingAddress = $quote->getShippingAddress();
+        $newCustomer->setFirstname($this->firstFilled([
+            $billingAddress->getFirstname(),
+            $shippingAddress->getFirstname(),
+            $customer->getFirstname(),
+        ]));
+        $newCustomer->setLastname($this->firstFilled([
+            $billingAddress->getLastname(),
+            $shippingAddress->getLastname(),
+            $customer->getLastname(),
+        ]));
+        $newCustomer->setEmail($this->firstFilled([
+            $billingAddress->getEmail(),
+            $quote->getCustomerEmail(),
+            $shippingAddress->getEmail(),
+            $customer->getEmail(),
+            $guestEmail,
+        ]));
 
         return $newCustomer;
+    }
+
+    /**
+     * @param array $values Candidates, by order of preference.
+     *
+     * @return string|null
+     */
+    private function firstFilled(array $values): ?string
+    {
+        foreach ($values as $value) {
+            if (!empty($value)) {
+                return (string)$value;
+            }
+        }
+
+        return null;
     }
 }

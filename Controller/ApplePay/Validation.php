@@ -70,6 +70,15 @@ class Validation extends Action
         $methodId = $this->getRequest()->getParam('method_id');
         $url = $this->getRequest()->getParam('u');
 
+        if (!is_string($url)) {
+            $this->logger->warning(
+                'Apple Pay validation request rejected: URL is missing.',
+                ['url' => $url]
+            );
+
+            return $this->jsonResult(['error' => 'Invalid Apple Pay validation URL.'], WebException::HTTP_BAD_REQUEST);
+        }
+
         if (str_starts_with($url, 'https') && !str_starts_with($url, 'https://')) {
             $url = 'https://' . substr($url, 7);
         }
