@@ -136,7 +136,7 @@ class TransactionHandlerService
 
         // Format the amount
         $amount = $this->amountFromGateway(
-            $payload->data->amount
+            (float) $payload->data->amount
         );
 
         // Check to see if webhook is supported
