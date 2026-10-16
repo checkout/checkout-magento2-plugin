@@ -22,11 +22,14 @@ use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\ApiPaymentSessionGuard;
+use CheckoutCom\Magento2\Model\Service\ApiQuoteResolver;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
@@ -37,9 +40,6 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Model\AbstractExtensibleModel;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
-use Magento\Quote\Model\QuoteIdMask;
-use Magento\Quote\Model\QuoteIdMaskFactory;
-use Magento\Quote\Model\ResourceModel\Quote\QuoteIdMask as QuoteIdMaskResource;
 use Magento\Sales\Api\Data\OrderInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -62,7 +62,6 @@ class V2 extends Action
     private Config $config;
     private StoreManagerInterface $storeManager;
     private QuoteHandlerService $quoteHandler;
-    private QuoteIdMaskFactory $quoteIdMaskFactory;
     private OrderHandlerService $orderHandler;
     private OrderStatusHandlerService $orderStatusHandler;
     private MethodHandlerService $methodHandler;
@@ -70,7 +69,9 @@ class V2 extends Action
     private PaymentErrorHandlerService $paymentErrorHandler;
     private Utilities $utilities;
     private OrderRepositoryInterface $orderRepository;
-    private QuoteIdMaskResource $quoteIdMaskResource;
+    private ApiQuoteResolver $apiQuoteResolver;
+    private ApiPaymentSessionGuard $apiPaymentSessionGuard;
+    private CustomerSession $customerSession;
 
     public function __construct(
         Context $context,
@@ -78,7 +79,6 @@ class V2 extends Action
         Config $config,
         StoreManagerInterface $storeManager,
         QuoteHandlerService $quoteHandler,
-        QuoteIdMaskFactory $quoteIdMaskFactory,
         OrderHandlerService $orderHandler,
         OrderStatusHandlerService $orderStatusHandler,
         MethodHandlerService $methodHandler,
@@ -86,14 +86,15 @@ class V2 extends Action
         PaymentErrorHandlerService $paymentErrorHandler,
         Utilities $utilities,
         OrderRepositoryInterface $orderRepository,
-        QuoteIdMaskResource $quoteIdMaskResource
+        ApiQuoteResolver $apiQuoteResolver,
+        ApiPaymentSessionGuard $apiPaymentSessionGuard,
+        CustomerSession $customerSession
     ) {
         parent::__construct($context);
         $this->jsonFactory = $jsonFactory;
         $this->config = $config;
         $this->storeManager = $storeManager;
         $this->quoteHandler = $quoteHandler;
-        $this->quoteIdMaskFactory = $quoteIdMaskFactory;
         $this->orderHandler = $orderHandler;
         $this->orderStatusHandler = $orderStatusHandler;
         $this->methodHandler = $methodHandler;
@@ -101,7 +102,9 @@ class V2 extends Action
         $this->paymentErrorHandler = $paymentErrorHandler;
         $this->utilities = $utilities;
         $this->orderRepository = $orderRepository;
-        $this->quoteIdMaskResource = $quoteIdMaskResource;
+        $this->apiQuoteResolver = $apiQuoteResolver;
+        $this->apiPaymentSessionGuard = $apiPaymentSessionGuard;
+        $this->customerSession = $customerSession;
     }
 
     /**
@@ -122,7 +125,9 @@ class V2 extends Action
                 if (!$this->result['success']) {
                     $this->result['error_message'][] = __('The order could not be created.');
                     // Handle order on failed payment
-                    $this->orderStatusHandler->handleFailedPayment($this->order);
+                    if ($this->orderHandler->isOrder($this->order)) {
+                        $this->orderStatusHandler->handleFailedPayment($this->order);
+                    }
                 }
             }
         } else {
@@ -250,7 +255,7 @@ class V2 extends Action
             $reference = $order->getIncrementId();
 
             // Get the payment response
-            $response = $this->getPaymentResponse($amount, $currency, $reference);
+            $response = $this->getPaymentResponse($amount, $currency, $reference, $order);
 
             if ($this->api->isValidResponse($response)) {
                 // Process the payment response
@@ -285,7 +290,7 @@ class V2 extends Action
                 }
 
                 //  Token invalid/expired
-                if (method_exists($response, 'getErrors')) {
+                if (is_object($response) && method_exists($response, 'getErrors')) {
                     $this->result['error_message'] = array_merge(
                         $this->result['error_message'],
                         $response->getErrors()
@@ -321,23 +326,15 @@ class V2 extends Action
             $this->data->quote_id = $this->data['quote_id'];
         }
 
-        // Convert masked quote ID hash to quote ID int
-        if (preg_match("/([A-Za-z])\w+/", $this->data->quote_id)) {
-            /** @var QuoteIdMask $quoteIdMask */
-            $quoteIdMask = $this->quoteIdMaskFactory->create();
-            $this->quoteIdMaskResource->load($quoteIdMask, $this->data->quote_id, 'masked_id');
-            $this->data->quote_id = $quoteIdMask->getQuoteId();
-        }
-
-        // Load the quote
-        $quote = $this->quoteHandler->getQuote([
-            'entity_id' => $this->data->quote_id,
-        ]);
+        // Load the quote owned by the caller (masked id required for guests)
+        $quote = $this->apiQuoteResolver->resolve(
+            $this->data->quote_id,
+            $this->customerSession->isLoggedIn() ? (int)$this->customerSession->getCustomerId() : null
+        );
 
         // Handle a quote not found
-        if (!$this->quoteHandler->isQuote($quote)) {
+        if ($quote === null) {
             $this->result['error_message'][] = __('No quote found with the provided ID');
-            $quote = null;
         }
 
         return $quote;
@@ -349,14 +346,31 @@ class V2 extends Action
      * @param float $amount
      * @param string $currencyCode
      * @param string $reference
+     * @param OrderInterface|null $order
      *
      * @return mixed
      */
-    public function getPaymentResponse(float $amount, string $currencyCode, string $reference)
-    {
+    public function getPaymentResponse(
+        float $amount,
+        string $currencyCode,
+        string $reference,
+        ?OrderInterface $order = null
+    ) {
         $sessionId = $this->getRequest()->getParam('cko-session-id');
 
-        return ($sessionId && !empty($sessionId)) ? $this->api->getPaymentDetails($sessionId) : $this->requestPayment($amount, $currencyCode, $reference);
+        if (!$sessionId) {
+            return $this->requestPayment($amount, $currencyCode, $reference);
+        }
+
+        // Only reuse an existing payment if it was made for this very order
+        $response = $this->api->getPaymentDetails((string)$sessionId);
+        if ($order === null || !$this->apiPaymentSessionGuard->matchesOrder($response, $order)) {
+            $this->result['error_message'][] = __('The payment does not match the order.');
+
+            return [];
+        }
+
+        return $response;
     }
 
     /**

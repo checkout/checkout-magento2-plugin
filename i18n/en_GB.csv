@@ -116,6 +116,7 @@
 "The order could not be processed.","The order could not be processed."
 "The order creation failed. Please check the error logs.","The order creation failed. Please check the error logs."
 "The payment card has been stored successfully.","The payment card has been stored successfully."
+"The payment does not match the order.","The payment does not match the order."
 "The payment request was declined by the gateway.","The payment request was declined by the gateway."
 "The payment request was successfully processed.","The payment request was successfully processed."
 "The payment token is missing or invalid.","The payment token is missing or invalid."
