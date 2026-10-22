@@ -53,6 +53,14 @@ use Throwable;
  */
 class V3 implements V3Interface
 {
+    /**
+     * Methods whose payment request can be built from the V3 payload (card token or saved card public hash)
+     */
+    private const SUPPORTED_PAYMENT_METHODS = [
+        'checkoutcom_card_payment',
+        'checkoutcom_vault',
+    ];
+
     public $customer;
     public $data;
     public $api;
@@ -510,6 +518,9 @@ class V3 implements V3Interface
                 $isValid = false;
             } elseif ($this->data->getPaymentMethod() == '') {
                 $this->result['error_message'][] = __('Payment method provided is empty string');
+                $isValid = false;
+            } elseif (!in_array($this->data->getPaymentMethod(), self::SUPPORTED_PAYMENT_METHODS, true)) {
+                $this->result['error_message'][] = __('The payment method is not available.');
                 $isValid = false;
             }
         } else {
