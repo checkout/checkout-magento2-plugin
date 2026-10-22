@@ -190,7 +190,9 @@ class PlaceFlowOrder extends Action
         $this->errorLogger->error('Checkout.com Flow place order failed', ['exception' => $exception]);
 
         try {
-            // Restore the quote first: it relies on the last order of the session
+            // Restore the quote first, pointing the session to the failed order: the error may have occurred
+            // before the order was recorded in the session, which would restore the cart of a previous order
+            $this->checkoutSession->setLastRealOrderId($order->getIncrementId());
             $this->checkoutSession->restoreQuote();
 
             if (!$this->apiOrderRollback->rollbackOnError($order)) {
