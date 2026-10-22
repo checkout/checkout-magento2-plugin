@@ -42,7 +42,8 @@ class ApiQuoteResolver
     }
 
     /**
-     * Active quote of the current store owned by the caller, or null when none matches.
+     * Active quote of the current website owned by the caller, or null when none matches.
+     * Any store view of the website is accepted, as Magento shares a quote between them.
      * Guests ($customerId null) must provide a masked quote id; a raw numeric id is only
      * accepted for an authenticated customer, and the quote must belong to that customer.
      *
@@ -63,7 +64,7 @@ class ApiQuoteResolver
         $quote = $this->quoteHandler->getQuote([
             'entity_id' => $entityId,
             'is_active' => 1,
-            'store_id' => (int)$this->storeManager->getStore()->getId(),
+            'store_id' => ['in' => $this->storeManager->getStore()->getWebsite()->getStoreIds()],
         ]);
 
         if (!$this->quoteHandler->isQuote($quote) || (int)$quote->getCustomerId() !== (int)$customerId) {
