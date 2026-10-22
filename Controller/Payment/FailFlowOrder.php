@@ -36,6 +36,13 @@ use Magento\Store\Model\StoreManagerInterface;
 
 class FailFlowOrder extends AbstractPayment
 {
+    /**
+     * Payment statuses for which the order is canceled and the cart restored. A Pending payment
+     * is included: it is the status of a redirect payment canceled by the customer until the
+     * payment_canceled webhook updates it
+     */
+    private const FAILED_PAYMENT_STATUSES = ['Declined', 'Canceled', 'Expired', 'Pending'];
+
     private OrderSettings $orderSettings;
     private OrderStatusHandlerService $orderStatusHandler;
     private PaymentErrorHandlerService $paymentErrorHandlerService;
@@ -102,6 +109,24 @@ class FailFlowOrder extends AbstractPayment
                 sprintf(
                     'Failed payment %s ignored: it belongs to another attempt than order %s',
                     $response['id'] ?? '',
+                    $order->getIncrementId()
+                )
+            );
+
+            $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+
+            return $this->_redirect('checkout/cart', ['_secure' => true]);
+        }
+
+        // The URL can be replayed after a successful payment (open tab, history):
+        // never cancel the order of an authorized or captured payment
+        $paymentStatus = $response['status'] ?? '';
+        if (!in_array($paymentStatus, self::FAILED_PAYMENT_STATUSES, true)) {
+            $this->logger->write(
+                sprintf(
+                    'Failed payment %s ignored: payment status "%s" of order %s is not a failure',
+                    $response['id'] ?? '',
+                    $paymentStatus,
                     $order->getIncrementId()
                 )
             );
