@@ -23,12 +23,13 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\ApiOrderRollback;
+use CheckoutCom\Magento2\Model\Service\ApiPaymentMethodGuard;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
-use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
@@ -42,6 +43,8 @@ use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
+use Throwable;
 
 /**
  * Class PlaceOrder
@@ -63,6 +66,9 @@ class PlaceOrder extends Action
     private OrderRepositoryInterface $orderRepository;
     protected JsonSerializer $json;
     private Config $config;
+    private ApiPaymentMethodGuard $apiPaymentMethodGuard;
+    private ApiOrderRollback $apiOrderRollback;
+    private LoggerInterface $errorLogger;
 
     public function __construct(
         Context $context,
@@ -80,7 +86,10 @@ class PlaceOrder extends Action
         Session $session,
         OrderRepositoryInterface $orderRepository,
         JsonSerializer $json,
-        Config $config
+        Config $config,
+        ApiPaymentMethodGuard $apiPaymentMethodGuard,
+        ApiOrderRollback $apiOrderRollback,
+        LoggerInterface $errorLogger
     ) {
         parent::__construct($context);
 
@@ -99,6 +108,9 @@ class PlaceOrder extends Action
         $this->orderRepository = $orderRepository;
         $this->json = $json;
         $this->config = $config;
+        $this->apiPaymentMethodGuard = $apiPaymentMethodGuard;
+        $this->apiOrderRollback = $apiOrderRollback;
+        $this->errorLogger = $errorLogger;
     }
 
     /**
@@ -108,14 +120,18 @@ class PlaceOrder extends Action
      */
     public function execute(): Json
     {
+        // Prepare some parameters
+        $url = '';
+        $message = '';
+        $debugMessage = '';
+        $responseCode = '';
+        $success = false;
+        $log = true;
+        $quote = null;
+        $order = null;
+        $isPaymentAccepted = false;
+
         try {
-            // Prepare some parameters
-            $url = '';
-            $message = '';
-            $debugMessage = '';
-            $responseCode = '';
-            $success = false;
-            $log = true;
             // Try to load a quote
             $quote = $this->quoteHandler->getQuote();
 
@@ -124,87 +140,95 @@ class PlaceOrder extends Action
             if (isset($data['methodId']) && !$this->isEmptyCardToken($data)) {
                 // Process the request
                 if ($this->getRequest()->isAjax() && $quote) {
-                    //Create order before payment
-                    $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
-                    // Process the payment
-                    if ($this->orderHandler->isOrder($order)) {
-                        $log = false;
-                        // Get the debug config value
-                        $debug = $this->scopeConfig->getValue(
-                            'settings/checkoutcom_configuration/debug',
-                            ScopeInterface::SCOPE_STORE
-                        );
+                    // Only a Checkout.com method available for the quote can place an order
+                    if (!$this->apiPaymentMethodGuard->isAllowed((string)$data['methodId'], $quote)) {
+                        $message = __('The payment method is not available.');
+                    } else {
+                        //Create order before payment
+                        $order = $this->orderHandler->setMethodId($data['methodId'])->handleOrder($quote);
+                        // Process the payment
+                        if ($this->orderHandler->isOrder($order)) {
+                            $log = false;
+                            // Get the debug config value
+                            $debug = $this->scopeConfig->getValue(
+                                'settings/checkoutcom_configuration/debug',
+                                ScopeInterface::SCOPE_STORE
+                            );
 
-                        // Get the gateway response config value
-                        $gatewayResponses = $this->scopeConfig->getValue(
-                            'settings/checkoutcom_configuration/gateway_responses',
-                            ScopeInterface::SCOPE_STORE
-                        );
+                            // Get the gateway response config value
+                            $gatewayResponses = $this->scopeConfig->getValue(
+                                'settings/checkoutcom_configuration/gateway_responses',
+                                ScopeInterface::SCOPE_STORE
+                            );
 
-                        //Init values to request payment
-                        $amount = (float)$order->getGrandTotal();
-                        $currency = (string)$order->getOrderCurrencyCode();
-                        $reference = (string)$order->getIncrementId();
+                            //Init values to request payment
+                            $amount = (float)$order->getGrandTotal();
+                            $currency = (string)$order->getOrderCurrencyCode();
+                            $reference = (string)$order->getIncrementId();
 
-                        // Get response and success
-                        $response = $this->requestPayment($quote, $data, $amount, $currency, $reference);
+                            // Get response and success
+                            $response = $this->requestPayment($quote, $data, $amount, $currency, $reference);
 
-                        // Logging
-                        $this->logger->display($response);
+                            // Logging
+                            $this->logger->display($response);
 
-                        // Get the store code
-                        $storeCode = $this->storeManager->getStore()->getCode();
+                            // Get the store code
+                            $storeCode = $this->storeManager->getStore()->getCode();
 
-                        // Process the response
-                        $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
+                            // Process the response
+                            $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
-                        $isValidResponse = $api->isValidResponse($response);
-                        $responseCode = isset($response['response_code']) ? $response['response_code'] : '';
+                            $isValidResponse = $api->isValidResponse($response);
+                            $responseCode = isset($response['response_code']) ? $response['response_code'] : '';
 
-                        if ($isValidResponse && $this->isAuthorized($responseCode)) {
-                            // Add the payment info to the order
-                            $order = $this->utilities->setPaymentData($order, $response, $data);
+                            if ($isValidResponse && $this->isAuthorized($responseCode)) {
+                                // From now on the order must not be rolled back: the gateway accepted the payment
+                                $isPaymentAccepted = true;
 
-                            // set order status to pending payment
-                            $order->setStatus(Order::STATE_PENDING_PAYMENT);
+                                // Add the payment info to the order
+                                $order = $this->utilities->setPaymentData($order, $response, $data);
 
-                            // check for redirection
-                            if (isset($response['_links']['redirect']['href'])) {
-                                $url = $response['_links']['redirect']['href'];
+                                // set order status to pending payment
+                                $order->setStatus(Order::STATE_PENDING_PAYMENT);
+
+                                // check for redirection
+                                if (isset($response['_links']['redirect']['href'])) {
+                                    $url = $response['_links']['redirect']['href'];
+                                }
+
+                                // Save the order
+                                $this->orderRepository->save($order);
+                                // Update the response parameters
+                                $success = $isValidResponse;
+                            } else {
+                                // Payment failed
+                                if (isset($response['response_code'])) {
+                                    $message = $this->paymentErrorHandler->getErrorMessage($response['response_code']);
+                                    if ($debug && $gatewayResponses) {
+                                        $responseCode = $response['response_code'];
+                                    }
+                                } else {
+                                    $message = __('The transaction could not be processed.');
+                                    if ($debug && $gatewayResponses) {
+                                        $debugMessage = $this->json->serialize($response);
+                                    }
+                                }
+
+                                // Restore the quote
+                                $this->session->restoreQuote();
+
+                                // Handle order on failed payment
+                                if ($this->config->isPaymentWithOrderFirst()) {
+                                    $this->orderStatusHandler->handleFailedPayment($order);
+                                }
+
+                                // Delete the order if payment is first
+                                $this->orderHandler->deleteOrder($order);
                             }
-
-                            // Save the order
-                            $this->orderRepository->save($order);
-                            // Update the response parameters
-                            $success = $isValidResponse;
                         } else {
                             // Payment failed
-                            if (isset($response['response_code'])) {
-                                $message = $this->paymentErrorHandler->getErrorMessage($response['response_code']);
-                                if ($debug && $gatewayResponses) {
-                                    $responseCode = $response['response_code'];
-                                }
-                            } else {
-                                $message = __('The transaction could not be processed.');
-                                if ($debug && $gatewayResponses) {
-                                    $debugMessage = $this->json->serialize($response);
-                                }
-                            }
-
-                            // Restore the quote
-                            $this->session->restoreQuote();
-
-                            // Handle order on failed payment
-                            if ($this->config->isPaymentWithOrderFirst()) {
-                                $this->orderStatusHandler->handleFailedPayment($order);
-                            }
-
-                            // Delete the order if payment is first
-                            $this->orderHandler->deleteOrder($order);
+                            $message = __('The order could not be processed.');
                         }
-                    } else {
-                        // Payment failed
-                        $message = __('The order could not be processed.');
                     }
                 } else {
                     // Payment failed
@@ -214,21 +238,76 @@ class PlaceOrder extends Action
                 // No token found
                 $message = __("Please enter valid card details.");
             }
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             $success = false;
+            $url = '';
             $this->logger->write($e->getMessage());
-        } finally {
-            if ($log) {
-                $this->logger->write($message);
-            }
+            $this->handleProcessingError($e, $order, $quote, $isPaymentAccepted);
+        }
 
-            return $this->jsonFactory->create()->setData([
-                'success' => $success,
-                'message' => $message ?: __('An error has occurred, please select another payment method'),
-                'responseCode' => $responseCode,
-                'debugMessage' => $debugMessage,
-                'url' => $url,
-            ]);
+        if ($log) {
+            $this->logger->write($message);
+        }
+
+        return $this->jsonFactory->create()->setData([
+            'success' => $success,
+            'message' => $message ?: __('An error has occurred, please select another payment method'),
+            'responseCode' => $responseCode,
+            'debugMessage' => $debugMessage,
+            'url' => $url,
+        ]);
+    }
+
+    /**
+     * Roll back the order after an unexpected error so that no order is left without payment
+     *
+     * @param Throwable $exception
+     * @param mixed $order
+     * @param CartInterface|null $quote
+     * @param bool $isPaymentAccepted
+     *
+     * @return void
+     */
+    private function handleProcessingError(
+        Throwable $exception,
+        $order,
+        ?CartInterface $quote,
+        bool $isPaymentAccepted
+    ): void {
+        // The order may have been placed even if the error occurred while creating it
+        if (!$this->orderHandler->isOrder($order)) {
+            $order = $this->apiOrderRollback->findQuoteOrder($quote);
+        }
+
+        if (!$this->orderHandler->isOrder($order)) {
+            return;
+        }
+
+        if ($isPaymentAccepted) {
+            // Never cancel an order whose payment went through: keep it for a manual review
+            $this->errorLogger->critical(
+                'Checkout.com payment accepted but order processing failed, order '
+                . $order->getIncrementId() . ' needs a manual review',
+                ['exception' => $exception]
+            );
+
+            return;
+        }
+
+        $this->errorLogger->error('Checkout.com place order failed', ['exception' => $exception]);
+
+        try {
+            // Restore the quote first: it relies on the last order of the session
+            $this->session->restoreQuote();
+
+            if (!$this->apiOrderRollback->rollbackOnError($order)) {
+                $this->errorLogger->critical('Checkout.com could not cancel order ' . $order->getIncrementId());
+            }
+        } catch (Throwable $rollbackException) {
+            $this->errorLogger->critical(
+                'Checkout.com could not roll back order ' . $order->getIncrementId(),
+                ['exception' => $rollbackException]
+            );
         }
     }
 

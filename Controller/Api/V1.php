@@ -211,7 +211,11 @@ class V1 extends Action
 
         if ($this->orderHandler->isOrder($order)) {
             try {
-                $this->apiOrderRollback->rollback($order);
+                if (!$this->apiOrderRollback->rollbackOnError($order)) {
+                    $this->logger->critical(
+                        'Checkout.com API V1 could not cancel order ' . $order->getIncrementId()
+                    );
+                }
             } catch (Throwable $rollbackException) {
                 $this->logger->critical(
                     'Checkout.com API V1 could not roll back order ' . $order->getIncrementId(),

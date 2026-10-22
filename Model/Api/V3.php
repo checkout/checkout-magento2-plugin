@@ -286,9 +286,9 @@ class V3 implements V3Interface
             $this->result['success'] = $isValidResponse;
         } else {
             // Payment failed
-            if (isset($response->response_code)) {
+            if (isset($response['response_code'])) {
                 $this->result['error_message'][] = $this->paymentErrorHandler->getErrorMessage(
-                    $response->response_code
+                    $response['response_code']
                 );
             }
 
@@ -340,7 +340,11 @@ class V3 implements V3Interface
 
         if (!$this->isPaymentAccepted && $this->orderHandler->isOrder($order)) {
             try {
-                $this->apiOrderRollback->rollback($order);
+                if (!$this->apiOrderRollback->rollbackOnError($order)) {
+                    $this->logger->critical(
+                        'Checkout.com API V3 could not cancel order ' . $order->getIncrementId()
+                    );
+                }
             } catch (Throwable $rollbackException) {
                 $this->logger->critical(
                     'Checkout.com API V3 could not roll back order ' . $order->getIncrementId(),

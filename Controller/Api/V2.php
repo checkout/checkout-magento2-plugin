@@ -312,9 +312,9 @@ class V2 extends Action
             $this->result['success'] = true;
         } else {
             // Payment failed
-            if (isset($response->response_code)) {
+            if (isset($response['response_code'])) {
                 $this->result['error_message'][] = $this->paymentErrorHandler->getErrorMessage(
-                    $response->response_code
+                    $response['response_code']
                 );
             }
 
@@ -366,7 +366,11 @@ class V2 extends Action
 
         if (!$this->isPaymentAccepted && $this->orderHandler->isOrder($order)) {
             try {
-                $this->apiOrderRollback->rollback($order);
+                if (!$this->apiOrderRollback->rollbackOnError($order)) {
+                    $this->logger->critical(
+                        'Checkout.com API V2 could not cancel order ' . $order->getIncrementId()
+                    );
+                }
             } catch (Throwable $rollbackException) {
                 $this->logger->critical(
                     'Checkout.com API V2 could not roll back order ' . $order->getIncrementId(),

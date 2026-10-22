@@ -21,18 +21,25 @@ namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Registry;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\OrderManagementInterface;
+use Magento\Sales\Api\OrderRepositoryInterface;
+use Magento\Sales\Model\Order;
 
 /**
- * Undo an order placed by the payment APIs when its payment did not succeed
+ * Undo an order placed before its payment when the payment did not succeed
  */
 class ApiOrderRollback
 {
     public function __construct(
         private readonly Config $config,
         private readonly OrderHandlerService $orderHandler,
-        private readonly OrderStatusHandlerService $orderStatusHandler
+        private readonly OrderStatusHandlerService $orderStatusHandler,
+        private readonly OrderManagementInterface $orderManagement,
+        private readonly OrderRepositoryInterface $orderRepository,
+        private readonly Registry $registry
     ) {
     }
 
@@ -53,6 +60,35 @@ class ApiOrderRollback
 
         // Delete the order if payment is first
         $this->orderHandler->deleteOrder($order);
+    }
+
+    /**
+     * Neutralize the order after an unexpected error, whatever the failed payment configuration:
+     * the order is always cancelled, then deleted when the configuration asks for it
+     *
+     * @param OrderInterface $order
+     *
+     * @return bool False when the order could neither be cancelled nor deleted
+     */
+    public function rollbackOnError(OrderInterface $order): bool
+    {
+        $isCancelled = $order->getState() === Order::STATE_CANCELED
+            || $this->orderManagement->cancel((int)$order->getEntityId());
+
+        if ($this->config->isPaymentWithPaymentFirst()
+            || $this->config->getValue('order_action_failed_payment') === 'delete'
+        ) {
+            $this->registry->register('isSecureArea', true);
+            try {
+                $this->orderRepository->delete($order);
+            } finally {
+                $this->registry->unregister('isSecureArea');
+            }
+
+            return true;
+        }
+
+        return $isCancelled;
     }
 
     /**

@@ -25,11 +25,12 @@ use Magento\Payment\Model\MethodInterface;
 use Magento\Quote\Api\Data\CartInterface;
 
 /**
- * Allow only active and available Checkout.com payment methods on the payment APIs
+ * Allow only active and available Checkout.com payment methods to place an order before its payment
  */
 class ApiPaymentMethodGuard
 {
     private const VAULT_METHOD = 'checkoutcom_vault';
+    private const APPLE_PAY_METHOD = 'checkoutcom_apple_pay';
 
     public function __construct(
         private readonly MethodHandlerService $methodHandler,
@@ -87,6 +88,12 @@ class ApiPaymentMethodGuard
         // require a customer quote instead, the card ownership being checked against the public hash
         if ($methodId === self::VAULT_METHOD) {
             return (int)$quote->getCustomerId() > 0 && $method->isActive((int)$quote->getStoreId());
+        }
+
+        // Apple Pay is also offered on the cart page: its availability only checks "enabled_on_checkout",
+        // which drives the button display on the checkout, so only require the method to be active
+        if ($methodId === self::APPLE_PAY_METHOD) {
+            return $method->isActive((int)$quote->getStoreId());
         }
 
         return $method->isAvailable($quote);
