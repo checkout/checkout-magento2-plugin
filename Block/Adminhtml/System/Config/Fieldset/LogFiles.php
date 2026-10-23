@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Fieldset;
 
-use CheckoutCom\Magento2\Controller\Adminhtml\Logs\View as ViewLogs;
+use CheckoutCom\Magento2\Model\Service\LogFileResolverService;
 use Magento\Config\Block\System\Config\Form\Fieldset;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
@@ -37,7 +37,7 @@ class LogFiles extends Fieldset
      */
     public function render(AbstractElement $element): string
     {
-        if (!$this->_authorization->isAllowed(ViewLogs::ADMIN_RESOURCE)) {
+        if (!$this->_authorization->isAllowed(LogFileResolverService::ACL_RESOURCE)) {
             return '';
         }
 

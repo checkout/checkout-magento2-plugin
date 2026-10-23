@@ -37,7 +37,7 @@ class View extends Action implements HttpGetActionInterface
      *
      * @var string
      */
-    public const ADMIN_RESOURCE = 'CheckoutCom_Magento2::logs';
+    public const ADMIN_RESOURCE = LogFileResolverService::ACL_RESOURCE;
 
     protected PageFactory $resultPageFactory;
     private LogFileResolverService $logFileResolver;

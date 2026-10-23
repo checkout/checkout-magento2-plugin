@@ -19,7 +19,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Block\Adminhtml\System\Config\Field;
 
-use CheckoutCom\Magento2\Controller\Adminhtml\Logs\View as ViewLogs;
+use CheckoutCom\Magento2\Model\Service\LogFileResolverService;
 use LimitIterator;
 use Magento\Backend\Block\Template\Context;
 use Magento\Config\Block\System\Config\Form\Field;
@@ -38,6 +38,8 @@ class LogFiles extends Field
      * @var string TEMPLATE
      */
     const TEMPLATE = 'system/config/logfile_admin.phtml';
+
+    private LogFileResolverService $logFileResolver;
 
     /**
      * Set the template
@@ -58,13 +60,17 @@ class LogFiles extends Field
      * LogFiles constructor
      *
      * @param Context $context
+     * @param LogFileResolverService $logFileResolver
      * @param array $data
      */
     public function __construct(
         Context $context,
+        LogFileResolverService $logFileResolver,
         array $data = []
     ) {
         parent::__construct($context, $data);
+
+        $this->logFileResolver = $logFileResolver;
     }
 
     /**
@@ -76,7 +82,7 @@ class LogFiles extends Field
      */
     public function render(AbstractElement $element): string
     {
-        if (!$this->_authorization->isAllowed(ViewLogs::ADMIN_RESOURCE)) {
+        if (!$this->_authorization->isAllowed(LogFileResolverService::ACL_RESOURCE)) {
             return '';
         }
 
@@ -92,14 +98,15 @@ class LogFiles extends Field
      */
     protected function _getElementHtml(AbstractElement $element): string
     {
-        $file = BP . '/var/log/' . $element->getLabel();
+        $fileName = (string)$element->getLabel();
+        $file = $this->logFileResolver->getFilePath($fileName);
         $contents = '';
 
         $url = $this->getUrl('cko/logs/view', [
-            'file' => $element->getLabel(),
+            'file' => $fileName,
         ]);
 
-        if (is_file($file)) {
+        if ($file !== null) {
             // Get the last 50 lines of the log file for the preview
             $file = new SplFileObject($file, 'r');
             $file->seek(PHP_INT_MAX);

@@ -41,6 +41,13 @@ use Magento\Store\Model\ScopeInterface;
  */
 class Webhook extends Action
 {
+    /**
+     * Same ACL resource as the Payment Methods configuration section
+     *
+     * @var string
+     */
+    public const ADMIN_RESOURCE = 'Magento_Payment::payment';
+
     private JsonFactory $resultJsonFactory;
     private ApiHandlerService $apiHandler;
     private Config $resourceConfig;
