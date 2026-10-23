@@ -20,6 +20,7 @@ namespace CheckoutCom\Magento2\Plugin\Api;
 
 use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\MethodHandlerService;
 use Magento\Framework\Exception\LocalizedException;
@@ -42,19 +43,22 @@ class RefundInvoice
     private ApiHandlerService $apiHandler;
     private Config $config;
     private OrderPaymentRepositoryInterface $orderPaymentRepository;
+    private Logger $logger;
 
     public function __construct(
         MethodHandlerService $methodHandler,
         StoreManagerInterface $storeManager,
         ApiHandlerService $apiHandler,
         Config $config,
-        OrderPaymentRepositoryInterface $orderPaymentRepository
+        OrderPaymentRepositoryInterface $orderPaymentRepository,
+        Logger $logger
     ) {
         $this->methodHandler = $methodHandler;
         $this->storeManager = $storeManager;
         $this->apiHandler = $apiHandler;
         $this->config = $config;
         $this->orderPaymentRepository = $orderPaymentRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -115,8 +119,19 @@ class RefundInvoice
             }
 
             // Set the transaction id from response
-            $payment->setTransactionId($response['action_id']);
-            $this->orderPaymentRepository->save($payment);
+            $actionId = $response['action_id'] ?? null;
+            if ($actionId === null) {
+                // The refund is already done at the gateway, so the credit memo must still be created
+                $this->logger->write(
+                    sprintf(
+                        'Refund of order %s: action_id missing from the gateway response.',
+                        $order->getIncrementId()
+                    )
+                );
+            } else {
+                $payment->setTransactionId($actionId);
+                $this->orderPaymentRepository->save($payment);
+            }
 
             $result = [$creditMemo, $order, $isOnline];
         } else {
