@@ -98,6 +98,9 @@ class OrderStatusHandlerService
             case 'payment_expired':
                 $this->paymentExpired();
                 break;
+            case 'payment_canceled':
+                $this->paymentCanceled();
+                break;
             case 'payment_declined':
                 $this->declined();
                 break;
@@ -250,6 +253,18 @@ class OrderStatusHandlerService
     protected function paymentExpired(): void
     {
         $this->order->addStatusHistoryComment(__('3DS payment expired.'));
+        $this->handleFailedPayment($this->order);
+    }
+
+    /**
+     * Set the order status for a payment canceled webhook, sent when the customer cancels a redirect payment.
+     *
+     * @return void
+     * @throws NoSuchEntityException
+     */
+    protected function paymentCanceled(): void
+    {
+        $this->order->addStatusHistoryComment(__('Payment canceled.'));
         $this->handleFailedPayment($this->order);
     }
 

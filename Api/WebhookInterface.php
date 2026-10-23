@@ -29,7 +29,11 @@ interface WebhookInterface
     public const AUTHENTICATION_FAILED = "authentication_failed";
     public const PAYMENT_APPROVED = "payment_approved";
     public const PAYMENT_AUTHENTICATION_FAILED = "payment_authentication_failed";
-    public const PAYMENT_CANCELLED = "payment_cancelled";
+    public const PAYMENT_CANCELED = "payment_canceled";
+    /**
+     * @deprecated Checkout.com sends "payment_canceled", use PAYMENT_CANCELED instead
+     */
+    public const PAYMENT_CANCELLED = self::PAYMENT_CANCELED;
     public const PAYMENT_CAPTURE_DECLINED = "payment_capture_declined";
     public const PAYMENT_CAPTURE_PENDING = "payment_capture_pending";
     public const PAYMENT_CAPTURED = "payment_captured";
@@ -49,7 +53,7 @@ interface WebhookInterface
         self::AUTHENTICATION_FAILED,
         self::PAYMENT_APPROVED,
         self::PAYMENT_AUTHENTICATION_FAILED,
-        self::PAYMENT_CANCELLED,
+        self::PAYMENT_CANCELED,
         self::PAYMENT_CAPTURE_DECLINED,
         self::PAYMENT_CAPTURE_PENDING,
         self::PAYMENT_CAPTURED,
@@ -68,7 +72,7 @@ interface WebhookInterface
     public const FAILED_PAYMENT_EVENTS = [
         self::PAYMENT_DECLINED,
         self::PAYMENT_EXPIRED,
-        self::PAYMENT_CANCELLED,
+        self::PAYMENT_CANCELED,
         self::PAYMENT_VOIDED,
         self::PAYMENT_CAPTURE_DECLINED,
         self::PAYMENT_AUTHENTICATION_FAILED,
