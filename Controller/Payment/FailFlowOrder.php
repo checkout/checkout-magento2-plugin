@@ -26,22 +26,27 @@ use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
 use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 use CheckoutCom\Magento2\Provider\OrderSettings;
+use Exception;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Message\ManagerInterface;
 use Magento\Quote\Api\CartRepositoryInterface;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 class FailFlowOrder extends AbstractPayment
 {
     /**
-     * Payment statuses for which the order is canceled and the cart restored. A Pending payment
-     * is included: it is the status of a redirect payment canceled by the customer until the
-     * payment_canceled webhook updates it
+     * Payment statuses for which the order is canceled and the cart restored
      */
-    private const FAILED_PAYMENT_STATUSES = ['Declined', 'Canceled', 'Expired', 'Pending'];
+    private const FAILED_PAYMENT_STATUSES = ['Declined', 'Canceled', 'Expired'];
+
+    /**
+     * Payment statuses for which the order is left untouched and the shopper told the payment went through
+     */
+    private const SUCCESSFUL_PAYMENT_STATUSES = ['Authorized', 'Captured', 'Partially Captured', 'Paid'];
 
     private OrderSettings $orderSettings;
     private OrderStatusHandlerService $orderStatusHandler;
@@ -118,18 +123,42 @@ class FailFlowOrder extends AbstractPayment
             return $this->_redirect('checkout/cart', ['_secure' => true]);
         }
 
+        $paymentStatus = $this->getPaymentStatus($response);
+
         // The URL can be replayed after a successful payment (open tab, history):
         // never cancel the order of an authorized or captured payment
-        $paymentStatus = $response['status'] ?? '';
+        if (in_array($paymentStatus, self::SUCCESSFUL_PAYMENT_STATUSES, true)) {
+            $this->logger->write(
+                sprintf(
+                    'Failed payment %s ignored: payment of order %s has status "%s"',
+                    $response['id'] ?? '',
+                    $order->getIncrementId(),
+                    $paymentStatus
+                )
+            );
+
+            $this->messageManager->addNoticeMessage(
+                __('The payment of order %1 has already been accepted.', $order->getIncrementId())
+            );
+
+            return $this->_redirect('checkout/cart', ['_secure' => true]);
+        }
+
+        // A pending payment may still succeed (APM approved late in the banking app) and an unknown
+        // status cannot be trusted: give the cart back and let the webhooks or the pending payment
+        // cron cancel or confirm the order
         if (!in_array($paymentStatus, self::FAILED_PAYMENT_STATUSES, true)) {
             $this->logger->write(
                 sprintf(
-                    'Failed payment %s ignored: payment status "%s" of order %s is not a failure',
+                    'Failed payment %s: order %s left to the webhooks, payment status is "%s"',
                     $response['id'] ?? '',
-                    $paymentStatus,
-                    $order->getIncrementId()
+                    $order->getIncrementId(),
+                    $paymentStatus
                 )
             );
+
+            $this->session->restoreQuote();
+            $this->resetReservedOrderId();
 
             $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
 
@@ -169,6 +198,34 @@ class FailFlowOrder extends AbstractPayment
         }
 
         return $this->_redirect('checkout/cart', ['_secure' => true]);
+    }
+
+    /**
+     * Status of the payment, fetched from its details when the reference search result does not carry it
+     */
+    private function getPaymentStatus(array $response): string
+    {
+        if (isset($response['status']) && is_string($response['status'])) {
+            return $response['status'];
+        }
+
+        if (empty($response['id'])) {
+            return '';
+        }
+
+        try {
+            $storeCode = $this->storeManager->getStore()->getCode();
+            $details = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE)
+                ->getPaymentDetails((string)$response['id']);
+        } catch (Exception $e) {
+            $this->logger->write(
+                sprintf('Unable to get the status of payment %s: %s', $response['id'], $e->getMessage())
+            );
+
+            return '';
+        }
+
+        return is_string($details['status'] ?? null) ? $details['status'] : '';
     }
 
     /**
