@@ -39,6 +39,10 @@ class View extends Template
     private const MAX_LINES = 5000;
 
     private LogFileResolverService $logFileResolver;
+    private ?string $filePath = null;
+    private bool $isFilePathResolved = false;
+    private ?SplFileObject $logFile = null;
+    private ?int $lastLine = null;
 
     public function __construct(
         Context $context,
@@ -57,17 +61,14 @@ class View extends Template
      */
     public function getLogFile(): string
     {
-        $file = $this->openLogFile();
-        if ($file) {
-            $lastLine = $this->getLastLine($file);
-            if ($lastLine) {
-                // Get the last 5000 lines of the log file for the preview
-                $lines = new LimitIterator(
-                    $file, ($lastLine - self::MAX_LINES) > 0 ? $lastLine - self::MAX_LINES : 0, $lastLine
-                );
+        $lastLine = $this->getLastLine();
+        if ($lastLine) {
+            // Get the last 5000 lines of the log file for the preview
+            $lines = new LimitIterator(
+                $this->openLogFile(), ($lastLine - self::MAX_LINES) > 0 ? $lastLine - self::MAX_LINES : 0, $lastLine
+            );
 
-                return implode('', iterator_to_array($lines));
-            }
+            return implode('', iterator_to_array($lines));
         }
 
         return '';
@@ -80,8 +81,7 @@ class View extends Template
      */
     public function getSizeMessage()
     {
-        $file = $this->openLogFile();
-        if ($file && $this->getLastLine($file) > self::MAX_LINES) {
+        if ($this->getLastLine() > self::MAX_LINES) {
             return __('The log file is too large to display in full. This preview displays the last 5000 lines');
         }
 
@@ -105,32 +105,48 @@ class View extends Template
      */
     private function getFilePath(): ?string
     {
-        return $this->logFileResolver->getFilePath($this->_request->getParam('file'));
+        if (!$this->isFilePathResolved) {
+            $this->filePath = $this->logFileResolver->getFilePath($this->_request->getParam('file'));
+            $this->isFilePathResolved = true;
+        }
+
+        return $this->filePath;
     }
 
     /**
-     * Open the requested log file
+     * Open the requested log file once
      *
      * @return SplFileObject|null
      */
     private function openLogFile(): ?SplFileObject
     {
-        $path = $this->getFilePath();
+        if ($this->logFile === null) {
+            $path = $this->getFilePath();
+            if ($path !== null) {
+                $this->logFile = new SplFileObject($path, 'r');
+            }
+        }
 
-        return $path !== null ? new SplFileObject($path, 'r') : null;
+        return $this->logFile;
     }
 
     /**
-     * Return the index of the last line of the file
-     *
-     * @param SplFileObject $file
+     * Return the index of the last line of the requested log file, computed once
      *
      * @return int
      */
-    private function getLastLine(SplFileObject $file): int
+    private function getLastLine(): int
     {
-        $file->seek(PHP_INT_MAX);
+        if ($this->lastLine === null) {
+            $file = $this->openLogFile();
+            if ($file === null) {
+                $this->lastLine = 0;
+            } else {
+                $file->seek(PHP_INT_MAX);
+                $this->lastLine = $file->key();
+            }
+        }
 
-        return $file->key();
+        return $this->lastLine;
     }
 }
