@@ -46,6 +46,11 @@ class FailFlowOrder extends AbstractPayment
      */
     private const SUCCESSFUL_PAYMENT_STATUSES = ['Authorized', 'Captured', 'Partially Captured', 'Paid'];
 
+    /**
+     * Payment statuses Checkout.com can still turn into a successful payment: the order and the cart are left untouched
+     */
+    private const PENDING_PAYMENT_STATUSES = ['Pending', 'Retry Scheduled'];
+
     private OrderSettings $orderSettings;
     private OrderStatusHandlerService $orderStatusHandler;
     private PaymentErrorHandlerService $paymentErrorHandlerService;
@@ -120,11 +125,11 @@ class FailFlowOrder extends AbstractPayment
             return $this->_redirect('checkout/cart', ['_secure' => true]);
         }
 
-        // A pending payment may still succeed (APM approved late in the banking app) and an unknown
+        // A pending payment may still succeed (APM approved late in the banking app) and a missing
         // status cannot be trusted: leave the order and the cart untouched until Checkout.com settles
         // the payment, so the webhooks or the pending payment cron cancel or confirm the order and
         // the shopper cannot pay twice
-        if (!in_array($paymentStatus, self::FAILED_PAYMENT_STATUSES, true)) {
+        if ($paymentStatus === '' || in_array($paymentStatus, self::PENDING_PAYMENT_STATUSES, true)) {
             $this->logger->write(
                 sprintf(
                     'Failed payment %s: order %s left to the webhooks, payment status is "%s"',
@@ -140,6 +145,23 @@ class FailFlowOrder extends AbstractPayment
                     $order->getIncrementId()
                 )
             );
+
+            return $this->_redirect('checkout/cart', ['_secure' => true]);
+        }
+
+        // Safety net: only a confirmed failure cancels the order. Any other status (Voided, Refunded...)
+        // is left to the webhooks
+        if (!in_array($paymentStatus, self::FAILED_PAYMENT_STATUSES, true)) {
+            $this->logger->write(
+                sprintf(
+                    'Failed payment %s ignored: unexpected payment status "%s" for order %s',
+                    $response['id'] ?? '',
+                    $paymentStatus,
+                    $order->getIncrementId()
+                )
+            );
+
+            $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
 
             return $this->_redirect('checkout/cart', ['_secure' => true]);
         }
