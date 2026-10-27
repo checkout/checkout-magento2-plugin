@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Model\Request\Billing;
 use Checkout\Payments\BillingInformation;
 use Checkout\Payments\BillingInformationFactory;
 use CheckoutCom\Magento2\Model\Request\Base\AddressElement;
+use CheckoutCom\Magento2\Model\Request\Base\PhoneElement;
 use Magento\Quote\Api\Data\AddressInterface as QuoteAddressInterface;
 use Magento\Sales\Api\Data\OrderAddressInterface;
 
@@ -29,13 +30,16 @@ class BillingElement
 {
     protected BillingInformationFactory $modelFactory;
     protected AddressElement $addressElement;
+    protected PhoneElement $phoneElement;
 
     public function __construct(
         BillingInformationFactory $modelFactory,
-        AddressElement $addressElement
+        AddressElement $addressElement,
+        PhoneElement $phoneElement
     ) {
         $this->modelFactory = $modelFactory;
         $this->addressElement = $addressElement;
+        $this->phoneElement = $phoneElement;
     }
 
     /**
@@ -48,6 +52,12 @@ class BillingElement
         $model = $this->modelFactory->create();
 
         $model->address = $this->addressElement->get($billingAddress);
+
+        $phone = $this->phoneElement->get($billingAddress->getCountryId(), $billingAddress->getTelephone());
+
+        if ($phone) {
+            $model->phone = $phone;
+        }
 
         return $model;
     }

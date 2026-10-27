@@ -48,8 +48,8 @@ class ExternalSettings extends AbstractSettingsProvider {
     public function getStoreName(?string $storeCode): ?string
     {
         $storeNameFromConfiguration =  $this->getStoreLevelConfiguration(
+            self::CONFIG_STORE_NAME,
             $storeCode,
-            self::CONFIG_STORE_NAME
         );
         try {
             return !empty($storeNameFromConfiguration) ? trim($storeNameFromConfiguration) : $this->storeManager->getStore()->getName();

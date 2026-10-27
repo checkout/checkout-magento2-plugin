@@ -46,6 +46,7 @@
             <values>
                 <value id="cko-all" type="host">*.checkout.com</value>
                 <value id="klarna" type="host">*.klarna.com</value>
+                <value id="apple-cdn" type="host">*.cdn-apple.com</value>
             </values>
         </policy>
         <policy id="img-src">
