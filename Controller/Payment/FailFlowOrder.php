@@ -121,8 +121,9 @@ class FailFlowOrder extends AbstractPayment
         }
 
         // A pending payment may still succeed (APM approved late in the banking app) and an unknown
-        // status cannot be trusted: give the cart back and let the webhooks or the pending payment
-        // cron cancel or confirm the order
+        // status cannot be trusted: leave the order and the cart untouched until Checkout.com settles
+        // the payment, so the webhooks or the pending payment cron cancel or confirm the order and
+        // the shopper cannot pay twice
         if (!in_array($paymentStatus, self::FAILED_PAYMENT_STATUSES, true)) {
             $this->logger->write(
                 sprintf(
@@ -133,9 +134,12 @@ class FailFlowOrder extends AbstractPayment
                 )
             );
 
-            $this->session->restoreQuote();
-
-            $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+            $this->messageManager->addNoticeMessage(
+                __(
+                    'The payment for order %1 is still pending. Please wait a few minutes before placing a new order.',
+                    $order->getIncrementId()
+                )
+            );
 
             return $this->_redirect('checkout/cart', ['_secure' => true]);
         }
