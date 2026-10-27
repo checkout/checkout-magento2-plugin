@@ -28,25 +28,62 @@ define(
         'mage/url',
         'flowjs',
         'CheckoutCom_Magento2/js/common/view/payment/utilities',
-        'Magento_Checkout/js/model/full-screen-loader'
+        'Magento_Checkout/js/model/full-screen-loader',
+        'Magento_Checkout/js/model/quote',
+        'Magento_Checkout/js/checkout-data',
+        'Magento_Customer/js/model/customer',
+        'CheckoutCom_Magento2/js/flow/model/guest-email',
+        'ko'
     ],
-    function (Url, CheckoutWebComponents, Utilities, FullScreenLoader) {
+    function (Url, CheckoutWebComponents, Utilities, FullScreenLoader, Quote, CheckoutData, Customer, GuestEmail, ko) {
         'use strict';
 
         let loadPromise = null;
         let sharedData = null;
+        // Guest email the current session was created with ('' when none was known).
+        let sessionGuestEmail = '';
         const reloadSubscribers = [];
 
         /**
-         * Build the prepare URL, signalling native Apple Pay availability (as the stock flow did).
+         * Guest email known client-side.
+         *
+         * Magento only persists it on the quote at `set-payment-information` / `place-order`. When
+         * the payment step renders — i.e. when prepare runs — the quote may therefore carry a
+         * billing address with no email, typically when the form was restored from `checkout-data`
+         * on a returning shopper. Checkout.com then silently drops every payment method requiring
+         * an email, Tamara among them. The session customer cannot be changed afterwards, hence
+         * the session being recreated once a validated email shows up (see bottom of this file).
+         *
+         * @returns {string}
+         */
+        function getGuestEmail() {
+            if (Customer.isLoggedIn()) {
+                return '';
+            }
+
+            return Quote.guestEmail || CheckoutData.getValidatedEmailValue() || '';
+        }
+
+        /**
+         * Build the prepare URL, signalling native Apple Pay availability (as the stock flow did)
+         * and the guest email when the server does not know it yet.
          * @returns {string}
          */
         function buildPrepareUrl() {
             const baseUrl = Url.build('checkout_com/flow/prepare'),
                 separatorUrl = baseUrl.includes('?') ? '&' : '?';
             const isNative = Utilities.browserRendersNativeApplePay() ? '1' : '0';
+            const guestEmail = getGuestEmail();
 
-            return baseUrl + separatorUrl + 'flow_apple_pay_is_native=' + isNative;
+            sessionGuestEmail = guestEmail;
+
+            let url = baseUrl + separatorUrl + 'flow_apple_pay_is_native=' + isNative;
+
+            if (guestEmail) {
+                url += '&flow_guest_email=' + encodeURIComponent(guestEmail);
+            }
+
+            return url;
         }
 
         /**
@@ -106,7 +143,7 @@ define(
             return loadPromise;
         }
 
-        return {
+        const FlowLoader = {
             /**
              * Get the shared {checkout, data}. The first caller triggers the single prepare +
              * CheckoutWebComponents init; subsequent callers reuse the same promise.
@@ -166,5 +203,27 @@ define(
                 return sharedData?.paymentSession?.id ?? null;
             }
         };
+
+        /**
+         * Recreate the session when the guest validates an email it was not created with: the
+         * payment step can render before the email is typed (virtual quote, one-page checkouts).
+         * Rate limited so typing does not create one session per keystroke, and deferred until any
+         * in-flight prepare settles. A failed prepare is left alone, its method stays hidden.
+         */
+        ko.pureComputed(GuestEmail)
+            .extend({ rateLimit: { timeout: 1000, method: 'notifyWhenChangesStop' } })
+            .subscribe(function (email) {
+                if (!loadPromise || !email || Customer.isLoggedIn() || email === sessionGuestEmail) {
+                    return;
+                }
+
+                loadPromise.then(function () {
+                    if (getGuestEmail() !== sessionGuestEmail) {
+                        FlowLoader.reload();
+                    }
+                }).catch(function () {});
+            });
+
+        return FlowLoader;
     }
 );

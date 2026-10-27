@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Controller\Flow;
 
 use CheckoutCom\Magento2\Api\ApplePayInterface;
+use CheckoutCom\Magento2\Model\Resolver\CustomerResolver;
 use CheckoutCom\Magento2\Model\Service\FlowPrepareService;
 use Magento\Framework\App\ActionInterface;
 use Magento\Framework\App\Action\HttpGetActionInterface;
@@ -59,6 +60,7 @@ class Prepare implements ActionInterface, HttpGetActionInterface
 
         $data = $this->flowPrepareService->prepare($quote, [
             ApplePayInterface::BROWSER_SUPPORTS_NATIVE_FLOW_APPLE_PAY => $this->browserSupportsNativeFlowApplePayRequest(),
+            CustomerResolver::GUEST_EMAIL_DATA_KEY => $this->guestEmailRequest(),
         ]);
 
         if (empty($data['environment']) || empty($data['paymentSession']) || empty($data['publicKey'])) {
@@ -71,5 +73,21 @@ class Prepare implements ActionInterface, HttpGetActionInterface
     private function browserSupportsNativeFlowApplePayRequest(): bool
     {
         return (bool)$this->request->getParam(ApplePayInterface::FLOW_APPLE_PAY_IS_NATIVE_PARAM_NAME);
+    }
+
+    /**
+     * Guest email reported by the client, used only when the quote does not carry one yet.
+     *
+     * @return string|null
+     */
+    private function guestEmailRequest(): ?string
+    {
+        $guestEmail = $this->request->getParam(CustomerResolver::GUEST_EMAIL_PARAM_NAME);
+
+        if (!is_string($guestEmail)) {
+            return null;
+        }
+
+        return filter_var(trim($guestEmail), FILTER_VALIDATE_EMAIL) ?: null;
     }
 }

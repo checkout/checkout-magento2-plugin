@@ -69,6 +69,7 @@ define(
                  */
                 initialize: function () {
                     window.currentGrandTotal = Quote.totals().base_grand_total;
+                    window.currentQuoteCurrency = Quote.totals().quote_currency_code;
 
                     this._super();
 
@@ -121,11 +122,18 @@ define(
                     });
 
                     Quote.totals.subscribe(() => {
-                        const newGrandTotal = Quote.totals().base_grand_total;
+                        const totals = Quote.totals();
+                        const newGrandTotal = totals.base_grand_total;
+                        const newCurrency = totals.quote_currency_code;
+                        // base_grand_total alone misses a pure currency switch (it stays the
+                        // same amount in base currency), so it would leave the Flow session
+                        // bound to the old currency at Checkout.com.
+                        const hasChanged = newGrandTotal !== window.currentGrandTotal || newCurrency !== window.currentQuoteCurrency;
 
-                        if (Utilities.methodIsSelected(METHOD_ID) && newGrandTotal !== window.currentGrandTotal) {
+                        if (Utilities.methodIsSelected(METHOD_ID) && hasChanged) {
                             this.reloadFlow();
                             window.currentGrandTotal = newGrandTotal;
+                            window.currentQuoteCurrency = newCurrency;
                         }
                     }, null, 'change');
                 },
@@ -423,7 +431,10 @@ define(
                         }
 
                         try {
-                            const component = this.checkout.create(wallet.type, this.sharedComponentOptions({ showPayButton: true }));
+                            const component = this.checkout.create(wallet.type, this.sharedComponentOptions({
+                                showPayButton: true,
+                                handleClick: () => ({ continue: AdditionalValidators.validate() })
+                            }));
                             const available = typeof component.isAvailable === 'function'
                                 ? await component.isAvailable()
                                 : true;
@@ -614,7 +625,8 @@ define(
                     const selectedType = (flowSelf && (flowSelf.type || flowSelf.selectedType)) || 'card';
                     const payload = {
                         methodId: METHOD_ID,
-                        selectedMethod: selectedType
+                        selectedMethod: selectedType,
+                        session_id: self.paymentSessionId
                     };
 
                     if (!AdditionalValidators.validate()) {
@@ -632,7 +644,7 @@ define(
                             if (!orderResponse || !orderResponse.success) {
                                 FullScreenLoader.stopLoader();
                                 if (orderResponse && orderResponse.message) {
-                                    self.showMessage('error', orderResponse.message, METHOD_ID);
+                                    Utilities.showMessage('error', orderResponse.message, METHOD_ID);
                                 }
                                 return Promise.reject(orderResponse || new Error('Place order failed'));
                             }
@@ -661,7 +673,7 @@ define(
                             return submitResponse.json().then(function (data) {
                                 if (!submitResponse.ok || data.error) {
                                     FullScreenLoader.stopLoader();
-                                    self.showMessage('error', data.message || 'Payment submit failed', METHOD_ID);
+                                    Utilities.showMessage('error', data.message || 'Payment submit failed', METHOD_ID);
 
                                     return Promise.reject(data);
                                 }

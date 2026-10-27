@@ -69,14 +69,18 @@ class CardHandlerService
      */
     public function getCardCode(string $scheme)
     {
-        if ($scheme === 'Amex') {
+        if (strcasecmp($scheme, 'Amex') === 0) {
             $scheme = 'American Express';
         }
 
-        return array_search(
-            $scheme,
-            self::CARD_MAPPER
-        );
+        // The gateway may send the scheme with a different casing (e.g. VISA instead of Visa)
+        foreach (self::CARD_MAPPER as $code => $name) {
+            if (strcasecmp($name, $scheme) === 0) {
+                return $code;
+            }
+        }
+
+        return false;
     }
 
     /**
