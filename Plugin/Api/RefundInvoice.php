@@ -122,7 +122,7 @@ class RefundInvoice
             $actionId = $response['action_id'] ?? null;
             if ($actionId === null) {
                 // The refund is already done at the gateway, so the credit memo must still be created
-                $this->logger->write(
+                $this->logger->error(
                     sprintf(
                         'Refund of order %s: action_id missing from the gateway response.',
                         $order->getIncrementId()
