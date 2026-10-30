@@ -1069,7 +1069,10 @@
 
                 <group id="checkoutcom_logs" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Log File Reader</label>
+                    <frontend_model>CheckoutCom\Magento2\Block\Adminhtml\System\Config\Fieldset\LogFiles</frontend_model>
                     <comment>This section will show a preview containing the last 50 lines of each log file. To view more use the button below each preview.</comment>
+
+                    <!-- Keep the log file fields in sync with LogFileResolverService::ALLOWED_FILES -->
 
                     <field id="checkout_log" type="textarea" showInDefault="1" showInWebsite="1" showInStore="1">
                         <label>checkoutcom_magento2.log</label>
