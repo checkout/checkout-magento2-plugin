@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Api\WebhookInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use Exception;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -97,6 +98,9 @@ class OrderStatusHandlerService
             case 'payment_expired':
                 $this->paymentExpired();
                 break;
+            case 'payment_canceled':
+                $this->paymentCanceled();
+                break;
             case 'payment_declined':
                 $this->declined();
                 break;
@@ -133,16 +137,7 @@ class OrderStatusHandlerService
      */
     public function handleFailedPayment(OrderInterface $order, $webhook = false): void
     {
-        $failedWebhooks = [
-            "payment_declined",
-            "payment_expired",
-            "payment_cancelled",
-            "payment_voided",
-            "payment_capture_declined",
-            "payment_authentication_failed",
-        ];
-
-        if (!$webhook || in_array($webhook, $failedWebhooks)) {
+        if (!$webhook || in_array($webhook, WebhookInterface::FAILED_PAYMENT_EVENTS)) {
             // Get store code
             $storeCode = $this->storeManager->getStore()->getCode();
             // Get config for failed payments
@@ -258,6 +253,18 @@ class OrderStatusHandlerService
     protected function paymentExpired(): void
     {
         $this->order->addStatusHistoryComment(__('3DS payment expired.'));
+        $this->handleFailedPayment($this->order);
+    }
+
+    /**
+     * Set the order status for a payment canceled webhook, sent when the customer cancels a redirect payment.
+     *
+     * @return void
+     * @throws NoSuchEntityException
+     */
+    protected function paymentCanceled(): void
+    {
+        $this->order->addStatusHistoryComment(__('Payment canceled.'));
         $this->handleFailedPayment($this->order);
     }
 

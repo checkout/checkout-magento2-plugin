@@ -134,13 +134,24 @@ class TransactionHandlerService
         // Load the webhook data
         $payload = json_decode($webhook['event_data']);
 
-        // Format the amount
-        $amount = $this->amountFromGateway(
-            $payload->data->amount
-        );
-
         // Check to see if webhook is supported
         if (isset(self::TRANSACTION_MAPPER[$webhook['event_type']])) {
+            // Avoid a silent zero amount on the invoice or credit memo
+            if (!isset($payload->data->amount)) {
+                throw new LocalizedException(
+                    __(
+                        'Missing amount for webhook %1 with payment ID %2',
+                        $webhook['event_type'],
+                        $webhook['payment_id'] ?? ''
+                    )
+                );
+            }
+
+            // Format the amount
+            $amount = $this->amountFromGateway(
+                (float)$payload->data->amount
+            );
+
             // Create a transaction if needed
             if (!$this->transaction) {
                 // Build the transaction
