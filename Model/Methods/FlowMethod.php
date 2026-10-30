@@ -63,6 +63,9 @@ class FlowMethod extends AbstractMethod
      * $canUseInternal field
      */
     protected $canUseInternal = false;
+    protected $canAuthorize = true;
+    protected $canCapture = true;
+    protected $canCapturePartial = true;
     protected $canRefund = true;
     protected $canRefundInvoicePartial = true;
     protected $canVoid = true;
