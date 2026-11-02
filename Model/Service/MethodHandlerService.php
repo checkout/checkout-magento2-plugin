@@ -54,6 +54,18 @@ class MethodHandlerService
     }
 
     /**
+     * Check if the payment method is a Checkout.com method
+     *
+     * @param string $methodId
+     *
+     * @return bool
+     */
+    public function has(string $methodId): bool
+    {
+        return isset($this->instances[$methodId]);
+    }
+
+    /**
      * Retrieves the customers last APM payment source
      *
      * @return string[]|string|null
