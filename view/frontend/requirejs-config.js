@@ -13,6 +13,9 @@ var config = {
             },
             'Magento_Tax/js/view/checkout/summary/grand-total': {
                 'CheckoutCom_Magento2/js/frames/model/grand-total-hide': true
+            },
+            'Magento_Checkout/js/view/form/element/email': {
+                'CheckoutCom_Magento2/js/flow/model/email-mixin': true
             }
         }
     }

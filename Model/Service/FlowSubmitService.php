@@ -35,30 +35,16 @@ class FlowSubmitService
     private const EURO_CURRENCY_CODE = 'EUR';
     private const PAYMENT_TYPE_REGULAR = 'Regular';
 
-    private AccountSettings $accountSettings;
-    private ApiHandlerService $apiHandler;
-    private CheckoutSession $checkoutSession;
-    private FlowGeneralSettings $flowGeneralSettings;
-    private LoggerInterface $logger;
-    private PriceFormatter $priceFormatter;
-    private StoreManagerInterface $storeManager;
-
     public function __construct(
-        ApiHandlerService $apiHandler,
-        AccountSettings $accountSettings,
-        CheckoutSession $checkoutSession,
-        FlowGeneralSettings $flowGeneralSettings,
-        LoggerInterface $logger,
-        PriceFormatter $priceFormatter,
-        StoreManagerInterface $storeManager
+        private readonly ApiHandlerService $apiHandler,
+        private readonly AccountSettings $accountSettings,
+        private readonly CheckoutSession $checkoutSession,
+        private readonly FlowGeneralSettings $flowGeneralSettings,
+        private readonly FlowSessionCurrencyGuard $currencyGuard,
+        private readonly LoggerInterface $logger,
+        private readonly PriceFormatter $priceFormatter,
+        private readonly StoreManagerInterface $storeManager
     ) {
-        $this->apiHandler = $apiHandler;
-        $this->accountSettings = $accountSettings;
-        $this->checkoutSession = $checkoutSession;
-        $this->flowGeneralSettings = $flowGeneralSettings;
-        $this->logger = $logger;
-        $this->priceFormatter = $priceFormatter;
-        $this->storeManager = $storeManager;
     }
 
     /**
@@ -91,6 +77,9 @@ class FlowSubmitService
         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE, $secretKey, $publicKey);
 
         $currency = $order->getOrderCurrencyCode() ?? $order->getBaseCurrencyCode() ?? self::EURO_CURRENCY_CODE;
+
+        $this->assertSessionCurrencyMatches($sessionId, $currency);
+
         $amount = $this->priceFormatter->getFormattedPrice(
             (float)$order->getGrandTotal(),
             $currency
@@ -105,5 +94,33 @@ class FlowSubmitService
         $client = $api->getCheckoutApi()->getPaymentSessionsClient();
 
         return $client->submitPaymentSession($sessionId, $request);
+    }
+
+    /**
+     * Refuse to submit a payment if the order's currency no longer matches the currency the
+     * Flow session was created with (e.g. the shopper switched store currency, possibly from
+     * another browser tab, between initializing payment and finalizing the order). Checkout.com
+     * fixes the currency at session creation and does not accept a currency override on submit,
+     * so sending it through would silently charge the wrong currency.
+     *
+     * @throws Exception
+     */
+    private function assertSessionCurrencyMatches(string $sessionId, string $orderCurrency): void
+    {
+        if (!$this->currencyGuard->hasCurrencyChanged($sessionId, $orderCurrency)) {
+            return;
+        }
+
+        $this->logger->error(sprintf(
+            '%s: currency mismatch for Flow session %s (session: %s, order: %s)',
+            __METHOD__,
+            $sessionId,
+            (string)$this->currencyGuard->getSessionCurrency($sessionId),
+            $orderCurrency
+        ));
+
+        throw new Exception(
+            __('The currency has changed since payment was initialized. Please refresh the page and try again.')->render()
+        );
     }
 }

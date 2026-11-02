@@ -42,7 +42,12 @@ class PaymentConfigurationDetailsElement
         $model = $this->modelFactory->create();
 
         $model->store_payment_details = $saveCard ? "enabled" : "disabled";
-        $model->account_holder = $this->accountHolderElement->get($customer);
+
+        // An account holder with no name is rejected (*_account_holder_invalid) and fails the whole
+        // session; the names are often still unknown for a guest when the payment step renders.
+        if (!empty($customer->getFirstname()) && !empty($customer->getLastname())) {
+            $model->account_holder = $this->accountHolderElement->get($customer);
+        }
 
         return $model;
     }

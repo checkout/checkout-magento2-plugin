@@ -153,17 +153,23 @@ class PaymentContextRequestService
 
         $quote = $this->getQuote();
         $paymentRequestsDatas = $contextDatas['payment_request'] ?? [];
+        $accountHolder = $paymentRequestsDatas['source']['account_holder'] ?? [];
         $name = !empty($paymentRequestsDatas['customer']['name']) ? explode(' ', $paymentRequestsDatas['customer']['name'], 2) : [];
         $quote->setCustomerFirstname($name[0] ?? $quote->getCustomerFirstname());
         $quote->setCustomerLastname($name[1] ?? $quote->getCustomerLastname());
-        $quote->setCustomerEmail($paymentRequestsDatas['customer']['email'] ?? $quote->getCustomerEmail());
+        $customerEmail = $paymentRequestsDatas['customer']['email'] ?? ($accountHolder['email'] ?? null);
+        $quote->setCustomerEmail($customerEmail ?: $quote->getCustomerEmail());
 
         /** @var AddressInterface $quoteAddress */
         $quoteAddress = $this->addressInterfaceFactory->create();
         $shippingAddressRequesDatas = $paymentRequestsDatas['shipping']['address'] ?? [];
         $shippingName = !empty($paymentRequestsDatas['shipping']['first_name']) ? explode(' ', $paymentRequestsDatas['shipping']['first_name'], 2) : [];
-        $quoteAddress->setFirstname($shippingName[0] ?? $quoteAddress->getFirstname());
-        $quoteAddress->setLastname($shippingName[1] ?? $quoteAddress->getLastname());
+        $payerName = !empty($accountHolder['full_name']) ? explode(' ', trim((string)$accountHolder['full_name']), 2) : [];
+        $firstname = $shippingName[0] ?? ($payerName[0] ?? null);
+        $lastname = $shippingName[1] ?? ($payerName[1] ?? ($payerName[0] ?? null));
+        $quoteAddress->setFirstname($firstname ?: $quoteAddress->getFirstname());
+        $quoteAddress->setLastname($lastname ?: $quoteAddress->getLastname());
+        $quoteAddress->setEmail($customerEmail ?: $quote->getCustomerEmail());
         $quoteAddress->setCity($shippingAddressRequesDatas['city'] ?? $quoteAddress->getCity());
         $quoteAddress->setCountryId($shippingAddressRequesDatas['country'] ?? $quoteAddress->getCountry());
         $quoteAddress->setPostcode($shippingAddressRequesDatas['zip'] ?? $quoteAddress->getPostcode());

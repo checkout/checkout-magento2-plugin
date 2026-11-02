@@ -188,11 +188,12 @@
                     </group>
                     <group id="account_settings" type="text" showInDefault="1" showInWebsite="1" showInStore="0">
                         <label>Account Settings</label>
-                        <field id="region" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
-                            <label>Region</label>
-                            <source_model>CheckoutCom\Magento2\Model\Config\Backend\Source\ConfigRegion</source_model>
-                            <config_path>settings/checkoutcom_configuration/region</config_path>
+                        <field id="partial_client_id" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="0">
+                            <label>Partial Client ID</label>
+                            <config_path>settings/checkoutcom_configuration/partial_client_id</config_path>
+                            <backend_model>CheckoutCom\Magento2\Model\Config\Backend\Validation\ValidatePartialClientId</backend_model>
                             <validate>required-entry</validate>
+                            <comment>Enter the first 8 characters of your Client ID (excluding the 'CLI_' prefix). You can find your Client ID in the Checkout.com Dashboard under Developer Overview or Account Details.</comment>
                         </field>
                         <field id="secret_key" type="obscure" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="0">
                             <label>Secret Key</label>

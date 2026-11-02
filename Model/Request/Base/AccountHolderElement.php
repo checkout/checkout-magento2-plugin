@@ -38,8 +38,14 @@ class AccountHolderElement
         $model = $this->modelFactory->create();
 
         $model->type = "individual";
-        $model->first_name = $customer->getFirstName();
-        $model->last_name = $customer->getLastname();
+
+        if (!empty($customer->getFirstname())) {
+            $model->first_name = $customer->getFirstname();
+        }
+
+        if (!empty($customer->getLastname())) {
+            $model->last_name = $customer->getLastname();
+        }
 
         return $model;
     }

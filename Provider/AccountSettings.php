@@ -23,17 +23,17 @@ use CheckoutCom\Magento2\Provider\AbstractSettingsProvider;
 
 class AccountSettings extends AbstractSettingsProvider {
 
-    public const CONFIG_REGION = 'settings/checkoutcom_configuration/region';
+    public const CONFIG_PARTIAL_CLIENT_ID = 'settings/checkoutcom_configuration/partial_client_id';
     public const CONFIG_SERVICE = 'settings/checkoutcom_configuration/service';
     public const CONFIG_SECRET_KEY = 'settings/checkoutcom_configuration/secret_key';
     public const CONFIG_PUBLIC_KEY = 'settings/checkoutcom_configuration/public_key';
     public const CONFIG_PRIVATE_SHARED_KEY = 'settings/checkoutcom_configuration/private_shared_key';
     public const CONFIG_CHANNEL_ID = 'settings/checkoutcom_configuration/channel_id';
 
-    public function getRegion(?string $website): ?string
+    public function getPartialClientId(?string $website): ?string
     {
         return $this->getWebsiteLevelConfiguration(
-            self::CONFIG_REGION,
+            self::CONFIG_PARTIAL_CLIENT_ID,
             $website
         );
     }

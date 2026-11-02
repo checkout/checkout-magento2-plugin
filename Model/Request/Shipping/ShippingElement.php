@@ -53,6 +53,24 @@ class ShippingElement
 
         $model->address = $this->addressElement->get($shippingAddress);
 
+        if ($shippingAddress->getFirstname()) {
+            $model->first_name = $shippingAddress->getFirstname();
+        }
+
+        if ($shippingAddress->getLastname()) {
+            $model->last_name = $shippingAddress->getLastname();
+        }
+
+        if ($shippingAddress->getEmail()) {
+            $model->email = $shippingAddress->getEmail();
+        }
+
+        $phone = $this->phoneElement->get($shippingAddress->getCountryId(), $shippingAddress->getTelephone());
+
+        if ($phone) {
+            $model->phone = $phone;
+        }
+
         return $model;
     }
 }

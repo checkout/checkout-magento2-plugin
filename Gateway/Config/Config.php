@@ -42,6 +42,21 @@ class Config
 {
     private const ERR_WEBSITE_CODE = 'Unable to get website code: %s';
 
+    /**
+     * Fields that must never reach the storefront, whatever fields_hidden says:
+     * credentials, filesystem paths and the fields_hidden list itself.
+     */
+    private const ALWAYS_HIDDEN_FIELDS = [
+        'secret_key',
+        'private_shared_key',
+        'processing_certificate',
+        'processing_certificate_password',
+        'merchant_id_certificate',
+        'mada_test_file',
+        'mada_live_file',
+        'fields_hidden',
+    ];
+
     private Repository $assetRepository;
     private StoreManagerInterface $storeManager;
     private ScopeConfigInterface $scopeConfig;
@@ -170,16 +185,28 @@ class Config
     {
         /** @var array $moduleConfig */
         $moduleConfig = $this->scopeConfig->getValue('settings/checkoutcom_configuration', ScopeInterface::SCOPE_WEBSITE) ?? [];
-        if (array_key_exists('secret_key', $moduleConfig)) {
-            unset($moduleConfig['secret_key']);
-        }
-        if (array_key_exists('private_shared_key', $moduleConfig)) {
-            unset($moduleConfig['private_shared_key']);
-        }
 
         return [
-            Loader::KEY_CONFIG => $moduleConfig,
+            Loader::KEY_CONFIG => $this->removeHiddenFields($moduleConfig),
         ];
+    }
+
+    /**
+     * Strips the fields that must not be sent to the browser from a config subtree.
+     * The subtree's own fields_hidden list (config.xml) is honoured on top of ALWAYS_HIDDEN_FIELDS.
+     *
+     * @param array $config
+     *
+     * @return array
+     */
+    private function removeHiddenFields(array $config): array
+    {
+        $hiddenFields = array_merge(
+            self::ALWAYS_HIDDEN_FIELDS,
+            array_map('trim', explode(',', (string)($config['fields_hidden'] ?? '')))
+        );
+
+        return array_diff_key($config, array_flip($hiddenFields));
     }
 
     /**
@@ -278,13 +305,7 @@ class Config
                     continue;
                 }
 
-                if (array_key_exists('private_shared_key', $method)) {
-                    unset($method['private_shared_key']);
-                }
-                if (array_key_exists('secret_key', $method)) {
-                    unset($method['secret_key']);
-                }
-                $output[$key] = $method;
+                $output[$key] = $this->removeHiddenFields($method);
             }
         }
 
