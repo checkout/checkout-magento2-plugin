@@ -24,6 +24,7 @@ use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\PayByLink;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\OnlineCaptureGuard;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Directory\Helper\Data as DirectoryHelper;
@@ -94,6 +95,7 @@ class PayByLinkMethod extends AbstractMethod
     protected $canRefundInvoicePartial = true;
 
     private Session $backendAuthSession;
+    private OnlineCaptureGuard $onlineCaptureGuard;
     private Config $config;
     private ApiHandlerService $apiHandler;
     private StoreManagerInterface $storeManager;
@@ -101,6 +103,7 @@ class PayByLinkMethod extends AbstractMethod
 
     public function __construct(
         Session $backendAuthSession,
+        OnlineCaptureGuard $onlineCaptureGuard,
         Config $config,
         ApiHandlerService $apiHandler,
         Context $context,
@@ -134,6 +137,7 @@ class PayByLinkMethod extends AbstractMethod
             $data
         );
         $this->backendAuthSession = $backendAuthSession;
+        $this->onlineCaptureGuard = $onlineCaptureGuard;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->storeManager = $storeManager;
@@ -240,7 +244,7 @@ class PayByLinkMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        if (!$this->backendAuthSession->isLoggedIn()) {
+        if (!$this->onlineCaptureGuard->canCaptureOnline()) {
             return $this;
         }
         // Get the store code

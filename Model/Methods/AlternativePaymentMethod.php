@@ -48,6 +48,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\OnlineCaptureGuard;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
 use CheckoutCom\Magento2\Model\Service\VersionHandlerService;
@@ -154,6 +155,7 @@ class AlternativePaymentMethod extends AbstractMethod
     protected $canRefundInvoicePartial = true;
 
     private Session $backendAuthSession;
+    private OnlineCaptureGuard $onlineCaptureGuard;
     private UrlInterface $urlBuilder;
     private ObjectManagerInterface $objectManager;
     private InvoiceSender $invoiceSender;
@@ -179,6 +181,7 @@ class AlternativePaymentMethod extends AbstractMethod
 
     public function __construct(
         Session $backendAuthSession,
+        OnlineCaptureGuard $onlineCaptureGuard,
         UrlInterface $urlBuilder,
         ObjectManagerInterface $objectManager,
         InvoiceSender $invoiceSender,
@@ -230,6 +233,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $data
         );
         $this->backendAuthSession = $backendAuthSession;
+        $this->onlineCaptureGuard = $onlineCaptureGuard;
         $this->urlBuilder = $urlBuilder;
         $this->objectManager = $objectManager;
         $this->invoiceSender = $invoiceSender;
@@ -704,7 +708,7 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
+        if ($this->onlineCaptureGuard->canCaptureOnline()) {
             // Get the store code
             $storeCode = $payment->getOrder()->getStore()->getCode();
 

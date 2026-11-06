@@ -30,6 +30,7 @@ use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use CheckoutCom\Magento2\Model\Service\OnlineCaptureGuard;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use Magento\Backend\Model\Auth\Session;
@@ -102,6 +103,7 @@ class VaultMethod extends AbstractMethod
     protected DirectoryHelper $directoryHelper;
     protected DataObjectFactory $dataObjectFactory;
     private Session $backendAuthSession;
+    private OnlineCaptureGuard $onlineCaptureGuard;
     private Config $config;
     private ApiHandlerService $apiHandler;
     private Utilities $utilities;
@@ -120,6 +122,7 @@ class VaultMethod extends AbstractMethod
         ScopeConfigInterface $scopeConfig,
         Logger $logger,
         Session $backendAuthSession,
+        OnlineCaptureGuard $onlineCaptureGuard,
         Config $config,
         ApiHandlerService $apiHandler,
         Utilities $utilities,
@@ -151,6 +154,7 @@ class VaultMethod extends AbstractMethod
         );
 
         $this->backendAuthSession = $backendAuthSession;
+        $this->onlineCaptureGuard = $onlineCaptureGuard;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
@@ -320,7 +324,7 @@ class VaultMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
+        if ($this->onlineCaptureGuard->canCaptureOnline()) {
             // Get the store code
             $storeCode = $payment->getOrder()->getStore()->getCode();
 
