@@ -142,7 +142,7 @@ class TransactionHandlerService
         if (isset(self::TRANSACTION_MAPPER[$webhook['event_type']])) {
             // Avoid a silent zero amount on the invoice or credit memo, without blocking the order save
             if (!isset($payload->data->amount)) {
-                $this->logger->write(
+                $this->logger->error(
                     sprintf(
                         'Missing amount, transaction skipped. Order %s, Webhook %s, Event %s, Action %s',
                         $order->getIncrementId(),
