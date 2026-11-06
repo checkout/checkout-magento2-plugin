@@ -30,6 +30,7 @@ use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\CardHandlerService;
+use CheckoutCom\Magento2\Model\Service\OnlineCaptureGuard;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Customer\Model\Session as CustomerModelSession;
@@ -111,6 +112,7 @@ class CardPaymentMethod extends AbstractMethod
      */
     protected $canRefundInvoicePartial = true;
     private Session $backendAuthSession;
+    private OnlineCaptureGuard $onlineCaptureGuard;
     private CustomerModelSession $customerSession;
     private Config $config;
     private ApiHandlerService $apiHandler;
@@ -123,6 +125,7 @@ class CardPaymentMethod extends AbstractMethod
 
     public function __construct(
         Session $backendAuthSession,
+        OnlineCaptureGuard $onlineCaptureGuard,
         CustomerModelSession $customerSession,
         Config $config,
         ApiHandlerService $apiHandler,
@@ -161,6 +164,7 @@ class CardPaymentMethod extends AbstractMethod
             $data
         );
         $this->backendAuthSession = $backendAuthSession;
+        $this->onlineCaptureGuard = $onlineCaptureGuard;
         $this->customerSession = $customerSession;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
@@ -329,7 +333,7 @@ class CardPaymentMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
+        if ($this->onlineCaptureGuard->canCaptureOnline()) {
             // Get the store code
             $storeCode = $payment->getOrder()->getStore()->getCode();
 

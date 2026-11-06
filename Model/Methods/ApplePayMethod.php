@@ -30,6 +30,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as MagentoLoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\OnlineCaptureGuard;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Directory\Helper\Data as DirectoryHelper;
@@ -110,6 +111,7 @@ class ApplePayMethod extends AbstractMethod
      */
     protected $canRefundInvoicePartial = true;
     private Session $backendAuthSession;
+    private OnlineCaptureGuard $onlineCaptureGuard;
     private Config $config;
     private ApiHandlerService $apiHandler;
     private Utilities $utilities;
@@ -120,6 +122,7 @@ class ApplePayMethod extends AbstractMethod
 
     public function __construct(
         Session $backendAuthSession,
+        OnlineCaptureGuard $onlineCaptureGuard,
         Config $config,
         ApiHandlerService $apiHandler,
         Utilities $utilities,
@@ -156,6 +159,7 @@ class ApplePayMethod extends AbstractMethod
             $data
         );
         $this->backendAuthSession = $backendAuthSession;
+        $this->onlineCaptureGuard = $onlineCaptureGuard;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
@@ -287,7 +291,7 @@ class ApplePayMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
+        if ($this->onlineCaptureGuard->canCaptureOnline()) {
             // Get the store code
             $storeCode = $payment->getOrder()->getStore()->getCode();
 

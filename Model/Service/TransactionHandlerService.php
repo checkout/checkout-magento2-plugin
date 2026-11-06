@@ -19,6 +19,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Model\Service;
 
 use CheckoutCom\Magento2\Gateway\Config\Config;
+use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
 use Exception;
 use Magento\Framework\Api\FilterBuilder;
@@ -73,6 +74,7 @@ class TransactionHandlerService
     private OrderPaymentRepositoryInterface $orderPaymentRepository;
     private OrderRepositoryInterface $orderRepository;
     private OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository;
+    private Logger $logger;
     private $transaction;
     private $order;
     private $payment;
@@ -92,7 +94,8 @@ class TransactionHandlerService
         ConvertorFactory $convertorFactory,
         OrderPaymentRepositoryInterface $orderPaymentRepository,
         OrderRepositoryInterface $orderRepository,
-        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository
+        OrderStatusHistoryRepositoryInterface $orderStatusHistoryRepository,
+        Logger $logger
     ) {
         $this->orderSender = $orderSender;
         $this->transactionBuilder = $transactionBuilder;
@@ -109,6 +112,7 @@ class TransactionHandlerService
         $this->orderPaymentRepository = $orderPaymentRepository;
         $this->orderRepository = $orderRepository;
         $this->orderStatusHistoryRepository = $orderStatusHistoryRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -136,15 +140,19 @@ class TransactionHandlerService
 
         // Check to see if webhook is supported
         if (isset(self::TRANSACTION_MAPPER[$webhook['event_type']])) {
-            // Avoid a silent zero amount on the invoice or credit memo
+            // Avoid a silent zero amount on the invoice or credit memo, without blocking the order save
             if (!isset($payload->data->amount)) {
-                throw new LocalizedException(
-                    __(
-                        'Missing amount for webhook %1 with payment ID %2',
+                $this->logger->error(
+                    sprintf(
+                        'Missing amount, transaction skipped. Order %s, Webhook %s, Event %s, Action %s',
+                        $order->getIncrementId(),
                         $webhook['event_type'],
-                        $webhook['payment_id'] ?? ''
+                        $webhook['event_id'] ?? '',
+                        $webhook['action_id'] ?? ''
                     )
                 );
+
+                return;
             }
 
             // Format the amount
