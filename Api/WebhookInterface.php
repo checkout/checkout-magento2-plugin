@@ -77,4 +77,12 @@ interface WebhookInterface
         self::PAYMENT_CAPTURE_DECLINED,
         self::PAYMENT_AUTHENTICATION_FAILED,
     ];
+
+    /**
+     * Authentication webhook types mapped to the payment webhook type they are processed as
+     */
+    public const AUTHENTICATION_EVENTS = [
+        self::AUTHENTICATION_EXPIRED => self::PAYMENT_EXPIRED,
+        self::AUTHENTICATION_FAILED => self::PAYMENT_AUTHENTICATION_FAILED,
+    ];
 }
