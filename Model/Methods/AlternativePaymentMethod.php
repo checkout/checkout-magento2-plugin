@@ -48,6 +48,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\ApmRequestValidator;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
 use CheckoutCom\Magento2\Model\Service\VersionHandlerService;
@@ -176,6 +177,7 @@ class AlternativePaymentMethod extends AbstractMethod
     private StoreManagerInterface $storeManager;
     private Curl $curl;
     private Json $json;
+    private ApmRequestValidator $apmRequestValidator;
 
     public function __construct(
         Session $backendAuthSession,
@@ -210,6 +212,7 @@ class AlternativePaymentMethod extends AbstractMethod
         Logger $logger,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
+        ApmRequestValidator $apmRequestValidator,
         ?AbstractResource $resource = null,
         ?AbstractDb $resourceCollection = null,
         array $data = []
@@ -252,6 +255,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $this->storeManager = $storeManager;
         $this->curl = $curl;
         $this->json = $json;
+        $this->apmRequestValidator = $apmRequestValidator;
     }
 
     /**
@@ -270,7 +274,14 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = ''): ?array
     {
-        $method = $data['source'];
+        $method = (string)($data['source'] ?? '');
+
+        if (!$this->apmRequestValidator->isEnabledMethod(
+            $method,
+            (string)($this->config->getValue('apm_enabled', 'checkoutcom_apm') ?? '')
+        )) {
+            throw new LocalizedException(__('The payment method is not available.'));
+        }
 
         if ($this->validateCurrency($method, $currency)) {
             // Get the store code
@@ -419,17 +430,41 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @return RequestIdSource
      * @throws FileSystemException
+     * @throws LocalizedException
      */
     public function sepa(array $data): RequestIdSource
     {
-        $this->activateMandate($data['url']);
-        $pos = strripos($data['url'], '/');
-        $id = substr($data['url'], $pos + 1);
+        $url = is_string($data['url'] ?? null) ? $data['url'] : '';
+        $id = $this->getMandateSourceId($url);
+        $this->activateMandate($url);
 
         $source = new RequestIdSource();
         $source->id = $id;
 
         return $source;
+    }
+
+    /**
+     * Returns the source id of a mandate URL of the configured environment.
+     *
+     * @param string $url
+     *
+     * @return string
+     * @throws LocalizedException
+     */
+    private function getMandateSourceId(string $url): string
+    {
+        $id = $this->apmRequestValidator->getMandateSourceId(
+            $url,
+            (int)$this->config->getValue('environment') === 1,
+            (string)($this->config->getValue('partial_client_id') ?? '')
+        );
+
+        if ($id === null) {
+            throw new LocalizedException(__('The payment could not be processed.'));
+        }
+
+        return $id;
     }
 
     /**
@@ -439,9 +474,13 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @return array|null
      * @throws FileSystemException
+     * @throws LocalizedException
      */
     public function activateMandate(string $url): ?array
     {
+        // Check the URL before the request
+        $this->getMandateSourceId($url);
+
         // Get the secret key
         $secret = $this->config->getValue('secret_key');
 
@@ -456,6 +495,7 @@ class AlternativePaymentMethod extends AbstractMethod
 
         // Set extra CURL parameters
         $this->curl->setOption(CURLOPT_FAILONERROR, false);
+        $this->curl->setOption(CURLOPT_FOLLOWLOCATION, false);
         $this->curl->setOption(CURLOPT_RETURNTRANSFER, true);
 
         // Send the request
