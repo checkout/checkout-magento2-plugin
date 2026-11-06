@@ -28,7 +28,8 @@ use Magento\Framework\Serialize\SerializerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Submits Flow payment with reference (order id). Called from frontend handleSubmit.
+ * Submits Flow payment for the last placed order. Called from frontend handleSubmit.
+ * The client-provided reference is informational only: the order reference is read server side.
  */
 class Submit extends Action implements HttpPostActionInterface
 {
@@ -64,15 +65,17 @@ class Submit extends Action implements HttpPostActionInterface
 
             $sessionId = $params['session_id'] ?? '';
             $sessionData = $params['session_data'] ?? '';
-            $reference = $params['reference'] ?? '';
+            $clientReference = $params['reference'] ?? '';
 
-            if ($sessionId === '' || $sessionData === '' || $reference === '') {
+            if (!is_string($sessionId) || !is_string($sessionData) || !is_string($clientReference)
+                || $sessionId === '' || $sessionData === ''
+            ) {
                 $result->setHttpResponseCode(400);
 
                 return $result->setData(['error' => true, 'message' => __('Invalid request.')]);
             }
 
-            $apiResponse = $this->flowSubmitService->submit($sessionId, $sessionData, $reference);
+            $apiResponse = $this->flowSubmitService->submit($sessionId, $sessionData, $clientReference);
 
             return $result->setData($apiResponse);
         } catch (Exception $exception) {

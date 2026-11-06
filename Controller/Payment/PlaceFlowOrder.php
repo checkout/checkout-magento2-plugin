@@ -223,6 +223,13 @@ class PlaceFlowOrder extends Action
             $paymentInfo->setAdditionalInformation(FlowPaymentAttemptService::ATTEMPT_ID_KEY, $attemptId);
         }
 
+        // Bind the order to the Flow session it was placed for, so flow/submit can refuse a
+        // session that belongs to another order (each placement creates a new order, so a retry
+        // with a new session simply binds that new order to the new session)
+        if ($sessionId) {
+            $paymentInfo->setAdditionalInformation(FlowPaymentAttemptService::SESSION_ID_KEY, $sessionId);
+        }
+
         $order->setPayment($paymentInfo);
     }
 
