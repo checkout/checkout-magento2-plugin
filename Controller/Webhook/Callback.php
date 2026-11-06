@@ -138,18 +138,30 @@ class Callback extends Action implements CsrfAwareActionInterface
                         ]);
                     }
 
-                    // Handle authentication_expired webhook
-                    if ($payload['type'] === WebhookInterface::AUTHENTICATION_EXPIRED && isset($payload['data']['payment_id'])) {
-                        $payload['data']['id'] = $payload['data']['payment_id'];
-                        $payload['data']['action_id'] = WebhookInterface::AUTHENTICATION_EXPIRED;
-                        $payload['type'] = WebhookInterface::PAYMENT_EXPIRED;
-                    }
+                    // Process authentication webhooks as the payment webhook they relate to
+                    if (isset(WebhookInterface::AUTHENTICATION_EVENTS[$payload['type']])) {
+                        // Ignore authentication webhooks not linked to a payment, no order can match them
+                        if (!isset($payload['data']['payment_id'])) {
+                            $this->logger->additional(
+                                sprintf(
+                                    'Webhook %s ignored: session %s is not linked to a payment',
+                                    $payload['type'],
+                                    $payload['data']['session_id'] ?? ''
+                                ),
+                                'webhook'
+                            );
 
-                    // Handle authentication_failed webhook
-                    if ($payload['type'] === WebhookInterface::AUTHENTICATION_FAILED && isset($payload['data']['payment_id'])) {
+                            // Set a valid response to avoid gateway retry mechanism
+                            $resultFactory->setHttpResponseCode(Response::HTTP_OK);
+
+                            return $resultFactory->setData([
+                                'result' => __('Webhook ignored, the authentication is not linked to a payment.'),
+                            ]);
+                        }
+
                         $payload['data']['id'] = $payload['data']['payment_id'];
-                        $payload['data']['action_id'] = WebhookInterface::AUTHENTICATION_FAILED;
-                        $payload['type'] = WebhookInterface::PAYMENT_AUTHENTICATION_FAILED;
+                        $payload['data']['action_id'] = $payload['type'];
+                        $payload['type'] = WebhookInterface::AUTHENTICATION_EVENTS[$payload['type']];
                     }
 
                     // Process the request
