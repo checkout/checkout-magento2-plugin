@@ -428,10 +428,21 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function sepa(array $data): RequestIdSource
     {
-        // The posted value is client controlled: only the mandate id is kept, never the host
-        $postedUrl = (string)($data['url'] ?? '');
+        // The posted value is client controlled: it must be exactly the mandate URL expected for
+        // the configured Checkout.com environment, otherwise the request is rejected and logged.
+        $postedUrl = is_string($data['url'] ?? null) ? $data['url'] : '';
         $id = substr((string)strrchr('/' . $postedUrl, '/'), 1);
 
+        if (!$this->isValidMandateId($id) || $postedUrl !== $this->buildMandateUrl($id)) {
+            $this->ckoLogger->error(
+                'SEPA mandate rejected: posted URL does not match the configured Checkout.com endpoint: '
+                . json_encode(mb_substr($postedUrl, 0, 255), JSON_UNESCAPED_SLASHES)
+            );
+
+            throw new LocalizedException(__('Invalid SEPA mandate reference.'));
+        }
+
+        // The rebuilt URL is used for the call, never the posted string
         $this->activateMandate($id);
 
         $source = new RequestIdSource();
@@ -455,13 +466,11 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function activateMandate(string $mandateId): ?array
     {
-        if (!preg_match('/^src_[a-z0-9]{1,64}$/', $mandateId)) {
+        if (!$this->isValidMandateId($mandateId)) {
             throw new LocalizedException(__('Invalid SEPA mandate reference.'));
         }
 
-        $storeCode = $this->storeManager->getStore()->getCode();
-        $url = $this->config->getEnvironment($storeCode, ScopeInterface::SCOPE_STORE)->getBaseUri()
-            . 'sepa/mandates/' . $mandateId;
+        $url = $this->buildMandateUrl($mandateId);
 
         // Get the secret key
         $secret = $this->config->getValue('secret_key');
@@ -487,6 +496,34 @@ class AlternativePaymentMethod extends AbstractMethod
 
         // Return the content
         return $this->json->unserialize($content);
+    }
+
+    /**
+     * Check that a SEPA mandate id has the Checkout.com source id format.
+     *
+     * @param string $mandateId
+     *
+     * @return bool
+     */
+    private function isValidMandateId(string $mandateId): bool
+    {
+        return (bool)preg_match('/^src_[a-z0-9]{1,64}$/', $mandateId);
+    }
+
+    /**
+     * Build the SEPA mandate URL from the configured Checkout.com environment.
+     *
+     * @param string $mandateId
+     *
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    private function buildMandateUrl(string $mandateId): string
+    {
+        $storeCode = $this->storeManager->getStore()->getCode();
+
+        return $this->config->getEnvironment($storeCode, ScopeInterface::SCOPE_STORE)->getBaseUri()
+            . 'sepa/mandates/' . $mandateId;
     }
 
     /**
