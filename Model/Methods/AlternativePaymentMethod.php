@@ -423,12 +423,16 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @return RequestIdSource
      * @throws FileSystemException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function sepa(array $data): RequestIdSource
     {
-        $this->activateMandate($data['url']);
-        $pos = strripos($data['url'], '/');
-        $id = substr($data['url'], $pos + 1);
+        // The posted value is client controlled: only the mandate id is kept, never the host
+        $postedUrl = (string)($data['url'] ?? '');
+        $id = substr((string)strrchr('/' . $postedUrl, '/'), 1);
+
+        $this->activateMandate($id);
 
         $source = new RequestIdSource();
         $source->id = $id;
@@ -439,13 +443,26 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Activate the mandate.
      *
-     * @param string $url
+     * The URL is always built from the configured Checkout.com environment so that the
+     * secret key can never be sent to a host supplied by the shopper (SSRF).
+     *
+     * @param string $mandateId
      *
      * @return array|null
      * @throws FileSystemException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function activateMandate(string $url): ?array
+    public function activateMandate(string $mandateId): ?array
     {
+        if (!preg_match('/^src_[a-z0-9]{1,64}$/', $mandateId)) {
+            throw new LocalizedException(__('Invalid SEPA mandate reference.'));
+        }
+
+        $storeCode = $this->storeManager->getStore()->getCode();
+        $url = $this->config->getEnvironment($storeCode, ScopeInterface::SCOPE_STORE)->getBaseUri()
+            . 'sepa/mandates/' . $mandateId;
+
         // Get the secret key
         $secret = $this->config->getValue('secret_key');
 
