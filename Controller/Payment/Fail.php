@@ -41,6 +41,11 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Fail extends Action
 {
+    /**
+     * Payment statuses for which the order can be cancelled, any other one is left to the webhooks
+     */
+    private const FAILED_PAYMENT_STATUSES = ['Declined', 'Canceled', 'Expired'];
+
     private TransactionHandlerService $transactionHandler;
     private StoreManagerInterface $storeManager;
     private ApiHandlerService $apiHandler;
@@ -107,6 +112,29 @@ class Fail extends Action
                     $order = $this->orderHandler->getOrder([
                         'increment_id' => $response['reference'],
                     ]);
+
+                    // This URL can be called by anyone with any payment id: only handle the order placed in
+                    // the current checkout session, and only when the payment really failed
+                    $lastOrderId = (string)$this->session->getLastRealOrderId();
+                    $paymentStatus = is_string($response['status'] ?? null) ? $response['status'] : '';
+                    if ($lastOrderId === ''
+                        || $order->getIncrementId() !== $lastOrderId
+                        || !in_array($paymentStatus, self::FAILED_PAYMENT_STATUSES, true)
+                    ) {
+                        $this->logger->write(
+                            sprintf(
+                                'Failed payment %s ignored for order %s: not the order of the current checkout '
+                                . 'session or payment status "%s" is not a failure',
+                                $response['id'] ?? '',
+                                (string)$order->getIncrementId(),
+                                $paymentStatus
+                            )
+                        );
+
+                        $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+
+                        return $this->_redirect('checkout/cart', ['_secure' => true]);
+                    }
 
                     $storeCode = $this->storeManager->getStore()->getCode();
                     $action = $this->config->getValue('order_action_failed_payment', null, $storeCode);
