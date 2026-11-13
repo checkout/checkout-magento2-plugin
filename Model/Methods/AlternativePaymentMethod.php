@@ -336,17 +336,59 @@ class AlternativePaymentMethod extends AbstractMethod
     }
 
     /**
-     * Check that the requested APM is handled by this method and enabled in the configuration
+     * Check that the requested APM is handled by this method and offered on the storefront for the quote
+     *
+     * Same rule as the APM list displayed on the checkout (see getAvailableApms()), so that a forged
+     * request cannot use an APM the shopper is not offered.
      *
      * @param string $source
+     * @param CartInterface|null $quote
      *
      * @return bool
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function isAllowedSource(string $source): bool
+    public function isAllowedSource(string $source, ?CartInterface $quote = null): bool
     {
-        $apmEnabled = explode(',', (string)$this->config->getValue('apm_enabled', $this->code));
+        return in_array($source, self::APM_SOURCES, true)
+            && in_array($source, $this->getAvailableApms($quote), true);
+    }
 
-        return in_array($source, self::APM_SOURCES, true) && in_array($source, $apmEnabled, true);
+    /**
+     * List the APM ids offered on the storefront for the quote
+     *
+     * Same rule as Controller\Apm\Display: enabled in the configuration, valid for the billing
+     * country and the quote currency, and not part of NAS_UNAVAILABLE_APM.
+     *
+     * @param CartInterface|null $quote
+     *
+     * @return string[]
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getAvailableApms(?CartInterface $quote = null): array
+    {
+        if (!$quote) {
+            $quote = $this->quoteHandler->getQuote();
+        }
+
+        $billingAddress = $quote->getBillingAddress()->getData();
+        if (!isset($billingAddress['country_id'])) {
+            return [];
+        }
+
+        $apmEnabled = explode(',', (string)$this->config->getValue('apm_enabled', $this->code));
+        $available = [];
+
+        foreach ($this->config->getApms() as $apm) {
+            if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)
+                && !in_array($apm['value'], self::NAS_UNAVAILABLE_APM, true)
+            ) {
+                $available[] = $apm['value'];
+            }
+        }
+
+        return $available;
     }
 
     /**
@@ -1028,34 +1070,11 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function isAvailable(?CartInterface $quote = null): bool
     {
-        $countEnabled = 0;
-        $websiteId = $this->storeManager->getWebsite()->getId();
-
-        /** @var string|null $apmMethods */
-        $apmMethods = $this->config->getValue('apm_enabled', 'checkoutcom_apm') ?: '';
-        // Get the list of enabled apms.
-        $apmEnabled = explode(
-            ',',
-            $apmMethods ?? ''
-        );
-
-        $apms = $this->config->getApms();
-
         if (!$quote) {
             $quote = $this->quoteHandler->getQuote();
         }
 
-        $billingAddress = $quote->getBillingAddress()->getData();
-
-        if (isset($billingAddress['country_id'])) {
-            foreach ($apms as $apm) {
-                if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    if (!in_array($apm['value'], self::NAS_UNAVAILABLE_APM)) {
-                        $countEnabled++;
-                    }
-                }
-            }
-        }
+        $countEnabled = count($this->getAvailableApms($quote));
 
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->code)
