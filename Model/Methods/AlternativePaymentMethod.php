@@ -21,7 +21,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
-use Checkout\EnvironmentSubdomain;
+use Checkout\EnvironmentSubdomainFactory;
 use Checkout\Payments\Payer;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
 use Checkout\Payments\Previous\Source\Apm\RequestAlipaySource;
@@ -196,6 +196,7 @@ class AlternativePaymentMethod extends AbstractMethod
     private StoreManagerInterface $storeManager;
     private Curl $curl;
     private Json $json;
+    private EnvironmentSubdomainFactory $environmentSubdomainFactory;
 
     public function __construct(
         Session $backendAuthSession,
@@ -222,6 +223,7 @@ class AlternativePaymentMethod extends AbstractMethod
         StoreManagerInterface $storeManager,
         Curl $curl,
         Json $json,
+        EnvironmentSubdomainFactory $environmentSubdomainFactory,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -274,6 +276,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $this->storeManager = $storeManager;
         $this->curl = $curl;
         $this->json = $json;
+        $this->environmentSubdomainFactory = $environmentSubdomainFactory;
     }
 
     /**
@@ -605,7 +608,10 @@ class AlternativePaymentMethod extends AbstractMethod
         );
 
         $baseUri = $partialClientId !== ''
-            ? (new EnvironmentSubdomain($environment, strtolower($partialClientId)))->getBaseUri()
+            ? $this->environmentSubdomainFactory->create([
+                'environment' => $environment,
+                'subdomain' => strtolower($partialClientId),
+            ])->getBaseUri()
             : $environment->getBaseUri();
 
         return rtrim($baseUri, '/') . '/sepa/mandates/' . $mandateId;
