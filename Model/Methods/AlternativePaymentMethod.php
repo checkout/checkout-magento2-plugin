@@ -98,23 +98,6 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     const CODE = 'checkoutcom_apm';
     /**
-     * APM ids handled by this method (ids of etc/apm.xml), see createSource()
-     */
-    private const APM_SOURCES = [
-        'alipay',
-        'bancontact',
-        'boleto',
-        'eps',
-        'fawry',
-        'ideal',
-        'klarna',
-        'knet',
-        'paypal',
-        'poli',
-        'sepa',
-        'sofort',
-    ];
-    /**
      * List of unavailable apm for NAS mode
      */
     const NAS_UNAVAILABLE_APM = [
@@ -336,7 +319,7 @@ class AlternativePaymentMethod extends AbstractMethod
     }
 
     /**
-     * Check that the requested APM is handled by this method and offered on the storefront for the quote
+     * Check that the requested APM is offered on the storefront for the quote
      *
      * Same rule as the APM list displayed on the checkout (see getAvailableApms()), so that a forged
      * request cannot use an APM the shopper is not offered.
@@ -350,8 +333,7 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function isAllowedSource(string $source, ?CartInterface $quote = null): bool
     {
-        return in_array($source, self::APM_SOURCES, true)
-            && in_array($source, $this->getAvailableApms($quote), true);
+        return in_array($source, $this->getAvailableApms($quote), true);
     }
 
     /**
