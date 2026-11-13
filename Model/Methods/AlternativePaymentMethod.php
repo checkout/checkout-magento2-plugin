@@ -21,6 +21,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
+use Checkout\EnvironmentSubdomain;
 use Checkout\Payments\Payer;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
 use Checkout\Payments\Previous\Source\Apm\RequestAlipaySource;
@@ -96,6 +97,23 @@ class AlternativePaymentMethod extends AbstractMethod
      * @var string CODE
      */
     const CODE = 'checkoutcom_apm';
+    /**
+     * APM ids handled by this method (ids of etc/apm.xml), see createSource()
+     */
+    private const APM_SOURCES = [
+        'alipay',
+        'bancontact',
+        'boleto',
+        'eps',
+        'fawry',
+        'ideal',
+        'klarna',
+        'knet',
+        'paypal',
+        'poli',
+        'sepa',
+        'sofort',
+    ];
     /**
      * List of unavailable apm for NAS mode
      */
@@ -274,7 +292,17 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = ''): ?array
     {
-        $method = $data['source'];
+        $method = is_string($data['source'] ?? null) ? $data['source'] : '';
+
+        // The source is client controlled: only an APM enabled in the configuration is accepted
+        if (!$this->isAllowedSource($method)) {
+            $this->ckoLogger->error(
+                'APM payment rejected: source is not an enabled APM: '
+                . json_encode(mb_substr($method, 0, 64), JSON_UNESCAPED_SLASHES)
+            );
+
+            throw new LocalizedException(__('The payment method is not available.'));
+        }
 
         if ($this->validateCurrency($method, $currency)) {
             // Get the store code
@@ -284,7 +312,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Create source object
-            $source = $this->{$method}($data, $reference);
+            $source = $this->createSource($method, $data, $reference);
 
             $payment = $this->createPayment(
                 $source,
@@ -302,6 +330,51 @@ class AlternativePaymentMethod extends AbstractMethod
         }
 
         return null;
+    }
+
+    /**
+     * Check that the requested APM is handled by this method and enabled in the configuration
+     *
+     * @param string $source
+     *
+     * @return bool
+     */
+    public function isAllowedSource(string $source): bool
+    {
+        $apmEnabled = explode(',', (string)$this->config->getValue('apm_enabled', $this->code));
+
+        return in_array($source, self::APM_SOURCES, true) && in_array($source, $apmEnabled, true);
+    }
+
+    /**
+     * Build the payment source of an APM through an explicit mapping, never a dynamic method call
+     *
+     * @param string $method
+     * @param array $data
+     * @param string $reference
+     *
+     * @return mixed
+     * @throws FileSystemException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    private function createSource(string $method, array $data, string $reference)
+    {
+        return match ($method) {
+            'alipay' => $this->alipay(),
+            'bancontact' => $this->bancontact(),
+            'boleto' => $this->boleto($data),
+            'eps' => $this->eps(),
+            'fawry' => $this->fawry(),
+            'ideal' => $this->ideal($data),
+            'klarna' => $this->klarna($data),
+            'knet' => $this->knet(),
+            'paypal' => $this->paypal($data, $reference),
+            'poli' => $this->poli(),
+            'sepa' => $this->sepa($data),
+            'sofort' => $this->sofort($data),
+            default => throw new LocalizedException(__('The payment method is not available.')),
+        };
     }
 
     /**
@@ -428,21 +501,20 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function sepa(array $data): RequestIdSource
     {
-        // The posted value is client controlled: it must be exactly the mandate URL expected for
-        // the configured Checkout.com environment, otherwise the request is rejected and logged.
+        // The posted value is client controlled: only the mandate id is kept from it, the URL called
+        // with the secret key is always rebuilt from the configuration (see activateMandate())
         $postedUrl = is_string($data['url'] ?? null) ? $data['url'] : '';
         $id = substr((string)strrchr('/' . $postedUrl, '/'), 1);
 
-        if (!$this->isValidMandateId($id) || $postedUrl !== $this->buildMandateUrl($id)) {
+        if (!$this->isValidMandateId($id)) {
             $this->ckoLogger->error(
-                'SEPA mandate rejected: posted URL does not match the configured Checkout.com endpoint: '
+                'SEPA mandate rejected: invalid mandate reference: '
                 . json_encode(mb_substr($postedUrl, 0, 255), JSON_UNESCAPED_SLASHES)
             );
 
             throw new LocalizedException(__('Invalid SEPA mandate reference.'));
         }
 
-        // The rebuilt URL is used for the call, never the posted string
         $this->activateMandate($id);
 
         $source = new RequestIdSource();
@@ -513,6 +585,9 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Build the SEPA mandate URL from the configured Checkout.com environment.
      *
+     * Same base URL as the SDK client (see ApiHandlerService::init()): the merchant subdomain
+     * built from the partial client id is added when it is configured.
+     *
      * @param string $mandateId
      *
      * @return string
@@ -521,9 +596,19 @@ class AlternativePaymentMethod extends AbstractMethod
     private function buildMandateUrl(string $mandateId): string
     {
         $storeCode = $this->storeManager->getStore()->getCode();
+        $environment = $this->config->getEnvironment($storeCode, ScopeInterface::SCOPE_STORE);
+        $partialClientId = (string)$this->config->getValue(
+            'partial_client_id',
+            null,
+            $storeCode,
+            ScopeInterface::SCOPE_STORE
+        );
 
-        return $this->config->getEnvironment($storeCode, ScopeInterface::SCOPE_STORE)->getBaseUri()
-            . 'sepa/mandates/' . $mandateId;
+        $baseUri = $partialClientId !== ''
+            ? (new EnvironmentSubdomain($environment, strtolower($partialClientId)))->getBaseUri()
+            : $environment->getBaseUri();
+
+        return rtrim($baseUri, '/') . '/sepa/mandates/' . $mandateId;
     }
 
     /**

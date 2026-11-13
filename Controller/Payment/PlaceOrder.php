@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\ApiOrderRollback;
 use CheckoutCom\Magento2\Model\Service\ApiPaymentMethodGuard;
@@ -141,7 +142,9 @@ class PlaceOrder extends Action
                 // Process the request
                 if ($this->getRequest()->isAjax() && $quote) {
                     // Only a Checkout.com method available for the quote can place an order
-                    if (!$this->apiPaymentMethodGuard->isAllowed((string)$data['methodId'], $quote)) {
+                    if (!$this->apiPaymentMethodGuard->isAllowed((string)$data['methodId'], $quote)
+                        || !$this->isAllowedApmSource($data)
+                    ) {
                         $message = __('The payment method is not available.');
                     } else {
                         //Create order before payment
@@ -311,6 +314,25 @@ class PlaceOrder extends Action
                 ['exception' => $rollbackException]
             );
         }
+    }
+
+    /**
+     * For the APM method, only an APM enabled in the configuration can place an order
+     *
+     * @param array $data
+     *
+     * @return bool
+     * @throws LocalizedException
+     */
+    private function isAllowedApmSource(array $data): bool
+    {
+        if ($data['methodId'] !== AlternativePaymentMethod::CODE) {
+            return true;
+        }
+
+        $source = is_string($data['source'] ?? null) ? $data['source'] : '';
+
+        return $this->methodHandler->get(AlternativePaymentMethod::CODE)->isAllowedSource($source);
     }
 
     /**
