@@ -168,7 +168,7 @@ class PlaceOrder extends Action
             $order->getGrandTotal(),
             $order->getOrderCurrencyCode(),
             $order->getIncrementId(),
-            null,
+            $quote,
             false,
             null,
             true

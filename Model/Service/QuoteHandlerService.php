@@ -337,9 +337,19 @@ class QuoteHandlerService
      */
     public function amountToGateway(float $amount, CartInterface $quote)
     {
-        // Get the quote currency
-        $currency = $this->getQuoteCurrency($quote);
+        return $this->amountToGatewayForCurrency($amount, $this->getQuoteCurrency($quote));
+    }
 
+    /**
+     * Convert an amount to integer value for the gateway request, using the currency sent to the gateway
+     *
+     * @param float $amount
+     * @param string $currency
+     *
+     * @return float|int
+     */
+    public function amountToGatewayForCurrency(float $amount, string $currency)
+    {
         // Get the x1 currency calculation mapping
         $currenciesX1 = explode(
             ',',
