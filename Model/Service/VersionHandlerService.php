@@ -141,9 +141,10 @@ class VersionHandlerService
     public function getLatestVersion(array $versions)
     {
         foreach ($versions as $version) {
-            // Find latest release that is not beta
-            if (isset($version['tag_name']) && count(explode('-', $version['tag_name'] ?? '')) == 1) {
-                return $version['tag_name'];
+            $tagName = $version['tag_name'] ?? null;
+            // Find latest stable release, ignore any tag that is not a plain version number (beta or unsafe content)
+            if (is_string($tagName) && preg_match('/^v?\d+(\.\d+){0,3}\z/', $tagName) === 1) {
+                return $tagName;
             }
         }
     }

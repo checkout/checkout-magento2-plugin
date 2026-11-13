@@ -75,7 +75,7 @@ class VersionNotification implements MessageInterface
             /** @var string $current */
             $current = $this->versionHandler->getModuleVersion();
             /** @var string $latest */
-            $latest = $this->versionHandler->getLatestVersion($versions);
+            $latest = $this->versionHandler->getLatestVersion($versions) ?? $current;
         }
 
         return [
