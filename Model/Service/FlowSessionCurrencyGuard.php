@@ -44,13 +44,12 @@ class FlowSessionCurrencyGuard
     }
 
     /**
-     * True when the session's recorded currency is known and differs from $currency. An unknown
-     * session is treated as a match so a missing record never blocks a legitimate order.
+     * True when the session's recorded currency differs from $currency, or when the session is
+     * unknown. An unknown session was not prepared by this checkout session (or was evicted), so
+     * its currency and amount cannot be trusted: the shopper must reload to get a new session.
      */
     public function hasCurrencyChanged(?string $sessionId, string $currency): bool
     {
-        $recorded = $this->getSessionCurrency($sessionId);
-
-        return $recorded !== null && $recorded !== $currency;
+        return $this->getSessionCurrency($sessionId) !== $currency;
     }
 }
