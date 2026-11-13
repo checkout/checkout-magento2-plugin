@@ -92,6 +92,12 @@
         <reference mandatory = '1' />
     </item>
     <item>
+        <id>blik</id>
+        <title>BLIK</title>
+        <currencies>PLN</currencies>
+        <countries>PL</countries>
+    </item>
+    <item>
         <id>dana</id>
         <title>Dana</title>
         <currencies>IDR,HKD,SGD</currencies>
