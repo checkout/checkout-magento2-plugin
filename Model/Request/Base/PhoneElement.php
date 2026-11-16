@@ -289,11 +289,9 @@ class PhoneElement
 
     public function get(?string $countryCode, ?string $number): ?Phone
     {
-        // Add @DND: a null country must never be used as array offset (deprecated since PHP 8.5)
         if (empty($countryCode) || empty($number)) {
             return null;
         }
-        // / Add @DND
 
         $phoneCode = self::COUNTRY_LIST[$countryCode] ?? '';
 
