@@ -123,11 +123,45 @@ class Callback extends Action implements CsrfAwareActionInterface
             if ($this->config->isValidAuth('psk')) {
                 // Filter out verification requests
                 if (isset($payload['type']) && $payload['type'] !== "card_verified") {
-                    // Handle authentication_expired webhook
-                    if ($payload['type'] === WebhookInterface::AUTHENTICATION_EXPIRED && isset($payload['data']['payment_id'])) {
+                    // Ignore unsupported webhooks
+                    if (!in_array($payload['type'], WebhookInterface::SUPPORTED_EVENTS, true)) {
+                        $this->logger->additional(
+                            sprintf('Webhook %s ignored: unsupported event type', $payload['type']),
+                            'webhook'
+                        );
+
+                        // Set a valid response to avoid gateway retry mechanism
+                        $resultFactory->setHttpResponseCode(Response::HTTP_OK);
+
+                        return $resultFactory->setData([
+                            'result' => __('Webhook ignored, the event type is not supported.'),
+                        ]);
+                    }
+
+                    // Process authentication webhooks as the payment webhook they relate to
+                    if (isset(WebhookInterface::AUTHENTICATION_EVENTS[$payload['type']])) {
+                        // Ignore authentication webhooks not linked to a payment, no order can match them
+                        if (!isset($payload['data']['payment_id'])) {
+                            $this->logger->additional(
+                                sprintf(
+                                    'Webhook %s ignored: session %s is not linked to a payment',
+                                    $payload['type'],
+                                    $payload['data']['session_id'] ?? ''
+                                ),
+                                'webhook'
+                            );
+
+                            // Set a valid response to avoid gateway retry mechanism
+                            $resultFactory->setHttpResponseCode(Response::HTTP_OK);
+
+                            return $resultFactory->setData([
+                                'result' => __('Webhook ignored, the authentication is not linked to a payment.'),
+                            ]);
+                        }
+
                         $payload['data']['id'] = $payload['data']['payment_id'];
-                        $payload['data']['action_id'] = WebhookInterface::AUTHENTICATION_EXPIRED;
-                        $payload['type'] = WebhookInterface::PAYMENT_EXPIRED;
+                        $payload['data']['action_id'] = $payload['type'];
+                        $payload['type'] = WebhookInterface::AUTHENTICATION_EVENTS[$payload['type']];
                     }
 
                     // Process the request
@@ -260,6 +294,22 @@ class Callback extends Action implements CsrfAwareActionInterface
                                 return $resultFactory->setData([
                                     'result' => __('Webhook and order successfully processed.'),
                                 ]);
+                            } elseif ($this->isOrderDeletedByFailedPayment($payload)) {
+                                $this->logger->additional(
+                                    sprintf(
+                                        'Webhook %s ignored: order %s already deleted after a failed payment',
+                                        $payload['type'],
+                                        $response['reference']
+                                    ),
+                                    'webhook'
+                                );
+
+                                // Set a valid response to avoid gateway retry mechanism
+                                $resultFactory->setHttpResponseCode(Response::HTTP_OK);
+
+                                return $resultFactory->setData([
+                                    'result' => __('Webhook ignored, the order was deleted after a failed payment.'),
+                                ]);
                             } else {
                                 $resultFactory->setHttpResponseCode(WebException::HTTP_INTERNAL_ERROR);
 
@@ -336,6 +386,19 @@ class Callback extends Action implements CsrfAwareActionInterface
         $payment = isset($response['metadata']) ? $response : ($payload['data'] ?? []);
 
         return $this->paymentAttemptService->isFromAnotherAttempt($order, $payment);
+    }
+
+    /**
+     * Check if a missing order is expected because a previous failed payment webhook deleted it
+     *
+     * @param array $payload
+     *
+     * @return bool
+     */
+    protected function isOrderDeletedByFailedPayment(array $payload): bool
+    {
+        return in_array($payload['type'], WebhookInterface::FAILED_PAYMENT_EVENTS, true)
+            && $this->config->getValue('order_action_failed_payment') === 'delete';
     }
 
     /**

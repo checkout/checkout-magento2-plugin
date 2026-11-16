@@ -24,6 +24,7 @@ use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Block\Adminhtml\Payment\Moto;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\OnlineCaptureGuard;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Directory\Helper\Data as DirectoryHelper;
@@ -101,6 +102,7 @@ class MotoMethod extends AbstractMethod
     protected $canRefundInvoicePartial = true;
 
     private Session $backendAuthSession;
+    private OnlineCaptureGuard $onlineCaptureGuard;
     private Config $config;
     private ApiHandlerService $apiHandler;
     private FlowGeneralSettings $flowGeneralSettings;
@@ -117,6 +119,7 @@ class MotoMethod extends AbstractMethod
      * @param ScopeConfigInterface $scopeConfig
      * @param Logger $logger
      * @param Session $backendAuthSession
+     * @param OnlineCaptureGuard $onlineCaptureGuard
      * @param Config $config
      * @param ApiHandlerService $apiHandler
      * @param DirectoryHelper $directoryHelper
@@ -127,6 +130,7 @@ class MotoMethod extends AbstractMethod
      */
     public function __construct(
         Session $backendAuthSession,
+        OnlineCaptureGuard $onlineCaptureGuard,
         Config $config,
         ApiHandlerService $apiHandler,
         Context $context,
@@ -160,6 +164,7 @@ class MotoMethod extends AbstractMethod
             $data
         );
         $this->backendAuthSession = $backendAuthSession;
+        $this->onlineCaptureGuard = $onlineCaptureGuard;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->flowGeneralSettings = $flowGeneralSettings;
@@ -262,7 +267,7 @@ class MotoMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
+        if ($this->onlineCaptureGuard->canCaptureOnline()) {
             // Get the store code
             $storeCode = $payment->getOrder()->getStore()->getCode();
 

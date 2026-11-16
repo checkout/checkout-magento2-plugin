@@ -23,6 +23,7 @@ use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\OnlineCaptureGuard;
 use CheckoutCom\Magento2\Provider\FlowMethodSettings;
 use CheckoutCom\Magento2\Provider\FlowPaymentMethodSettings;
 use Magento\Backend\Model\Auth\Session;
@@ -63,11 +64,15 @@ class FlowMethod extends AbstractMethod
      * $canUseInternal field
      */
     protected $canUseInternal = false;
+    protected $canAuthorize = true;
+    protected $canCapture = true;
+    protected $canCapturePartial = true;
     protected $canRefund = true;
     protected $canRefundInvoicePartial = true;
     protected $canVoid = true;
 
     private Session $backendAuthSession;
+    private OnlineCaptureGuard $onlineCaptureGuard;
     private Config $config;
     private ApiHandlerService $apiHandler;
     protected StoreManagerInterface $storeManager;
@@ -86,6 +91,7 @@ class FlowMethod extends AbstractMethod
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
         Session $backendAuthSession,
+        OnlineCaptureGuard $onlineCaptureGuard,
         ApiHandlerService $apiHandler,
         StoreManagerInterface $storeManager,
         FlowMethodSettings $flowMethodSettings,
@@ -111,6 +117,7 @@ class FlowMethod extends AbstractMethod
         );
 
         $this->backendAuthSession = $backendAuthSession;
+        $this->onlineCaptureGuard = $onlineCaptureGuard;
         $this->config = $config;
         $this->apiHandler = $apiHandler;
         $this->storeManager = $storeManager;
@@ -208,7 +215,7 @@ class FlowMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        if (!$this->backendAuthSession->isLoggedIn()) {
+        if (!$this->onlineCaptureGuard->canCaptureOnline()) {
             return $this;
         }
         // Get the store code
