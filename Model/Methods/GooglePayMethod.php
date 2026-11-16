@@ -31,6 +31,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger as LoggerHelper;
 use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
+use CheckoutCom\Magento2\Model\Service\OnlineCaptureGuard;
 use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Directory\Helper\Data as DirectoryHelper;
@@ -107,6 +108,7 @@ class GooglePayMethod extends AbstractMethod
     private QuoteHandlerService $quoteHandler;
     private LoggerHelper $ckoLogger;
     private Session $backendAuthSession;
+    private OnlineCaptureGuard $onlineCaptureGuard;
     protected DirectoryHelper $directoryHelper;
     protected DataObjectFactory $dataObjectFactory;
     private Json $json;
@@ -119,6 +121,7 @@ class GooglePayMethod extends AbstractMethod
         QuoteHandlerService $quoteHandler,
         LoggerHelper $ckoLogger,
         Session $backendAuthSession,
+        OnlineCaptureGuard $onlineCaptureGuard,
         DirectoryHelper $directoryHelper,
         DataObjectFactory $dataObjectFactory,
         Json $json,
@@ -151,6 +154,7 @@ class GooglePayMethod extends AbstractMethod
         $this->apiHandler = $apiHandler;
         $this->utilities = $utilities;
         $this->backendAuthSession = $backendAuthSession;
+        $this->onlineCaptureGuard = $onlineCaptureGuard;
         $this->quoteHandler = $quoteHandler;
         $this->ckoLogger = $ckoLogger;
         $this->storeManager = $storeManager;
@@ -271,7 +275,7 @@ class GooglePayMethod extends AbstractMethod
      */
     public function capture(InfoInterface $payment, $amount): AbstractMethod
     {
-        if ($this->backendAuthSession->isLoggedIn()) {
+        if ($this->onlineCaptureGuard->canCaptureOnline()) {
             // Get the store code
             $storeCode = $payment->getOrder()->getStore()->getCode();
 

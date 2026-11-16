@@ -17,37 +17,58 @@
 
 declare(strict_types=1);
 
-namespace Checkoutcom\Magento2\Controller\Adminhtml\Logs;
+namespace CheckoutCom\Magento2\Controller\Adminhtml\Logs;
 
+use CheckoutCom\Magento2\Model\Service\LogFileResolverService;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\Controller\ResultInterface;
+use Magento\Framework\App\Action\HttpGetActionInterface;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
  * Class View
  */
-class View extends Action
+class View extends Action implements HttpGetActionInterface
 {
+    /**
+     * Authorization level of a basic admin session
+     *
+     * @var string
+     */
+    public const ADMIN_RESOURCE = LogFileResolverService::ACL_RESOURCE;
+
     protected PageFactory $resultPageFactory;
+    private LogFileResolverService $logFileResolver;
 
     public function __construct(
         Context $context,
-        PageFactory $resultPageFactory
+        PageFactory $resultPageFactory,
+        LogFileResolverService $logFileResolver
     ) {
         parent::__construct($context);
 
         $this->resultPageFactory = $resultPageFactory;
+        $this->logFileResolver = $logFileResolver;
     }
 
     /**
      * Load the page defined in view/adminhtml/layout/cko_logs_view.xml
      *
-     * @return Page
+     * @return Page|Redirect
      */
     public function execute()
     {
+        if ($this->logFileResolver->getFilePath($this->getRequest()->getParam('file')) === null) {
+            $this->messageManager->addErrorMessage(__('The requested log file is not available.'));
+
+            return $this->resultRedirectFactory->create()->setPath(
+                'adminhtml/system_config/edit',
+                ['section' => 'payment']
+            );
+        }
+
         $resultPage = $this->resultPageFactory->create();
         $resultPage->getConfig()->getTitle()->prepend(__('Log File Reader'));
 
