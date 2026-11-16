@@ -363,7 +363,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $available = [];
 
         foreach ($this->config->getApms() as $apm) {
-            if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)
+            if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress, $quote)
                 && !in_array($apm['value'], self::NAS_UNAVAILABLE_APM, true)
             ) {
                 $available[] = $apm['value'];
@@ -563,7 +563,7 @@ class AlternativePaymentMethod extends AbstractMethod
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function activateMandate(string $mandateId): ?array
+    private function activateMandate(string $mandateId): ?array
     {
         if (!$this->isValidMandateId($mandateId)) {
             throw new LocalizedException(__('Invalid SEPA mandate reference.'));
@@ -606,7 +606,7 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     private function isValidMandateId(string $mandateId): bool
     {
-        return (bool)preg_match('/^src_[a-z0-9]{1,64}$/', $mandateId);
+        return (bool)preg_match('/^src_[a-z0-9]{1,64}\z/', $mandateId);
     }
 
     /**

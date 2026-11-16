@@ -333,9 +333,14 @@ class PlaceOrder extends Action
             return true;
         }
 
+        $method = $this->methodHandler->get(AlternativePaymentMethod::CODE);
+        if (!$method instanceof AlternativePaymentMethod) {
+            return false;
+        }
+
         $source = is_string($data['source'] ?? null) ? $data['source'] : '';
 
-        return $this->methodHandler->get(AlternativePaymentMethod::CODE)->isAllowedSource($source, $quote);
+        return $method->isAllowedSource($source, $quote);
     }
 
     /**
