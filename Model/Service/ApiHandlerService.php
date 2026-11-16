@@ -54,6 +54,16 @@ use Magento\Store\Model\StoreManagerInterface;
 class ApiHandlerService
 {
     public const CARD_VERIFIED = 'Card Verified';
+
+    /**
+     * Payment statuses meaning the payment is final and successful
+     */
+    public const APPROVED_STATUSES = ['Authorized', 'Captured', self::CARD_VERIFIED];
+
+    /**
+     * Payment status of a payment waiting for a customer action (3DS)
+     */
+    public const PENDING_STATUS = 'Pending';
     /**
      * Valid return code
      */
@@ -172,6 +182,55 @@ class ApiHandlerService
         $this->logger->additional($this->utilities->objectToArray($response), 'api');
 
         return $response instanceof HttpMetadata && in_array($response->getStatusCode(), self::VALID_RESPONSE_CODE);
+    }
+
+    /**
+     * Checks if a payment response is a payment that can be kept, not only a successful HTTP call:
+     * the gateway answers 201 for a declined card, so the payment itself must be checked.
+     * Accepted: a valid response with approved true or a status Authorized, Captured, Card Verified,
+     * or Pending with a 3DS redirect link (the customer still has to complete the 3DS).
+     *
+     * @param array $response
+     *
+     * @return bool
+     */
+    public function isApprovedPayment(array $response): bool
+    {
+        if (!$this->isValidResponse($response)) {
+            return false;
+        }
+
+        $status = isset($response['status']) ? (string)$response['status'] : '';
+
+        if (in_array($status, self::APPROVED_STATUSES, true)) {
+            return true;
+        }
+
+        if ($status === self::PENDING_STATUS) {
+            return !empty($response['_links']['redirect']['href']) || self::isPendingAlternativePayment($response);
+        }
+
+        // No explicit status: rely on the approved flag, strictly
+        return $status === '' && isset($response['approved']) && $response['approved'] === true;
+    }
+
+    /**
+     * Checks if a payment is an alternative payment (PayPal, iDEAL, ...) still waiting for its confirmation:
+     * these methods can stay Pending after the customer returns, the webhook confirms them later.
+     * A Pending card payment is never accepted here, it means an unfinished 3DS.
+     *
+     * @param array $payment
+     *
+     * @return bool
+     */
+    public static function isPendingAlternativePayment(array $payment): bool
+    {
+        $sourceType = isset($payment['source']['type']) ? (string)$payment['source']['type'] : '';
+
+        return isset($payment['status'])
+            && (string)$payment['status'] === self::PENDING_STATUS
+            && $sourceType !== ''
+            && $sourceType !== 'card';
     }
 
     /**

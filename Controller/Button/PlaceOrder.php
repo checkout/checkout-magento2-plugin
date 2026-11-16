@@ -210,8 +210,8 @@ class PlaceOrder extends Action implements HttpPostActionInterface
             return $this->createResponse($message, false);
         }
 
-        // Do not keep an unpaid order
-        if (!$api->isValidResponse($response)) {
+        // Do not keep an unpaid order: the gateway answers 201 for a declined card, check the payment itself
+        if (!$api->isApprovedPayment($response)) {
             $this->apiOrderRollback->rollback($order);
 
             return $this->createResponse($message, false);
