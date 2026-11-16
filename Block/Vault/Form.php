@@ -45,4 +45,14 @@ class Form extends Template
         $this->vaultHandler = $vaultHandler;
         $this->config = $config;
     }
+
+    /**
+     * Get config
+     *
+     * @return Config
+     */
+    public function getConfig(): Config
+    {
+        return $this->config;
+    }
 }
