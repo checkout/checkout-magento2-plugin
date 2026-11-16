@@ -96,6 +96,7 @@
         <title>BLIK</title>
         <currencies>PLN</currencies>
         <countries>PL</countries>
+        <reference mandatory = '1' />
     </item>
     <item>
         <id>dana</id>
