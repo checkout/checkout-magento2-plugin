@@ -387,21 +387,34 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     private function createSource(string $method, array $data, string $reference)
     {
-        return match ($method) {
-            'alipay' => $this->alipay(),
-            'bancontact' => $this->bancontact(),
-            'boleto' => $this->boleto($data),
-            'eps' => $this->eps(),
-            'fawry' => $this->fawry(),
-            'ideal' => $this->ideal($data),
-            'klarna' => $this->klarna($data),
-            'knet' => $this->knet(),
-            'paypal' => $this->paypal($data, $reference),
-            'poli' => $this->poli(),
-            'sepa' => $this->sepa($data),
-            'sofort' => $this->sofort($data),
-            default => throw new LocalizedException(__('The payment method is not available.')),
-        };
+        switch ($method) {
+            case 'alipay':
+                return $this->alipay();
+            case 'bancontact':
+                return $this->bancontact();
+            case 'boleto':
+                return $this->boleto($data);
+            case 'eps':
+                return $this->eps();
+            case 'fawry':
+                return $this->fawry();
+            case 'ideal':
+                return $this->ideal($data);
+            case 'klarna':
+                return $this->klarna($data);
+            case 'knet':
+                return $this->knet();
+            case 'paypal':
+                return $this->paypal($data, $reference);
+            case 'poli':
+                return $this->poli();
+            case 'sepa':
+                return $this->sepa($data);
+            case 'sofort':
+                return $this->sofort($data);
+            default:
+                throw new LocalizedException(__('The payment method is not available.'));
+        }
     }
 
     /**
