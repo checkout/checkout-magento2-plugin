@@ -23,7 +23,7 @@ jobs:
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - id: matrix
-        uses: lbajsarowicz/github-action-magento-matrix@v1
+        uses: lbajsarowicz/github-action-magento-matrix@d5dc67ff01e74abf6588c8f8f265580d6b601eef # v1.0.0
 
   check:
     name: "Magento ${{ matrix.magento }} @ PHP ${{ matrix.php }}"
@@ -42,7 +42,7 @@ jobs:
     env:
       MAGENTO_EXTENSION_CHECK_SUMMARY: 'false'
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -55,7 +55,7 @@ jobs:
 
       - name: Composer and syntax
         id: static
-        uses: lbajsarowicz/github-action-magento-extension/static@v1
+        uses: lbajsarowicz/github-action-magento-extension/static@9ffb39b2e573c590cae12d9d9bc27c0d3b390237 # v1.0.0
         with:
           magento-version: ${{ matrix.magento }}
           php-version: ${{ matrix.php }}
@@ -63,14 +63,14 @@ jobs:
 
       - name: Install Magento ${{ matrix.magento }}
         id: install
-        uses: lbajsarowicz/github-action-magento-extension/install@v1
+        uses: lbajsarowicz/github-action-magento-extension/install@9ffb39b2e573c590cae12d9d9bc27c0d3b390237 # v1.0.0
         with:
           magento-version: ${{ matrix.magento }}
           php-version: ${{ matrix.php }}
 
       - name: PHPCS
         id: phpcs
-        uses: lbajsarowicz/github-action-magento-extension/phpcs@v1
+        uses: lbajsarowicz/github-action-magento-extension/phpcs@9ffb39b2e573c590cae12d9d9bc27c0d3b390237 # v1.0.0
         with:
           magento-version: ${{ matrix.magento }}
           php-version: ${{ matrix.php }}
@@ -79,7 +79,7 @@ jobs:
       - name: Compile and static content
         id: compile
         if: ${{ !cancelled() && steps.install.outcome == 'success' }}
-        uses: lbajsarowicz/github-action-magento-extension/compile@v1
+        uses: lbajsarowicz/github-action-magento-extension/compile@9ffb39b2e573c590cae12d9d9bc27c0d3b390237 # v1.0.0
         with:
           magento-version: ${{ matrix.magento }}
           php-version: ${{ matrix.php }}
@@ -87,7 +87,7 @@ jobs:
       - name: Unit tests
         id: unit
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
-        uses: lbajsarowicz/github-action-magento-extension/phpunit@v1
+        uses: lbajsarowicz/github-action-magento-extension/phpunit@9ffb39b2e573c590cae12d9d9bc27c0d3b390237 # v1.0.0
         with:
           magento-version: ${{ matrix.magento }}
           php-version: ${{ matrix.php }}
@@ -97,7 +97,7 @@ jobs:
       - name: PHPStan
         id: phpstan
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
-        uses: lbajsarowicz/github-action-magento-extension/phpstan@v1
+        uses: lbajsarowicz/github-action-magento-extension/phpstan@9ffb39b2e573c590cae12d9d9bc27c0d3b390237 # v1.0.0
         with:
           magento-version: ${{ matrix.magento }}
           php-version: ${{ matrix.php }}
@@ -105,7 +105,7 @@ jobs:
 
       - name: Upload results
         if: ${{ always() && steps.static.outputs.result-path != '' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: magento-check-${{ matrix.magento }}-php${{ matrix.php }}
           path: ${{ steps.static.outputs.result-path }}
@@ -119,11 +119,11 @@ jobs:
     timeout-minutes: 5
     permissions: {}
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           pattern: magento-check-*
           path: magento-check-results
-      - uses: lbajsarowicz/github-action-magento-extension/report@v1
+      - uses: lbajsarowicz/github-action-magento-extension/report@9ffb39b2e573c590cae12d9d9bc27c0d3b390237 # v1.0.0
         with:
           matrix: ${{ needs.matrix.outputs.matrix }}
           checks: validate,lint,install,phpcs,compile,static-content,unit,phpstan
