@@ -24,6 +24,7 @@ use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Model\Entity\WebhookEntity;
 use CheckoutCom\Magento2\Model\Entity\WebhookEntityFactory;
+use CheckoutCom\Magento2\Model\ResourceModel\WebhookEntity\CollectionFactory as WebhookCollectionFactory;
 use DateTime;
 use Exception;
 use Magento\Framework\App\ResourceConnection;
@@ -51,6 +52,7 @@ class WebhookHandlerService
     private WebhookEntityRepositoryInterface $webhookEntityRepository;
     private Json $json;
     private ResourceConnection $resourceConnection;
+    private WebhookCollectionFactory $webhookCollectionFactory;
 
     public function __construct(
         OrderHandlerService $orderHandler,
@@ -61,7 +63,8 @@ class WebhookHandlerService
         Logger $logger,
         WebhookEntityRepositoryInterface $webhookEntityRepository,
         Json $json,
-        ResourceConnection $resourceConnection
+        ResourceConnection $resourceConnection,
+        WebhookCollectionFactory $webhookCollectionFactory
     ) {
         $this->orderHandler = $orderHandler;
         $this->orderStatusHandler = $orderStatusHandler;
@@ -72,6 +75,7 @@ class WebhookHandlerService
         $this->webhookEntityRepository = $webhookEntityRepository;
         $this->json = $json;
         $this->resourceConnection = $resourceConnection;
+        $this->webhookCollectionFactory = $webhookCollectionFactory;
     }
 
     /**
@@ -143,8 +147,7 @@ class WebhookHandlerService
     public function loadWebhookEntities(array $fields = [], bool $getItems = false): array
     {
         // Create the collection
-        $entities = $this->webhookEntityFactory->create();
-        $this->collection = $entities->getCollection();
+        $this->collection = $this->webhookCollectionFactory->create();
 
         // Add the field filters if needed
         if (!empty($fields)) {

@@ -63,7 +63,7 @@ class VersionHandlerService
      */
     public function getVersionType(string $currentVersion, string $latestVersion): string
     {
-        $versions = [explode('.', $currentVersion ?? ''), explode('.', $latestVersion ?? '')];
+        $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
 
         // Compare version numbers - major, minor and then revision
         for ($i = 0; $i < 3; $i++) {
@@ -92,7 +92,7 @@ class VersionHandlerService
      */
     public function needsUpdate(string $currentVersion, string $latestVersion): bool
     {
-        $versions = [explode('.', $currentVersion ?? ''), explode('.', $latestVersion ?? '')];
+        $versions = [explode('.', $currentVersion), explode('.', $latestVersion)];
 
         // Compare version numbers - major, minor and then revision
         for ($i = 0; $i < 3; $i++) {

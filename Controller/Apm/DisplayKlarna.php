@@ -44,7 +44,7 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class DisplayKlarna extends Action
 {
-    protected ?AddressInterface $billingAddress;
+    protected ?Address $billingAddress;
     protected $locale;
     private StoreManagerInterface $storeManager;
     private JsonFactory $jsonFactory;

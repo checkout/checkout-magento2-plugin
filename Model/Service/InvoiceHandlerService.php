@@ -122,6 +122,8 @@ class InvoiceHandlerService
         // Get the invoices collection
         $invoices = $order->getInvoiceCollection();
 
+        $invoiceIncrementId = null;
+
         // Retrieve the invoice increment id
         if (!empty($invoices)) {
             foreach ($invoices as $item) {
@@ -129,7 +131,9 @@ class InvoiceHandlerService
             }
 
             // Load an invoice
-            return $this->invoiceModel->loadByIncrementId($invoiceIncrementId);
+            if ($invoiceIncrementId !== null) {
+                return $this->invoiceModel->loadByIncrementId($invoiceIncrementId);
+            }
         }
 
         return null;

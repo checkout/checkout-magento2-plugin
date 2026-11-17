@@ -89,8 +89,11 @@ class Display extends Action
     {
         return $this->pageFactory->create()
             ->getLayout()
-            ->createBlock('CheckoutCom\Magento2\Block\Vault\Form')
-            ->setTemplate('CheckoutCom_Magento2::frames/payment/vault/card.phtml')
+            ->createBlock(
+                'CheckoutCom\Magento2\Block\Vault\Form',
+                '',
+                ['data' => ['template' => 'CheckoutCom_Magento2::frames/payment/vault/card.phtml']]
+            )
             ->setData('card', $card)
             ->toHtml();
     }
