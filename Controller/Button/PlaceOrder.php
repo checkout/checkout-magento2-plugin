@@ -38,6 +38,7 @@ use CheckoutCom\Magento2\Model\Service\QuoteHandlerService;
 use Exception;
 use Magento\Customer\Api\AddressRepositoryInterface;
 use Magento\Customer\Model\Address;
+use Magento\Customer\Model\ResourceModel\Address as AddressResource;
 use Magento\Framework\App\Action\Action;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
@@ -68,6 +69,7 @@ class PlaceOrder extends Action
     private CartRepositoryInterface $cartRepository;
     private AddressRepositoryInterface $addressRepository;
     private Address $addressManager;
+    private AddressResource $addressResource;
 
     public function __construct(
         Context $context,
@@ -83,7 +85,8 @@ class PlaceOrder extends Action
         OrderRepositoryInterface $orderRepository,
         CartRepositoryInterface $cartRepository,
         AddressRepositoryInterface $addressRepository,
-        Address $addressManager
+        Address $addressManager,
+        AddressResource $addressResource
     ) {
         parent::__construct($context);
 
@@ -100,6 +103,7 @@ class PlaceOrder extends Action
         $this->cartRepository = $cartRepository;
         $this->addressRepository = $addressRepository;
         $this->addressManager = $addressManager;
+        $this->addressResource = $addressResource;
     }
 
     /**
@@ -134,12 +138,14 @@ class PlaceOrder extends Action
 
         // Set the billing address
         /** @var Address $billingAddress */
-        $billingAddress = $this->addressManager->load($data['instant_purchase_billing_address']);
+        $this->addressResource->load($this->addressManager, $data['instant_purchase_billing_address']);
+        $billingAddress = $this->addressManager;
         $quote->getBillingAddress()->addData($billingAddress->getData());
 
         // Get the shipping address
         /** @var Address $shippingAddress */
-        $shippingAddress = $this->addressManager->load($data['instant_purchase_shipping_address']);
+        $this->addressResource->load($this->addressManager, $data['instant_purchase_shipping_address']);
+        $shippingAddress = $this->addressManager;
 
         // Prepare the quote
         $quote->getShippingAddress()->addData($shippingAddress->getData());

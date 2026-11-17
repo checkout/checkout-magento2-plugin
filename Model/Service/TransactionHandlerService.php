@@ -563,6 +563,9 @@ class TransactionHandlerService
             case TransactionInterface::TYPE_REFUND:
                 $comment = 'The refunded amount is %1.';
                 break;
+
+            default:
+                return;
         }
 
         // Add the transaction comment

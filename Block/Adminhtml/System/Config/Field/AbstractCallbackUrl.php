@@ -43,6 +43,9 @@ abstract class AbstractCallbackUrl extends Field
         Context $context,
         array $data = []
     ) {
+        if (empty($data['template'])) {
+            $data['template'] = static::TEMPLATE;
+        }
         parent::__construct($context, $data);
 
         $this->apiHandler = $apiHandler;
@@ -76,21 +79,6 @@ abstract class AbstractCallbackUrl extends Field
         return $button->toHtml();
     }
 
-    /**
-     * Set the template
-     *
-     * @return AbstractCallbackUrl
-     */
-    protected function _prepareLayout(): AbstractCallbackUrl
-    {
-        parent::_prepareLayout();
-        if (!$this->getTemplate()) {
-            $this->setTemplate(static::TEMPLATE);
-        }
-
-        return $this;
-    }
-    
     /**
      * Overridden method for rendering a field. In this case the field must be only for read.
      *

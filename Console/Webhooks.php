@@ -121,7 +121,7 @@ class Webhooks extends Command
      * @param InputInterface $input
      * @param OutputInterface $output
      *
-     * @return void
+     * @return int
      * @throws LocalizedException
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -176,6 +176,8 @@ class Webhooks extends Command
         } else {
             $output->writeln("Webhook table has been cleaned.");
         }
+
+        return 0;
     }
 
     /**

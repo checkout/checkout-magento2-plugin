@@ -36,6 +36,7 @@ use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Quote\Model\Quote;
 use Magento\Quote\Model\QuoteFactory;
+use Magento\Quote\Model\ResourceModel\Quote\CollectionFactory as QuoteCollectionFactory;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -54,6 +55,7 @@ class QuoteHandlerService
     private ShopperHandlerService $shopperHandler;
     private Logger $logger;
     private DataObjectFactory $dataObjectFactory;
+    private QuoteCollectionFactory $quoteCollectionFactory;
 
     public function __construct(
         Session $checkoutSession,
@@ -66,7 +68,8 @@ class QuoteHandlerService
         Config $config,
         ShopperHandlerService $shopperHandler,
         Logger $logger,
-        DataObjectFactory $dataObjectFactory
+        DataObjectFactory $dataObjectFactory,
+        QuoteCollectionFactory $quoteCollectionFactory
     ) {
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;
@@ -79,6 +82,7 @@ class QuoteHandlerService
         $this->shopperHandler = $shopperHandler;
         $this->logger = $logger;
         $this->dataObjectFactory = $dataObjectFactory;
+        $this->quoteCollectionFactory = $quoteCollectionFactory;
     }
 
     /**
@@ -176,7 +180,7 @@ class QuoteHandlerService
     {
         if (!empty($fields)) {
             // Get the quote factory
-            $quoteFactory = $this->quoteFactory->create()->getCollection();
+            $quoteFactory = $this->quoteCollectionFactory->create();
 
             // Add search filters
             foreach ($fields as $key => $value) {

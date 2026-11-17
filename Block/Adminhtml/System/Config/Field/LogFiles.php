@@ -42,21 +42,6 @@ class LogFiles extends Field
     private LogFileResolverService $logFileResolver;
 
     /**
-     * Set the template
-     *
-     * @return LogFiles
-     */
-    protected function _prepareLayout(): LogFiles
-    {
-        parent::_prepareLayout();
-        if (!$this->getTemplate()) {
-            $this->setTemplate(static::TEMPLATE);
-        }
-
-        return $this;
-    }
-
-    /**
      * LogFiles constructor
      *
      * @param Context $context
@@ -68,6 +53,9 @@ class LogFiles extends Field
         LogFileResolverService $logFileResolver,
         array $data = []
     ) {
+        if (empty($data['template'])) {
+            $data['template'] = static::TEMPLATE;
+        }
         parent::__construct($context, $data);
 
         $this->logFileResolver = $logFileResolver;

@@ -87,6 +87,7 @@ class Webhook extends Action
         try {
             // Prepare some parameters
             $message = '';
+            $success = false;
             // Get the store code
             $scope = $this->getRequest()->getParam('scope', 0);
             $storeCode = $this->getRequest()->getParam('scope_id', 0);

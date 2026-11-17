@@ -425,7 +425,7 @@ class Callback extends Action implements CsrfAwareActionInterface
             $customerId = $metadata['customerId'] ?? $metadata['customer_id'];
         }
 
-        return isset($saveCard, $customerId, $id) &&
+        return isset($customerId) &&
                (int)$saveCard === 1 &&
                (int)$customerId > 0 &&
                !empty($id);

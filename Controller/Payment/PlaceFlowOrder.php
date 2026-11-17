@@ -108,13 +108,6 @@ class PlaceFlowOrder extends Action
                 ]);
             }
 
-            if (empty($quote)) {
-                return $json->setData([
-                    'success' => false,
-                    'message' => __('No quote found'),
-                ]);
-            }
-
             // Checkout.com fixes the Flow session currency at creation. If the shopper switched
             // store currency (possibly from another tab) after the session was prepared, refuse
             // here so we never create an order bound to a session in the wrong currency. Placing

@@ -58,5 +58,7 @@ class MigrateApmToFlowApm implements DataPatchInterface
             $id = (int) $website->getId();
             $this->apmMigrator->migrate($id);
         }
+
+        return $this;
     }
 }

@@ -173,8 +173,11 @@ class Display extends Action
     {
         return $this->pageFactory->create()
             ->getLayout()
-            ->createBlock('CheckoutCom\Magento2\Block\Apm\Form')
-            ->setTemplate('CheckoutCom_Magento2::frames/payment/apm/' . $apmId . '.phtml')
+            ->createBlock(
+                'CheckoutCom\Magento2\Block\Apm\Form',
+                '',
+                ['data' => ['template' => 'CheckoutCom_Magento2::frames/payment/apm/' . $apmId . '.phtml']]
+            )
             ->setData('apm_id', $apmId)
             ->setData('title', $title)
             ->toHtml();

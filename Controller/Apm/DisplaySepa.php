@@ -258,8 +258,11 @@ class DisplaySepa extends Action
 
         return $this->pageFactory->create()
             ->getLayout()
-            ->createBlock('CheckoutCom\Magento2\Block\Apm\Sepa\Mandate')
-            ->setTemplate('CheckoutCom_Magento2::frames/payment/apm/sepa/mandate.phtml')
+            ->createBlock(
+                'CheckoutCom\Magento2\Block\Apm\Sepa\Mandate',
+                '',
+                ['data' => ['template' => 'CheckoutCom_Magento2::frames/payment/apm/sepa/mandate.phtml']]
+            )
             ->setData('billingAddress', $billingAddress)
             ->setData('store', $store)
             ->setData('reference', $reference)

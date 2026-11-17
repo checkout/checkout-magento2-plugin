@@ -62,5 +62,7 @@ class DisableApplePayForAllBrowserIfFlow implements DataPatchInterface
             $id = (int) $website->getId();
             $this->enableForAllBrowserMigrator->disableIfFlow($id);
         }
+
+        return $this;
     }
 }
