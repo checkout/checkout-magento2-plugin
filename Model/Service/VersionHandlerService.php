@@ -56,18 +56,19 @@ class VersionHandlerService
     /**
      * Returns type of version update
      *
-     * @param string $currentVersion
-     * @param string $latestVersion
+     * @param string|null $currentVersion
+     * @param string|null $latestVersion
      *
      * @return string
      */
-    public function getVersionType(string $currentVersion, string $latestVersion): string
+    public function getVersionType(?string $currentVersion, ?string $latestVersion): string
     {
-        $versions = [explode('.', $currentVersion ?? ''), explode('.', $latestVersion ?? '')];
+        $current = $this->getVersionParts($currentVersion);
+        $latest = $this->getVersionParts($latestVersion);
 
         // Compare version numbers - major, minor and then revision
         for ($i = 0; $i < 3; $i++) {
-            if ($versions[0][$i] < $versions[1][$i]) {
+            if ($current[$i] < $latest[$i]) {
                 switch ($i) {
                     case 0:
                         return 'major';
@@ -85,23 +86,45 @@ class VersionHandlerService
     /**
      * Check if module needs updating
      *
-     * @param string $currentVersion
-     * @param string $latestVersion
+     * @param string|null $currentVersion
+     * @param string|null $latestVersion
      *
      * @return bool
      */
-    public function needsUpdate(string $currentVersion, string $latestVersion): bool
+    public function needsUpdate(?string $currentVersion, ?string $latestVersion): bool
     {
-        $versions = [explode('.', $currentVersion ?? ''), explode('.', $latestVersion ?? '')];
+        $current = $this->getVersionParts($currentVersion);
+        $latest = $this->getVersionParts($latestVersion);
 
         // Compare version numbers - major, minor and then revision
         for ($i = 0; $i < 3; $i++) {
-            if ($versions[0][$i] < $versions[1][$i]) {
+            if ($current[$i] < $latest[$i]) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Split a version string into three integer parts (major, minor, revision)
+     *
+     * Tolerates a null or malformed value and an optional leading "v",
+     * padding any missing segment with 0 so comparisons never fail.
+     *
+     * @param string|null $version
+     *
+     * @return int[]
+     */
+    private function getVersionParts(?string $version): array
+    {
+        $parts = explode('.', ltrim((string)$version, 'vV'));
+
+        return [
+            (int)($parts[0] ?? 0),
+            (int)($parts[1] ?? 0),
+            (int)($parts[2] ?? 0),
+        ];
     }
 
     /**
@@ -152,10 +175,12 @@ class VersionHandlerService
     /**
      * Get the module version
      *
+     * Falls back to 0.0.0 when composer.json cannot be read or does not hold a
+     * version, so the caller never gets a null or a fatal error.
+     *
      * @param string $prefix
      *
      * @return string
-     * @throws FileSystemException
      */
     public function getModuleVersion(string $prefix = ''): string
     {
@@ -165,10 +190,18 @@ class VersionHandlerService
                 'CheckoutCom_Magento2'
             ) . '/composer.json';
 
-        // Get the composer file content
-        $fileContent = json_decode(
-            $this->fileDriver->fileGetContents($filePath)
-        );
+        try {
+            // Get the composer file content
+            $fileContent = json_decode(
+                $this->fileDriver->fileGetContents($filePath)
+            );
+        } catch (FileSystemException $e) {
+            return $prefix . '0.0.0';
+        }
+
+        if (!is_object($fileContent) || !isset($fileContent->version) || !is_string($fileContent->version)) {
+            return $prefix . '0.0.0';
+        }
 
         return $prefix . $fileContent->version;
     }
