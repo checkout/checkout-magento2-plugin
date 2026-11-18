@@ -243,14 +243,21 @@ class TransactionHandlerService
             return $this->amountFromGateway((float)$payload->data->amount, $order);
         }
 
-        $amount = match ($eventType) {
-            WebhookInterface::PAYMENT_CAPTURED => $this->amountFromGateway((float)$verified->total_captured, $order)
-                - (float)$order->getTotalInvoiced(),
-            WebhookInterface::PAYMENT_REFUNDED => $this->amountFromGateway((float)$verified->total_refunded, $order)
-                - (float)$order->getTotalRefunded(),
-            WebhookInterface::PAYMENT_VOIDED => $this->amountFromGateway((float)$verified->total_voided, $order),
-            default => $this->amountFromGateway((float)$verified->amount, $order),
-        };
+        switch ($eventType) {
+            case WebhookInterface::PAYMENT_CAPTURED:
+                $amount = $this->amountFromGateway((float)$verified->total_captured, $order)
+                    - (float)$order->getTotalInvoiced();
+                break;
+            case WebhookInterface::PAYMENT_REFUNDED:
+                $amount = $this->amountFromGateway((float)$verified->total_refunded, $order)
+                    - (float)$order->getTotalRefunded();
+                break;
+            case WebhookInterface::PAYMENT_VOIDED:
+                $amount = $this->amountFromGateway((float)$verified->total_voided, $order);
+                break;
+            default:
+                $amount = $this->amountFromGateway((float)$verified->amount, $order);
+        }
 
         return max(0.0, round($amount, 4));
     }

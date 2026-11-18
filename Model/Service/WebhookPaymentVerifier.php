@@ -50,6 +50,16 @@ class WebhookPaymentVerifier
     private const REFUNDED_STATUSES = ['partially refunded', 'refunded'];
     private const VOIDED_STATUSES = ['voided', 'partially captured', 'captured'];
 
+    /**
+     * Controlled webhook types and their compatible API payment statuses
+     */
+    private const ALLOWED_STATUSES = [
+        WebhookInterface::PAYMENT_APPROVED => self::AUTHORIZED_STATUSES,
+        WebhookInterface::PAYMENT_CAPTURED => self::CAPTURED_STATUSES,
+        WebhookInterface::PAYMENT_REFUNDED => self::REFUNDED_STATUSES,
+        WebhookInterface::PAYMENT_VOIDED => self::VOIDED_STATUSES,
+    ];
+
     public function __construct(
         private readonly ApiPaymentSessionGuard $paymentSessionGuard,
         private readonly OrderHandlerService $orderHandler
@@ -121,13 +131,7 @@ class WebhookPaymentVerifier
      */
     private function getAllowedStatuses(string $eventType): array
     {
-        return match ($eventType) {
-            WebhookInterface::PAYMENT_APPROVED => self::AUTHORIZED_STATUSES,
-            WebhookInterface::PAYMENT_CAPTURED => self::CAPTURED_STATUSES,
-            WebhookInterface::PAYMENT_REFUNDED => self::REFUNDED_STATUSES,
-            WebhookInterface::PAYMENT_VOIDED => self::VOIDED_STATUSES,
-            default => [],
-        };
+        return self::ALLOWED_STATUSES[$eventType] ?? [];
     }
 
     /**
@@ -212,13 +216,20 @@ class WebhookPaymentVerifier
         int $totalRefunded,
         int $totalVoided
     ): void {
-        $consistent = match ($eventType) {
-            WebhookInterface::PAYMENT_CAPTURED => $totalCaptured > 0 && $totalCaptured <= $amount,
-            WebhookInterface::PAYMENT_REFUNDED => $totalRefunded > 0 && $totalRefunded <= $totalCaptured,
-            WebhookInterface::PAYMENT_VOIDED => $totalVoided > 0
-                || strtolower(trim((string)($payment['status'] ?? ''))) === 'voided',
-            default => true,
-        };
+        switch ($eventType) {
+            case WebhookInterface::PAYMENT_CAPTURED:
+                $consistent = $totalCaptured > 0 && $totalCaptured <= $amount;
+                break;
+            case WebhookInterface::PAYMENT_REFUNDED:
+                $consistent = $totalRefunded > 0 && $totalRefunded <= $totalCaptured;
+                break;
+            case WebhookInterface::PAYMENT_VOIDED:
+                $consistent = $totalVoided > 0
+                    || strtolower(trim((string)($payment['status'] ?? ''))) === 'voided';
+                break;
+            default:
+                $consistent = true;
+        }
 
         if (!$consistent) {
             throw new WebhookStatusMismatchException(
