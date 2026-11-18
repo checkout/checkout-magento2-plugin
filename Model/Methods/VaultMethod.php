@@ -200,9 +200,9 @@ class VaultMethod extends AbstractMethod
         // Initialize the API handler
         $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
-        // Use the quote of the order when given, the session quote otherwise
+        // Always use the quote of the order: the session quote may not be the one being paid
         if (!$quote) {
-            $quote = $this->quoteHandler->getQuote();
+            throw new LocalizedException(__('The quote of the order is required to pay with a saved card.'));
         }
 
         // Find the card token
