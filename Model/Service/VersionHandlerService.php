@@ -66,8 +66,12 @@ class VersionHandlerService
         $current = $this->getVersionParts($currentVersion);
         $latest = $this->getVersionParts($latestVersion);
 
-        // Compare version numbers - major, minor and then revision
+        // Compare version numbers - major, minor and then revision, the first differing part decides
         for ($i = 0; $i < 3; $i++) {
+            if ($current[$i] > $latest[$i]) {
+                return '';
+            }
+
             if ($current[$i] < $latest[$i]) {
                 switch ($i) {
                     case 0:
@@ -93,17 +97,11 @@ class VersionHandlerService
      */
     public function needsUpdate(?string $currentVersion, ?string $latestVersion): bool
     {
-        $current = $this->getVersionParts($currentVersion);
-        $latest = $this->getVersionParts($latestVersion);
-
-        // Compare version numbers - major, minor and then revision
-        for ($i = 0; $i < 3; $i++) {
-            if ($current[$i] < $latest[$i]) {
-                return true;
-            }
-        }
-
-        return false;
+        return version_compare(
+            implode('.', $this->getVersionParts($currentVersion)),
+            implode('.', $this->getVersionParts($latestVersion)),
+            '<'
+        );
     }
 
     /**
@@ -166,7 +164,7 @@ class VersionHandlerService
         foreach ($versions as $version) {
             $tagName = $version['tag_name'] ?? null;
             // Find latest stable release, ignore any tag that is not a plain version number (beta or unsafe content)
-            if (is_string($tagName) && preg_match('/^v?\d+(\.\d+){0,3}\z/', $tagName) === 1) {
+            if (is_string($tagName) && preg_match('/^v?\d+(\.\d+){0,2}\z/', $tagName) === 1) {
                 return $tagName;
             }
         }

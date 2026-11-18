@@ -90,7 +90,7 @@
 "Payment token provided is not a string","Payment token provided is not a string"
 "Place Order","Place Order"
 "Please enter valid card details.","Please enter valid card details."
-"Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . '). Update now to get the latest features and security updates. See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.","Please keep your website safe! Your checkout plugin (v' . . ') is not the latest version (v' . . '). Update now to get the latest features and security updates. See https://github.com/checkout/checkout-magento2-plugin for detailed instructions."
+"Please keep your website safe! Your checkout plugin (v%1) is not the latest version (v%2). Update now to get the latest features and security updates. See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.","Please keep your website safe! Your checkout plugin (v%1) is not the latest version (v%2). Update now to get the latest features and security updates. See https://github.com/checkout/checkout-magento2-plugin for detailed instructions."
 "Please provide the required card information for the MOTO payment.","Please provide the required card information for the MOTO payment."
 "Quote ID is missing from request body","Quote ID is missing from request body"
 "Quote ID provided must be a positive integer","Quote ID provided must be a positive integer"
