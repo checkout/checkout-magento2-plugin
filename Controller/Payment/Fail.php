@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use Checkout\CheckoutApi;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
+use CheckoutCom\Magento2\Helper\Utilities;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderHandlerService;
 use CheckoutCom\Magento2\Model\Service\OrderStatusHandlerService;
@@ -46,6 +47,11 @@ class Fail extends Action
      */
     private const FAILED_PAYMENT_STATUSES = ['Declined', 'Canceled', 'Expired'];
 
+    /**
+     * Payment statuses Checkout.com can still turn into a successful payment: the order and the cart are left untouched
+     */
+    private const PENDING_PAYMENT_STATUSES = ['Pending', 'Retry Scheduled'];
+
     private TransactionHandlerService $transactionHandler;
     private StoreManagerInterface $storeManager;
     private ApiHandlerService $apiHandler;
@@ -55,6 +61,7 @@ class Fail extends Action
     private PaymentErrorHandlerService $paymentErrorHandlerService;
     private Config $config;
     private Session $session;
+    private Utilities $utilities;
 
     public function __construct(
         Context $context,
@@ -67,7 +74,8 @@ class Fail extends Action
         Logger $logger,
         PaymentErrorHandlerService $paymentErrorHandlerService,
         Config $config,
-        Session $session
+        Session $session,
+        Utilities $utilities
     ) {
         parent::__construct($context);
 
@@ -81,6 +89,7 @@ class Fail extends Action
         $this->config = $config;
         $this->session = $session;
         $this->transactionHandler = $transactionHandler;
+        $this->utilities = $utilities;
     }
 
     /**
@@ -113,25 +122,51 @@ class Fail extends Action
                         'increment_id' => $response['reference'],
                     ]);
 
-                    // This URL can be called by anyone with any payment id: only handle the order placed in
-                    // the current checkout session, and only when the payment really failed
+                    // This URL can be called by anyone with any payment id: only handle a failed payment that is
+                    // the one stored on the order, for the order of the current checkout session. Orders placed
+                    // through the API have no checkout session, the payment id check is enough for them.
+                    $paymentId = is_string($response['id'] ?? null) ? $response['id'] : '';
+                    // An unknown reference gives an empty order without payment
+                    $orderPaymentId = $order->getPayment()
+                        ? (string)($this->utilities->getPaymentData($order)['id'] ?? '')
+                        : '';
                     $lastOrderId = (string)$this->session->getLastRealOrderId();
                     $paymentStatus = is_string($response['status'] ?? null) ? $response['status'] : '';
-                    if ($lastOrderId === ''
-                        || $order->getIncrementId() !== $lastOrderId
+                    $failureUrl = is_string($response['metadata']['failureUrl'] ?? null)
+                        ? $response['metadata']['failureUrl']
+                        : '';
+                    $isOrderPayment = $paymentId !== '' && $paymentId === $orderPaymentId;
+                    $isSessionOrder = $lastOrderId !== '' && $order->getIncrementId() === $lastOrderId;
+                    if (!$isOrderPayment
+                        || ($failureUrl === '' && !$isSessionOrder)
                         || !in_array($paymentStatus, self::FAILED_PAYMENT_STATUSES, true)
                     ) {
                         $this->logger->write(
                             sprintf(
-                                'Failed payment %s ignored for order %s: not the order of the current checkout '
-                                . 'session or payment status "%s" is not a failure',
-                                $response['id'] ?? '',
+                                'Failed payment %s ignored for order %s: not the payment of the order, not the order '
+                                . 'of the current checkout session or payment status "%s" is not a failure',
+                                $paymentId,
                                 (string)$order->getIncrementId(),
                                 $paymentStatus
                             )
                         );
 
-                        $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+                        // The payment of the order may still succeed: tell the shopper to wait instead of
+                        // showing an error on an empty cart
+                        if ($isOrderPayment && in_array($paymentStatus, self::PENDING_PAYMENT_STATUSES, true)) {
+                            $this->messageManager->addNoticeMessage(
+                                __(
+                                    'The payment for order %1 is still pending. Please wait a few minutes before placing a new order.',
+                                    $order->getIncrementId()
+                                )
+                            );
+                        } else {
+                            $this->messageManager->addErrorMessage(__('The transaction could not be processed.'));
+                        }
+
+                        if ($isOrderPayment && $failureUrl !== '') {
+                            return $this->_redirect($failureUrl);
+                        }
 
                         return $this->_redirect('checkout/cart', ['_secure' => true]);
                     }
