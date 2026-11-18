@@ -199,7 +199,7 @@ class PlaceOrder extends Action implements HttpPostActionInterface
                 $order->getGrandTotal(),
                 $order->getOrderCurrencyCode(),
                 $order->getIncrementId(),
-                null,
+                $quote,
                 false,
                 null,
                 true
