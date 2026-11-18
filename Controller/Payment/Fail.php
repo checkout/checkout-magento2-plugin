@@ -48,6 +48,11 @@ class Fail extends Action
     private const FAILED_PAYMENT_STATUSES = ['Declined', 'Canceled', 'Expired'];
 
     /**
+     * Payment statuses for which the order is left untouched and the shopper told the payment went through
+     */
+    private const SUCCESSFUL_PAYMENT_STATUSES = ['Authorized', 'Captured', 'Partially Captured', 'Paid'];
+
+    /**
      * Payment statuses Checkout.com can still turn into a successful payment: the order and the cart are left untouched
      */
     private const PENDING_PAYMENT_STATUSES = ['Pending', 'Retry Scheduled'];
@@ -151,9 +156,14 @@ class Fail extends Action
                             )
                         );
 
-                        // The payment of the order may still succeed: tell the shopper to wait instead of
-                        // showing an error on an empty cart
-                        if ($isOrderPayment && in_array($paymentStatus, self::PENDING_PAYMENT_STATUSES, true)) {
+                        // The URL can be replayed after a successful payment (open tab, history): tell the
+                        // shopper the payment went through. A pending payment may still succeed: tell the
+                        // shopper to wait instead of showing an error on an empty cart
+                        if ($isOrderPayment && in_array($paymentStatus, self::SUCCESSFUL_PAYMENT_STATUSES, true)) {
+                            $this->messageManager->addNoticeMessage(
+                                __('The payment of order %1 has already been accepted.', $order->getIncrementId())
+                            );
+                        } elseif ($isOrderPayment && in_array($paymentStatus, self::PENDING_PAYMENT_STATUSES, true)) {
                             $this->messageManager->addNoticeMessage(
                                 __(
                                     'The payment for order %1 is still pending. Please wait a few minutes before placing a new order.',
