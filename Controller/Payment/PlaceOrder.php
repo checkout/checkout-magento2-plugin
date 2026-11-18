@@ -356,7 +356,8 @@ class PlaceOrder extends Action
             $data,
             $amount,
             $currencyCode,
-            $reference
+            $reference,
+            $quote
         );
     }
 
