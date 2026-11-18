@@ -61,8 +61,7 @@ class WebhookPaymentVerifier
     ];
 
     public function __construct(
-        private readonly ApiPaymentSessionGuard $paymentSessionGuard,
-        private readonly OrderHandlerService $orderHandler
+        private readonly ApiPaymentSessionGuard $paymentSessionGuard
     ) {
     }
 
@@ -152,9 +151,7 @@ class WebhookPaymentVerifier
             return;
         }
 
-        $expectedAmount = (int)round(
-            (float)$this->orderHandler->amountToGateway((float)$order->getGrandTotal(), $order)
-        );
+        $expectedAmount = $this->paymentSessionGuard->getExpectedAmount($order);
 
         throw new WebhookPaymentMismatchException(
             __(
