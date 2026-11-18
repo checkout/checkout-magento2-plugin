@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Model\Service;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use Magento\Sales\Api\Data\OrderInterface;
+use Magento\Sales\Api\Data\TransactionInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
 use Magento\Sales\Model\Order;
 
@@ -34,6 +35,11 @@ class WebhookMismatchHandlerService
      * Final order states, the order is left untouched but the mismatch is still recorded
      */
     private const FINAL_STATES = [Order::STATE_CANCELED, Order::STATE_CLOSED, Order::STATE_COMPLETE];
+
+    /**
+     * Transaction types recorded for a payment accepted by the gateway
+     */
+    private const PAYMENT_TRANSACTION_TYPES = [TransactionInterface::TYPE_AUTH, TransactionInterface::TYPE_CAPTURE];
 
     public function __construct(
         private readonly Config $config,
@@ -69,7 +75,7 @@ class WebhookMismatchHandlerService
     }
 
     /**
-     * An order with an invoice, a paid amount or a recorded gateway transaction already has a verified payment
+     * An order with an invoice, a paid amount or an authorization or capture transaction already has a verified payment
      *
      * @param OrderInterface|Order $order
      *
@@ -79,6 +85,24 @@ class WebhookMismatchHandlerService
     {
         return $order->hasInvoices()
             || (float)$order->getTotalPaid() > 0
-            || $this->transactionHandler->hasTransaction($order) !== false;
+            || $this->hasPaymentTransaction($order);
+    }
+
+    /**
+     * Only an authorization or a capture proves a payment, a void or a refund transaction does not
+     *
+     * @param OrderInterface $order
+     *
+     * @return bool
+     */
+    private function hasPaymentTransaction(OrderInterface $order): bool
+    {
+        foreach ($this->transactionHandler->getTransactions($order->getId()) as $transaction) {
+            if (in_array($transaction->getTxnType(), self::PAYMENT_TRANSACTION_TYPES, true)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
