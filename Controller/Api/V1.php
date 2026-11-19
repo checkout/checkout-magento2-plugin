@@ -319,7 +319,8 @@ class V1 extends Action
             $payload,
             $amount,
             $currencyCode,
-            $reference
+            $reference,
+            $this->quote
         );
     }
 }

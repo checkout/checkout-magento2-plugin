@@ -246,9 +246,9 @@ class CardPaymentMethod extends AbstractMethod
         $saveCardEnabled = $this->config->getValue('save_card_option', $this->code);
 
         // Set the request parameters
-        $request->amount = $this->quoteHandler->amountToGateway(
+        $request->amount = $this->quoteHandler->amountToGatewayForCurrency(
             $this->utilities->formatDecimals($amount),
-            $quote
+            $currency
         );
         $request->reference = $reference;
         $request->success_url = $this->getSuccessUrl($data, $isApiOrder);

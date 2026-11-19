@@ -256,9 +256,9 @@ class VaultMethod extends AbstractMethod
         $madaEnabled = (bool)$this->config->getValue('mada_enabled', $this->code);
 
         // Set the request parameters
-        $request->amount = $this->quoteHandler->amountToGateway(
+        $request->amount = $this->quoteHandler->amountToGatewayForCurrency(
             $this->utilities->formatDecimals($amount),
-            $quote
+            $currency
         );
         $request->reference = $reference;
         $theeDsRequest = new ThreeDsRequest();
