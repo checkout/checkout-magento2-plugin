@@ -41,6 +41,7 @@ class FlowSubmitService
         private readonly CheckoutSession $checkoutSession,
         private readonly FlowGeneralSettings $flowGeneralSettings,
         private readonly FlowSessionCurrencyGuard $currencyGuard,
+        private readonly FlowSubmitOrderGuard $orderGuard,
         private readonly LoggerInterface $logger,
         private readonly PriceFormatter $priceFormatter,
         private readonly StoreManagerInterface $storeManager
@@ -48,16 +49,19 @@ class FlowSubmitService
     }
 
     /**
-     * Submit payment session to Checkout.com with session_data and reference (order id).
+     * Submit payment session to Checkout.com with session_data and the reference (increment id)
+     * of the session's last real order. The client-provided reference is never forwarded.
      *
      * @throws Exception
      */
-    public function submit(string $sessionId, string $sessionData, string $reference): array
+    public function submit(string $sessionId, string $sessionData, string $clientReference = ''): array
     {
         $order = $this->checkoutSession->getLastRealOrder();
         if (!$order || !$order->getEntityId()) {
             throw new Exception(__('Order not found. Please try again.')->render());
         }
+
+        $this->orderGuard->assertSubmittable($order, $sessionId, $clientReference);
 
         try {
             $storeCode = $this->storeManager->getStore()->getCode();
@@ -88,7 +92,7 @@ class FlowSubmitService
         $request = new PaymentSessionSubmitRequest();
         $request->session_data = $sessionData;
         $request->amount = (int)round($amount);
-        $request->reference = $reference;
+        $request->reference = (string)$order->getIncrementId();
         $request->payment_type = self::PAYMENT_TYPE_REGULAR;
 
         $client = $api->getCheckoutApi()->getPaymentSessionsClient();

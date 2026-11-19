@@ -33,6 +33,7 @@ use Magento\Sales\Api\Data\OrderInterface;
 class FlowPaymentAttemptService
 {
     public const ATTEMPT_ID_KEY = 'cko_attempt_id';
+    public const SESSION_ID_KEY = 'cko_flow_session_id';
 
     public function generateAttemptId(): string
     {
@@ -49,6 +50,21 @@ class FlowPaymentAttemptService
         $attemptId = $payment->getAdditionalInformation(self::ATTEMPT_ID_KEY);
 
         return is_string($attemptId) && $attemptId !== '' ? $attemptId : null;
+    }
+
+    /**
+     * Flow payment session id the order was placed for, or null when none was recorded.
+     */
+    public function getOrderSessionId(OrderInterface $order): ?string
+    {
+        $payment = $order->getPayment();
+        if (!$payment) {
+            return null;
+        }
+
+        $sessionId = $payment->getAdditionalInformation(self::SESSION_ID_KEY);
+
+        return is_string($sessionId) && $sessionId !== '' ? $sessionId : null;
     }
 
     /**
