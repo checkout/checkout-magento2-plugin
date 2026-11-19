@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace CheckoutCom\Magento2\Model\Service;
 
+use CheckoutCom\Magento2\Api\WebhookInterface;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -140,8 +141,11 @@ class TransactionHandlerService
 
         // Check to see if webhook is supported
         if (isset(self::TRANSACTION_MAPPER[$webhook['event_type']])) {
-            // Avoid a silent zero amount on the invoice or credit memo, without blocking the order save
-            if (!isset($payload->data->amount)) {
+            // Take the amount from the verified API payment, never from the webhook body.
+            // Without a usable amount, skip the transaction without blocking the order save
+            try {
+                $amount = $this->resolveWebhookAmount($order, $webhook, $payload);
+            } catch (LocalizedException $exception) {
                 $this->logger->error(
                     sprintf(
                         'Missing amount, transaction skipped. Order %s, Webhook %s, Event %s, Action %s',
@@ -154,11 +158,6 @@ class TransactionHandlerService
 
                 return;
             }
-
-            // Format the amount
-            $amount = $this->amountFromGateway(
-                (float)$payload->data->amount
-            );
 
             // Create a transaction if needed
             if (!$this->transaction) {
@@ -204,6 +203,63 @@ class TransactionHandlerService
                 $this->orderRepository->save($this->order);
             }
         }
+    }
+
+    /**
+     * Amount of the webhook transaction, in the order currency.
+     *
+     * Capture and refund amounts are the difference between the cumulative balances returned by the API
+     * and what the order already holds, so partial operations and out-of-order webhooks stay consistent.
+     *
+     * @param OrderInterface $order
+     * @param mixed[] $webhook
+     * @param object $payload
+     *
+     * @return float
+     * @throws LocalizedException
+     */
+    public function resolveWebhookAmount(OrderInterface $order, array $webhook, object $payload): float
+    {
+        $eventType = $webhook['event_type'];
+        $verified = $payload->cko_verified_payment ?? null;
+        $isFinancialEvent = in_array(
+            $eventType,
+            [WebhookInterface::PAYMENT_CAPTURED, WebhookInterface::PAYMENT_REFUNDED],
+            true
+        );
+
+        if ($verified === null) {
+            // An invoice or credit memo amount must never come from the webhook body
+            if ($isFinancialEvent || !isset($payload->data->amount)) {
+                throw new LocalizedException(
+                    __(
+                        'Missing verified payment data for webhook %1 with payment ID %2',
+                        $eventType,
+                        $webhook['payment_id'] ?? ''
+                    )
+                );
+            }
+
+            return $this->amountFromGateway((float)$payload->data->amount, $order);
+        }
+
+        switch ($eventType) {
+            case WebhookInterface::PAYMENT_CAPTURED:
+                $amount = $this->amountFromGateway((float)$verified->total_captured, $order)
+                    - (float)$order->getTotalInvoiced();
+                break;
+            case WebhookInterface::PAYMENT_REFUNDED:
+                $amount = $this->amountFromGateway((float)$verified->total_refunded, $order)
+                    - (float)$order->getTotalRefunded();
+                break;
+            case WebhookInterface::PAYMENT_VOIDED:
+                $amount = $this->amountFromGateway((float)$verified->total_voided, $order);
+                break;
+            default:
+                $amount = $this->amountFromGateway((float)$verified->amount, $order);
+        }
+
+        return max(0.0, round($amount, 4));
     }
 
     /**
@@ -595,7 +651,8 @@ class TransactionHandlerService
     public function processInvoice(float $amount): void
     {
         $isCapture = $this->transaction->getTxnType() == Transaction::TYPE_CAPTURE;
-        if ($isCapture) {
+        // A capture already invoiced by a previous webhook has no amount left to invoice
+        if ($isCapture && $amount > 0) {
             $this->invoiceHandler->createInvoice(
                 $this->transaction,
                 $amount
@@ -616,7 +673,8 @@ class TransactionHandlerService
         // Process the credit memo
         $isRefund = $this->transaction->getTxnType() === TransactionInterface::TYPE_REFUND;
         $hasCreditMemo = $this->orderHasCreditMemo();
-        if ($isRefund && !$hasCreditMemo) {
+        // A refund already credited by a previous webhook has no amount left to credit
+        if ($isRefund && !$hasCreditMemo && $amount > 0) {
             $currentTotal = $this->getCreditMemosTotal();
 
             $isPartialRefund = $this->isPartialRefund(

@@ -31,6 +31,7 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\View\Result\PageFactory;
+use Magento\Quote\Api\Data\CartInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
 /**
@@ -117,13 +118,16 @@ class Display extends Action
      * @param string[] $apm
      * @param string[] $apmEnabled
      * @param string[] $billingAddress
+     * @param CartInterface|null $quote Quote to read the currency from, the session quote when null
      *
      * @return bool
      * @throws LocalizedException
      * @throws NoSuchEntityException
      */
-    public function isValidApm(array $apm, array $apmEnabled, array $billingAddress): bool
+    public function isValidApm(array $apm, array $apmEnabled, array $billingAddress, ?CartInterface $quote = null): bool
     {
+        $quoteCurrency = $this->quoteHandler->getQuoteCurrency($quote);
+
         return in_array($apm['value'], $apmEnabled)
             && strpos(
                 $apm['countries'],
@@ -131,12 +135,12 @@ class Display extends Action
             ) !== false
             && strpos(
                 $apm['currencies'],
-                $this->quoteHandler->getQuoteCurrency()
+                $quoteCurrency
             ) !== false
             && $this->countryCurrencyMapping(
                 $apm,
                 $billingAddress['country_id'],
-                $this->quoteHandler->getQuoteCurrency()
+                $quoteCurrency
             );
     }
 

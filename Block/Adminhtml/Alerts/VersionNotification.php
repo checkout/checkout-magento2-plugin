@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace CheckoutCom\Magento2\Block\Adminhtml\Alerts;
 
 use CheckoutCom\Magento2\Model\Service\VersionHandlerService;
+use Magento\Framework\Escaper;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Notification\MessageInterface;
@@ -31,11 +32,14 @@ use Magento\Framework\Phrase;
 class VersionNotification implements MessageInterface
 {
     private VersionHandlerService $versionHandler;
+    private Escaper $escaper;
 
     public function __construct(
-        VersionHandlerService $versionHandler
+        VersionHandlerService $versionHandler,
+        Escaper $escaper
     ) {
         $this->versionHandler = $versionHandler;
+        $this->escaper = $escaper;
     }
 
     /**
@@ -49,10 +53,11 @@ class VersionNotification implements MessageInterface
     {
         $versions = $this->getModuleVersions();
 
+        // The versions come from composer.json and the GitHub API, the message is rendered as HTML
         return __(
-            'Please keep your website safe! Your checkout plugin (v' . $versions["current"] . ') is not the latest version (v' . $versions["latest"] . ').
-         Update now to get the latest features and security updates.
-         See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.'
+            'Please keep your website safe! Your checkout plugin (v%1) is not the latest version (v%2). Update now to get the latest features and security updates. See https://github.com/checkout/checkout-magento2-plugin for detailed instructions.',
+            $this->escaper->escapeHtml($versions['current']),
+            $this->escaper->escapeHtml($versions['latest'])
         );
     }
 
@@ -75,7 +80,7 @@ class VersionNotification implements MessageInterface
             /** @var string $current */
             $current = $this->versionHandler->getModuleVersion();
             /** @var string $latest */
-            $latest = $this->versionHandler->getLatestVersion($versions);
+            $latest = $this->versionHandler->getLatestVersion($versions) ?? $current;
         }
 
         return [

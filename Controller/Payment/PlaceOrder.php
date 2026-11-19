@@ -22,6 +22,7 @@ namespace CheckoutCom\Magento2\Controller\Payment;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
+use CheckoutCom\Magento2\Model\Methods\AlternativePaymentMethod;
 use CheckoutCom\Magento2\Model\Service\ApiHandlerService;
 use CheckoutCom\Magento2\Model\Service\ApiOrderRollback;
 use CheckoutCom\Magento2\Model\Service\ApiPaymentMethodGuard;
@@ -37,6 +38,7 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\Serializer\Json as JsonSerializer;
 use Magento\Quote\Api\Data\CartInterface;
 use Magento\Sales\Api\OrderRepositoryInterface;
@@ -141,7 +143,9 @@ class PlaceOrder extends Action
                 // Process the request
                 if ($this->getRequest()->isAjax() && $quote) {
                     // Only a Checkout.com method available for the quote can place an order
-                    if (!$this->apiPaymentMethodGuard->isAllowed((string)$data['methodId'], $quote)) {
+                    if (!$this->apiPaymentMethodGuard->isAllowed((string)$data['methodId'], $quote)
+                        || !$this->isAllowedApmSource($data, $quote)
+                    ) {
                         $message = __('The payment method is not available.');
                     } else {
                         //Create order before payment
@@ -311,6 +315,32 @@ class PlaceOrder extends Action
                 ['exception' => $rollbackException]
             );
         }
+    }
+
+    /**
+     * For the APM method, only an APM enabled in the configuration can place an order
+     *
+     * @param array $data
+     * @param CartInterface $quote
+     *
+     * @return bool
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    private function isAllowedApmSource(array $data, CartInterface $quote): bool
+    {
+        if ($data['methodId'] !== AlternativePaymentMethod::CODE) {
+            return true;
+        }
+
+        $method = $this->methodHandler->get(AlternativePaymentMethod::CODE);
+        if (!$method instanceof AlternativePaymentMethod) {
+            return false;
+        }
+
+        $source = is_string($data['source'] ?? null) ? $data['source'] : '';
+
+        return $method->isAllowedSource($source, $quote);
     }
 
     /**
