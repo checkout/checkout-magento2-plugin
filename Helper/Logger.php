@@ -86,6 +86,18 @@ class Logger
     }
 
     /**
+     * Write a critical error to the log file, regardless of the debug configuration.
+     *
+     * @param string $msg The message
+     *
+     * @return void
+     */
+    public function critical(string $msg): void
+    {
+        $this->logger->critical('Checkout Logging: ' . $msg);
+    }
+
+    /**
      * Write gateway responses in dynamic log files if configuration is enabled.
      *
      * @param mixed $response The response

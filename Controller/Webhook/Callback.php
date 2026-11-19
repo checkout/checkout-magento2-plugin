@@ -21,6 +21,8 @@ namespace CheckoutCom\Magento2\Controller\Webhook;
 
 use CheckoutCom\Magento2\Api\WebhookInterface;
 use CheckoutCom\Magento2\Exception\WebhookEventAlreadyExistsException;
+use CheckoutCom\Magento2\Exception\WebhookPaymentMismatchException;
+use CheckoutCom\Magento2\Exception\WebhookStatusMismatchException;
 use CheckoutCom\Magento2\Gateway\Config\Config;
 use CheckoutCom\Magento2\Helper\Logger;
 use CheckoutCom\Magento2\Helper\Utilities;
@@ -31,6 +33,8 @@ use CheckoutCom\Magento2\Model\Service\PaymentErrorHandlerService;
 use CheckoutCom\Magento2\Model\Service\ShopperHandlerService;
 use CheckoutCom\Magento2\Model\Service\VaultHandlerService;
 use CheckoutCom\Magento2\Model\Service\WebhookHandlerService;
+use CheckoutCom\Magento2\Model\Service\WebhookMismatchHandlerService;
+use CheckoutCom\Magento2\Model\Service\WebhookPaymentVerifier;
 use CheckoutCom\Magento2\Provider\FlowGeneralSettings;
 use Exception;
 use Magento\Framework\App\Action\Action;
@@ -69,6 +73,8 @@ class Callback extends Action implements CsrfAwareActionInterface
     private Utilities $utilities;
     private JsonSerializer $json;
     private FlowPaymentAttemptService $paymentAttemptService;
+    private WebhookPaymentVerifier $paymentVerifier;
+    private WebhookMismatchHandlerService $mismatchHandler;
 
     public function __construct(
         Context $context,
@@ -85,7 +91,9 @@ class Callback extends Action implements CsrfAwareActionInterface
         Logger $logger,
         Utilities $utilities,
         JsonSerializer $json,
-        FlowPaymentAttemptService $paymentAttemptService
+        FlowPaymentAttemptService $paymentAttemptService,
+        WebhookPaymentVerifier $paymentVerifier,
+        WebhookMismatchHandlerService $mismatchHandler
     ) {
         parent::__construct($context);
 
@@ -103,6 +111,8 @@ class Callback extends Action implements CsrfAwareActionInterface
         $this->utilities = $utilities;
         $this->json = $json;
         $this->paymentAttemptService = $paymentAttemptService;
+        $this->paymentVerifier = $paymentVerifier;
+        $this->mismatchHandler = $mismatchHandler;
     }
 
     /**
@@ -118,6 +128,9 @@ class Callback extends Action implements CsrfAwareActionInterface
         try {
             // Set the payload data
             $payload = $this->getPayload();
+
+            // The verified payment figures are set by this controller only, never by the webhook sender
+            unset($payload['cko_verified_payment']);
 
             // Process the request
             if ($this->config->isValidAuth('psk')) {
@@ -206,6 +219,38 @@ class Callback extends Action implements CsrfAwareActionInterface
                             // Process the order
                             if ($this->orderHandler->isOrder($order)) {
                                 if ($api->isValidResponse($response)) {
+                                    // Check the webhook against the API payment before any order change
+                                    try {
+                                        $verifiedPayment = $this->paymentVerifier->verify(
+                                            $payload['type'],
+                                            $response,
+                                            $order
+                                        );
+                                    } catch (WebhookPaymentMismatchException $exception) {
+                                        // The payment is not the one of the order: flag it, never process it
+                                        $this->mismatchHandler->flagOrder($order, $exception->getMessage());
+
+                                        // Set a valid response to avoid gateway retry mechanism
+                                        $resultFactory->setHttpResponseCode(Response::HTTP_OK);
+
+                                        return $resultFactory->setData([
+                                            'result' => __('Webhook ignored, the payment does not match the order.'),
+                                        ]);
+                                    } catch (WebhookStatusMismatchException $exception) {
+                                        $this->logger->critical($exception->getMessage());
+
+                                        // Let the gateway retry, the API payment state may not be up to date yet
+                                        $resultFactory->setHttpResponseCode(WebException::HTTP_BAD_REQUEST);
+
+                                        return $resultFactory->setData([
+                                            'error_message' => __('The webhook contradicts the payment status.'),
+                                        ]);
+                                    }
+
+                                    if ($verifiedPayment !== []) {
+                                        $payload['cko_verified_payment'] = $verifiedPayment;
+                                    }
+
                                     // Get Source and set it to the order
                                     $order->getPayment()
                                         ->getMethodInstance()
