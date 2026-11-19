@@ -119,7 +119,7 @@ class FlowSubmitService
             '%s: currency mismatch for Flow session %s (session: %s, order: %s)',
             __METHOD__,
             $sessionId,
-            (string)$this->currencyGuard->getSessionCurrency($sessionId),
+            $this->currencyGuard->getSessionCurrency($sessionId) ?? 'unknown',
             $orderCurrency
         ));
 
