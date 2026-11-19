@@ -21,6 +21,7 @@ namespace CheckoutCom\Magento2\Model\Methods;
 
 use Checkout\CheckoutApiException;
 use Checkout\CheckoutArgumentException;
+use Checkout\EnvironmentSubdomainFactory;
 use Checkout\Payments\Payer;
 use Checkout\Payments\Previous\PaymentRequest as PreviousPaymentRequest;
 use Checkout\Payments\Previous\Source\Apm\RequestAlipaySource;
@@ -178,6 +179,7 @@ class AlternativePaymentMethod extends AbstractMethod
     private StoreManagerInterface $storeManager;
     private Curl $curl;
     private Json $json;
+    private EnvironmentSubdomainFactory $environmentSubdomainFactory;
 
     public function __construct(
         Session $backendAuthSession,
@@ -204,6 +206,7 @@ class AlternativePaymentMethod extends AbstractMethod
         StoreManagerInterface $storeManager,
         Curl $curl,
         Json $json,
+        EnvironmentSubdomainFactory $environmentSubdomainFactory,
         Context $context,
         Registry $registry,
         ExtensionAttributesFactory $extensionFactory,
@@ -256,6 +259,7 @@ class AlternativePaymentMethod extends AbstractMethod
         $this->storeManager = $storeManager;
         $this->curl = $curl;
         $this->json = $json;
+        $this->environmentSubdomainFactory = $environmentSubdomainFactory;
     }
 
     /**
@@ -274,7 +278,17 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function sendPaymentRequest(array $data, float $amount, string $currency, string $reference = ''): ?array
     {
-        $method = $data['source'];
+        $method = is_string($data['source'] ?? null) ? $data['source'] : '';
+
+        // The source is client controlled: only an APM enabled in the configuration is accepted
+        if (!$this->isAllowedSource($method)) {
+            $this->ckoLogger->error(
+                'APM payment rejected: source is not an enabled APM: '
+                . json_encode(mb_substr($method, 0, 64), JSON_UNESCAPED_SLASHES)
+            );
+
+            throw new LocalizedException(__('The payment method is not available.'));
+        }
 
         if ($this->validateCurrency($method, $currency)) {
             // Get the store code
@@ -284,7 +298,7 @@ class AlternativePaymentMethod extends AbstractMethod
             $api = $this->apiHandler->init($storeCode, ScopeInterface::SCOPE_STORE);
 
             // Create source object
-            $source = $this->{$method}($data, $reference);
+            $source = $this->createSource($method, $data, $reference);
 
             $payment = $this->createPayment(
                 $source,
@@ -302,6 +316,105 @@ class AlternativePaymentMethod extends AbstractMethod
         }
 
         return null;
+    }
+
+    /**
+     * Check that the requested APM is offered on the storefront for the quote
+     *
+     * Same rule as the APM list displayed on the checkout (see getAvailableApms()), so that a forged
+     * request cannot use an APM the shopper is not offered.
+     *
+     * @param string $source
+     * @param CartInterface|null $quote
+     *
+     * @return bool
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function isAllowedSource(string $source, ?CartInterface $quote = null): bool
+    {
+        return in_array($source, $this->getAvailableApms($quote), true);
+    }
+
+    /**
+     * List the APM ids offered on the storefront for the quote
+     *
+     * Same rule as Controller\Apm\Display: enabled in the configuration, valid for the billing
+     * country and the quote currency, and not part of NAS_UNAVAILABLE_APM.
+     *
+     * @param CartInterface|null $quote
+     *
+     * @return string[]
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    public function getAvailableApms(?CartInterface $quote = null): array
+    {
+        if (!$quote) {
+            $quote = $this->quoteHandler->getQuote();
+        }
+
+        $billingAddress = $quote->getBillingAddress()->getData();
+        if (!isset($billingAddress['country_id'])) {
+            return [];
+        }
+
+        $apmEnabled = explode(',', (string)$this->config->getValue('apm_enabled', $this->code));
+        $available = [];
+
+        foreach ($this->config->getApms() as $apm) {
+            if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress, $quote)
+                && !in_array($apm['value'], self::NAS_UNAVAILABLE_APM, true)
+            ) {
+                $available[] = $apm['value'];
+            }
+        }
+
+        return $available;
+    }
+
+    /**
+     * Build the payment source of an APM through an explicit mapping, never a dynamic method call
+     *
+     * @param string $method
+     * @param array $data
+     * @param string $reference
+     *
+     * @return mixed
+     * @throws FileSystemException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
+     */
+    private function createSource(string $method, array $data, string $reference)
+    {
+        switch ($method) {
+            case 'alipay':
+                return $this->alipay();
+            case 'bancontact':
+                return $this->bancontact();
+            case 'boleto':
+                return $this->boleto($data);
+            case 'eps':
+                return $this->eps();
+            case 'fawry':
+                return $this->fawry();
+            case 'ideal':
+                return $this->ideal($data);
+            case 'klarna':
+                return $this->klarna($data);
+            case 'knet':
+                return $this->knet();
+            case 'paypal':
+                return $this->paypal($data, $reference);
+            case 'poli':
+                return $this->poli();
+            case 'sepa':
+                return $this->sepa($data);
+            case 'sofort':
+                return $this->sofort($data);
+            default:
+                throw new LocalizedException(__('The payment method is not available.'));
+        }
     }
 
     /**
@@ -423,12 +536,26 @@ class AlternativePaymentMethod extends AbstractMethod
      *
      * @return RequestIdSource
      * @throws FileSystemException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
     public function sepa(array $data): RequestIdSource
     {
-        $this->activateMandate($data['url']);
-        $pos = strripos($data['url'], '/');
-        $id = substr($data['url'], $pos + 1);
+        // The posted value is client controlled: only the mandate id is kept from it, the URL called
+        // with the secret key is always rebuilt from the configuration (see activateMandate())
+        $postedUrl = is_string($data['url'] ?? null) ? $data['url'] : '';
+        $id = substr((string)strrchr('/' . $postedUrl, '/'), 1);
+
+        if (!$this->isValidMandateId($id)) {
+            $this->ckoLogger->error(
+                'SEPA mandate rejected: invalid mandate reference: '
+                . json_encode(mb_substr($postedUrl, 0, 255), JSON_UNESCAPED_SLASHES)
+            );
+
+            throw new LocalizedException(__('Invalid SEPA mandate reference.'));
+        }
+
+        $this->activateMandate($id);
 
         $source = new RequestIdSource();
         $source->id = $id;
@@ -439,13 +566,24 @@ class AlternativePaymentMethod extends AbstractMethod
     /**
      * Activate the mandate.
      *
-     * @param string $url
+     * The URL is always built from the configured Checkout.com environment so that the
+     * secret key can never be sent to a host supplied by the shopper (SSRF).
+     *
+     * @param string $mandateId
      *
      * @return array|null
      * @throws FileSystemException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function activateMandate(string $url): ?array
+    private function activateMandate(string $mandateId): ?array
     {
+        if (!$this->isValidMandateId($mandateId)) {
+            throw new LocalizedException(__('Invalid SEPA mandate reference.'));
+        }
+
+        $url = $this->buildMandateUrl($mandateId);
+
         // Get the secret key
         $secret = $this->config->getValue('secret_key');
 
@@ -470,6 +608,50 @@ class AlternativePaymentMethod extends AbstractMethod
 
         // Return the content
         return $this->json->unserialize($content);
+    }
+
+    /**
+     * Check that a SEPA mandate id has the Checkout.com source id format.
+     *
+     * @param string $mandateId
+     *
+     * @return bool
+     */
+    private function isValidMandateId(string $mandateId): bool
+    {
+        return (bool)preg_match('/^src_[a-z0-9]{1,64}\z/', $mandateId);
+    }
+
+    /**
+     * Build the SEPA mandate URL from the configured Checkout.com environment.
+     *
+     * Same base URL as the SDK client (see ApiHandlerService::init()): the merchant subdomain
+     * built from the partial client id is added when it is configured.
+     *
+     * @param string $mandateId
+     *
+     * @return string
+     * @throws NoSuchEntityException
+     */
+    private function buildMandateUrl(string $mandateId): string
+    {
+        $storeCode = $this->storeManager->getStore()->getCode();
+        $environment = $this->config->getEnvironment($storeCode, ScopeInterface::SCOPE_STORE);
+        $partialClientId = (string)$this->config->getValue(
+            'partial_client_id',
+            null,
+            $storeCode,
+            ScopeInterface::SCOPE_STORE
+        );
+
+        $baseUri = $partialClientId !== ''
+            ? $this->environmentSubdomainFactory->create([
+                'environment' => $environment,
+                'subdomain' => strtolower($partialClientId),
+            ])->getBaseUri()
+            : $environment->getBaseUri();
+
+        return rtrim($baseUri, '/') . '/sepa/mandates/' . $mandateId;
     }
 
     /**
@@ -883,34 +1065,11 @@ class AlternativePaymentMethod extends AbstractMethod
      */
     public function isAvailable(?CartInterface $quote = null): bool
     {
-        $countEnabled = 0;
-        $websiteId = $this->storeManager->getWebsite()->getId();
-
-        /** @var string|null $apmMethods */
-        $apmMethods = $this->config->getValue('apm_enabled', 'checkoutcom_apm') ?: '';
-        // Get the list of enabled apms.
-        $apmEnabled = explode(
-            ',',
-            $apmMethods ?? ''
-        );
-
-        $apms = $this->config->getApms();
-
         if (!$quote) {
             $quote = $this->quoteHandler->getQuote();
         }
 
-        $billingAddress = $quote->getBillingAddress()->getData();
-
-        if (isset($billingAddress['country_id'])) {
-            foreach ($apms as $apm) {
-                if ($this->display->isValidApm($apm, $apmEnabled, $billingAddress)) {
-                    if (!in_array($apm['value'], self::NAS_UNAVAILABLE_APM)) {
-                        $countEnabled++;
-                    }
-                }
-            }
-        }
+        $countEnabled = count($this->getAvailableApms($quote));
 
         if ($this->isModuleActive() && parent::isAvailable($quote) && null !== $quote) {
             return $this->config->getValue('active', $this->code)
