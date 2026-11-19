@@ -289,13 +289,17 @@ class PhoneElement
 
     public function get(?string $countryCode, ?string $number): ?Phone
     {
-        $model = $this->modelFactory->create();
+        if (empty($countryCode) || empty($number)) {
+            return null;
+        }
 
         $phoneCode = self::COUNTRY_LIST[$countryCode] ?? '';
 
-        if (empty($phoneCode) || empty($number)) {
+        if (empty($phoneCode)) {
             return null;
         }
+
+        $model = $this->modelFactory->create();
 
         $model->country_code = '+' . $phoneCode;
         $model->number = $number;
