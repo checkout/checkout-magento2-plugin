@@ -114,6 +114,18 @@ class PlaceOrder extends Action
     {
         /** @var array $data */
         $data = $this->getRequest()->getParams();
+
+        if (!isset(
+            $data['instant_purchase_payment_token'],
+            $data['instant_purchase_billing_address'],
+            $data['instant_purchase_shipping_address']
+        )) {
+            return $this->createResponse(
+                __('An error occurred and the order could not be created.'),
+                false
+            );
+        }
+
         $data['publicHash'] = $data['instant_purchase_payment_token'];
 
         // Get the store code
